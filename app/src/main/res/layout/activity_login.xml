@@ -1,0 +1,67 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    tools:context="com.yida.handset.LoginActivity">
+
+    <android.support.v7.widget.Toolbar
+        style="@style/ToolBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        android:id="@+id/toolbar"
+        android:background="?attr/colorPrimary"
+        android:fitsSystemWindows="true" />
+
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/login_hint_edit_text_username"
+        android:layout_marginLeft="@dimen/login_edit_text_margin"
+        android:layout_marginRight="@dimen/login_edit_text_margin"
+        android:layout_marginTop="@dimen/login_edit_text_margin_top"
+        android:id="@+id/user_name"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/toolbar"/>
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/login_hint_edit_text_password"
+        android:layout_marginLeft="@dimen/login_edit_text_margin"
+        android:layout_marginRight="@dimen/login_edit_text_margin"
+        android:layout_marginTop="@dimen/login_edit_text_margin_top2"
+        android:id="@+id/password"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/user_name"
+        android:inputType="textPassword" />
+    <com.rey.material.widget.CheckBox
+        android:id="@+id/switch_hidden"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/login_hint_check_box_hidden"
+        android:layout_marginTop="@dimen/login_edit_text_margin_top2"
+        android:checked="false"
+        android:gravity="center_vertical"
+        style="@style/Material.Drawable.CheckBox"
+        android:layout_below="@id/password"
+        android:layout_marginLeft="@dimen/login_edit_text_margin"
+        app:cbd_strokeColor="@color/primary"
+        app:cbd_animDuration="300" />
+    <com.rey.material.widget.Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Material.Drawable.Ripple.Wave"
+        android:id="@+id/login_btn"
+        android:text="@string/title_activity_login"
+        android:layout_below="@id/switch_hidden"
+        android:layout_marginTop="@dimen/login_edit_text_margin_top3"
+        android:layout_marginLeft="@dimen/login_edit_text_margin"
+        android:layout_marginRight="@dimen/login_edit_text_margin"
+        app:rd_enable="true"
+        android:textColor="@android:color/white"
+        android:background="@drawable/button_login_background"
+        app:rd_rippleAnimDuration="500"/>
+
+
+</RelativeLayout>

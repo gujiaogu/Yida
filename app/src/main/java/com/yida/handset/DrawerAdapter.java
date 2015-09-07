@@ -14,10 +14,10 @@ import java.util.List;
  */
 public class DrawerAdapter extends BaseAdapter {
 
-    private List<FragmentWrapper> mDataSet;
+    private List<ActionWrapper> mDataSet;
     private Context context;
 
-    public DrawerAdapter(Context context, List<FragmentWrapper> mDataSet) {
+    public DrawerAdapter(Context context, List<ActionWrapper> mDataSet) {
         this.mDataSet = mDataSet;
         this.context = context;
     }

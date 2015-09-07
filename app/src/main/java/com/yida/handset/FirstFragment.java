@@ -1,12 +1,31 @@
 package com.yida.handset;
 
 import android.app.Activity;
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 
 /**
@@ -17,17 +36,25 @@ import android.view.ViewGroup;
  * Use the {@link FirstFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FirstFragment extends Fragment {
+public class FirstFragment extends ActionFragment implements View.OnClickListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
+    private static final int QR_WIDTH = 600;
+    private static final int QR_HEIGHT = 600;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    @Bind(R.id.generate_code)
+    Button mGenerator;
+    @Bind(R.id.img)
+    ImageView mImg;
 
     /**
      * Use this factory method to create a new instance of
@@ -64,7 +91,10 @@ public class FirstFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_first, container, false);
+        View view = inflater.inflate(R.layout.fragment_first, container, false);
+        ButterKnife.bind(this, view);
+        mGenerator.setOnClickListener(this);
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -91,6 +121,17 @@ public class FirstFragment extends Fragment {
 //        mListener = null;
     }
 
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.generate_code:
+                generateQRCode();
+                break;
+            default:
+                break;
+        }
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -106,4 +147,32 @@ public class FirstFragment extends Fragment {
         public void onFragmentInteraction(Uri uri);
     }
 
+    public void generateQRCode() {
+        String name = "顾蛟";
+        QRCodeWriter writer = new QRCodeWriter();
+        Map hints = new HashMap();
+        hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+        try {
+            BitMatrix bitMatrix = writer.encode(name, BarcodeFormat.QR_CODE, QR_WIDTH, QR_HEIGHT, hints);
+            int[] pixels = new int[QR_WIDTH * QR_HEIGHT];
+            for (int y = 0; y < QR_HEIGHT; y++) {
+                for (int x = 0; x < QR_WIDTH; x++) {
+                    if (bitMatrix.get(x, y)) {
+                        pixels[y * QR_WIDTH + x] = 0xff000000;
+                    } else {
+                        pixels[y * QR_WIDTH + x] = 0xffffffff;
+                    }
+
+                }
+            }
+
+            Bitmap bitmap = Bitmap.createBitmap(QR_WIDTH, QR_HEIGHT,
+                    Bitmap.Config.ARGB_8888);
+
+            bitmap.setPixels(pixels, 0, QR_WIDTH, 0, 0, QR_WIDTH, QR_HEIGHT);
+            mImg.setImageBitmap(bitmap);
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
+    }
 }

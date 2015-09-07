@@ -1,9 +1,16 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" tools:context="com.yida.handset.FirstFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView android:layout_width="match_parent" android:layout_height="match_parent"
-        android:text="@string/hello_first_fragment" />
+    <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="@string/generate_qr_code"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/generate_code"/>
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:id="@+id/img"/>
 
-</FrameLayout>
+</RelativeLayout>

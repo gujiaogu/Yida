@@ -4,6 +4,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import com.yida.handset.workorder.FragmentWrapper;
+
 import java.util.List;
 
 /**
@@ -27,5 +29,11 @@ public class WorkOrderPageAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         return (listFragments != null && listFragments.size() > 0)
                 ? listFragments.get(position).getFragment() : null;
+    }
+
+    @Override
+    public CharSequence getPageTitle(int position) {
+        return (listFragments != null && listFragments.size() > 0)
+                ? listFragments.get(position).getName() : "";
     }
 }

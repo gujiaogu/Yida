@@ -2,5 +2,8 @@
 <resources>
     <color name="primary">#2196F3</color>
     <color name="primaryDark">#1565C0</color>
+    <color name="colorAccent">#9C27B0</color>
+    <color name="colorControlNormal">#FF78909C</color>
     <color name="accent">#4527A0</color>
+    <color name="alpha_scanner_title">#33FFFFFF</color>
 </resources>
