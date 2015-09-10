@@ -9,13 +9,13 @@ import com.yida.handset.workorder.FragmentWrapper;
 import java.util.List;
 
 /**
- * Created by gujiao on 15-8-19.
+ * Created by gujiao on 15-9-10.
  */
-public class WorkOrderPageAdapter extends FragmentPagerAdapter {
+public class MainPageAdapter extends FragmentPagerAdapter {
 
     private List<FragmentWrapper> listFragments;
 
-    public WorkOrderPageAdapter(FragmentManager fm, List<FragmentWrapper> listFragments) {
+    public MainPageAdapter(FragmentManager fm, List<FragmentWrapper> listFragments) {
         super(fm);
         this.listFragments = listFragments;
     }

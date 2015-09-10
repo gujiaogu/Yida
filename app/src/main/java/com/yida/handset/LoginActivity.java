@@ -1,11 +1,12 @@
 package com.yida.handset;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.widget.CompoundButton;
 
@@ -65,6 +66,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
         switch (compoundButton.getId()) {
             case R.id.switch_hidden:
+                hiddenPasswordOrNot(compoundButton.isChecked());
                 break;
             default:
                 break;
@@ -72,8 +74,21 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void login() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        }, 850);
+    }
+
+    private void hiddenPasswordOrNot(boolean isChecked) {
+        if (isChecked) {
+            mEditTextPwd.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+        } else {
+            mEditTextPwd.setTransformationMethod(PasswordTransformationMethod.getInstance());
+        }
     }
 }

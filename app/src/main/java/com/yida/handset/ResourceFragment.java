@@ -1,25 +1,23 @@
 package com.yida.handset;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
-import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import com.rey.material.widget.Button;
+import com.rey.material.widget.Spinner;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,12 +29,12 @@ import butterknife.ButterKnife;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link FirstFragment.OnFragmentInteractionListener} interface
+ * {@link ResourceFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link FirstFragment#newInstance} factory method to
+ * Use the {@link ResourceFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FirstFragment extends ActionFragment implements View.OnClickListener{
+public class ResourceFragment extends ActionFragment implements View.OnClickListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -50,23 +48,27 @@ public class FirstFragment extends ActionFragment implements View.OnClickListene
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private ArrayAdapter<String> adapter;
 
     @Bind(R.id.generate_code)
     Button mGenerator;
+    @Bind(R.id.check_detail)
+    Button mCheckDetail;
+    @Bind(R.id.btn_warning)
+    Button mBtnWarning;
     @Bind(R.id.img)
     ImageView mImg;
+    @Bind(R.id.spinner_station)
+    Spinner mSpinnerStation;
+    @Bind(R.id.spinner_rack)
+    Spinner mSpinnerRack;
+    @Bind(R.id.spinner_frame)
+    Spinner mSpinnerFrame;
+    @Bind(R.id.spinner_disk)
+    Spinner mSpinnerDisk;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment FirstFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static FirstFragment newInstance(String param1, String param2) {
-        FirstFragment fragment = new FirstFragment();
+    public static ResourceFragment newInstance(String param1, String param2) {
+        ResourceFragment fragment = new ResourceFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -74,7 +76,7 @@ public class FirstFragment extends ActionFragment implements View.OnClickListene
         return fragment;
     }
 
-    public FirstFragment() {
+    public ResourceFragment() {
         // Required empty public constructor
     }
 
@@ -85,6 +87,9 @@ public class FirstFragment extends ActionFragment implements View.OnClickListene
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        adapter = new ArrayAdapter<>(getActivity(),
+                android.R.layout.simple_spinner_dropdown_item, getResources().getStringArray(R.array.stations));
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     }
 
     @Override
@@ -94,6 +99,12 @@ public class FirstFragment extends ActionFragment implements View.OnClickListene
         View view = inflater.inflate(R.layout.fragment_first, container, false);
         ButterKnife.bind(this, view);
         mGenerator.setOnClickListener(this);
+        mBtnWarning.setOnClickListener(this);
+        mCheckDetail.setOnClickListener(this);
+        mSpinnerStation.setAdapter(adapter);
+        mSpinnerRack.setAdapter(adapter);
+        mSpinnerFrame.setAdapter(adapter);
+        mSpinnerDisk.setAdapter(adapter);
         return view;
     }
 
@@ -126,6 +137,10 @@ public class FirstFragment extends ActionFragment implements View.OnClickListene
         switch (view.getId()) {
             case R.id.generate_code:
                 generateQRCode();
+                break;
+            case R.id.btn_warning:
+                break;
+            case R.id.check_detail:
                 break;
             default:
                 break;

@@ -2,8 +2,10 @@
 <resources>
     <color name="primary">#2196F3</color>
     <color name="primaryDark">#1565C0</color>
+    <color name="primaryClicked">#1976d2</color>
     <color name="colorAccent">#9C27B0</color>
     <color name="colorControlNormal">#FF78909C</color>
     <color name="accent">#4527A0</color>
     <color name="alpha_scanner_title">#33FFFFFF</color>
+    <color name="colorWarningBtn">#e91e63</color>
 </resources>

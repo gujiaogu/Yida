@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="stations">
+        <item>站一</item>
+        <item>站二</item>
+        <item>站三</item>
+        <item>站四</item>
+        <item>站五</item>
+    </string-array>
+</resources>

@@ -1,12 +1,12 @@
 package com.yida.handset;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatCallback;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,16 +14,23 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.yida.handset.workorder.ThirdFragment;
+import com.rey.material.widget.Button;
+import com.yida.handset.workorder.FragmentWrapper;
+import com.yida.handset.workorder.WorkOrderFragment;
 
 import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private ArrayList<ActionWrapper> pages = new ArrayList<>();
+    private ArrayList<ActionWrapper> mSlideActions = new ArrayList<>();
+    private static final ArrayList<FragmentWrapper> mPages = new ArrayList<>();
+    static {
+        mPages.add(new FragmentWrapper(0, "First", new ResourceFragment()));
+        mPages.add(new FragmentWrapper(1, "Second", new WorkOrderFragment()));
+    }
 
     @Bind(R.id.toolbar)
     Toolbar mToolBar;
@@ -31,6 +38,12 @@ public class MainActivity extends AppCompatActivity {
     DrawerLayout mDrawerLayout;
     @Bind(R.id.drawer_list)
     ListView mDrawerList;
+    @Bind(R.id.viewPager)
+    ViewPager mViewPager;
+    @Bind(R.id.btn_work_order)
+    Button mBtnWorkOrder;
+    @Bind(R.id.btn_resource)
+    Button mBtnResource;
 
     private ActionBarDrawerToggle mDrawerToggle;
 
@@ -41,23 +54,22 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        pages.add(new ActionWrapper(0, "First", new FirstFragment()));
-        pages.add(new ActionWrapper(1, "Second", new SecondFragment()));
-        pages.add(new ActionWrapper(2, "Third", new ThirdFragment()));
-
-        pages.get(0).getAction().act(this);
+        mSlideActions.add(new ActionWrapper(0, "First", new ResourceFragment()));
+        mSlideActions.add(new ActionWrapper(1, "Second", new SecondFragment()));
+        mSlideActions.add(new ActionWrapper(2, "Third", new WorkOrderFragment()));
 
         setSupportActionBar(mToolBar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mViewPager.setAdapter(new MainPageAdapter(getSupportFragmentManager(), mPages));
 
-        mDrawerList.setAdapter(new DrawerAdapter(this, pages));
+        mDrawerList.setAdapter(new DrawerAdapter(this, mSlideActions));
         mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 if (mDrawerLayout.isDrawerOpen(mDrawerList)) {
                     mDrawerLayout.closeDrawers();
                 }
-                pages.get(i).getAction().act(MainActivity.this);
+
             }
         });
 
@@ -76,6 +88,9 @@ public class MainActivity extends AppCompatActivity {
         mDrawerToggle.setDrawerIndicatorEnabled(true);
         mDrawerToggle.syncState();
         mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+        mBtnWorkOrder.setOnClickListener(this);
+        mBtnResource.setOnClickListener(this);
 
     }
 
@@ -103,6 +118,24 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         return true;
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch(view.getId()) {
+            case R.id.btn_work_order:
+                mViewPager.setCurrentItem(1);
+                mBtnWorkOrder.setBackgroundResource(R.color.primaryClicked);
+                mBtnResource.setBackgroundResource(R.color.primary);
+                break;
+            case R.id.btn_resource:
+                mViewPager.setCurrentItem(0);
+                mBtnWorkOrder.setBackgroundResource(R.color.primary);
+                mBtnResource.setBackgroundResource(R.color.primaryClicked);
+                break;
+            default:
+                break;
+        }
     }
 
     @Override

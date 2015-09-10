@@ -10,8 +10,8 @@ public class ActionFragment extends Fragment implements DrawerAction {
 
     @Override
     public void act(FragmentActivity context) {
-        context.getSupportFragmentManager().beginTransaction()
-                .replace(R.id.contentPanelLayout, this)
-                .commit();
+//        context.getSupportFragmentManager().beginTransaction()
+//                .replace(R.id.contentPanelLayout, this)
+//                .commit();
     }
 }

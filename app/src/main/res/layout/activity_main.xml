@@ -1,6 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".MainActivity" >
 
     <android.support.v7.widget.Toolbar
@@ -18,12 +19,44 @@
         android:layout_height="match_parent"
         android:id="@+id/drawer_layout">
 
-        <FrameLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/contentPanelLayout" >
-
-        </FrameLayout>
+            android:orientation="vertical" >
+            <android.support.v4.view.ViewPager
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/viewPager"
+                android:layout_weight="1"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+                <com.rey.material.widget.Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Material.Drawable.Ripple.Wave"
+                    android:id="@+id/btn_resource"
+                    android:text="@string/resource_management_label"
+                    app:rd_enable="true"
+                    android:textColor="@android:color/white"
+                    android:background="@color/primaryClicked"
+                    app:rd_rippleAnimDuration="500"
+                    android:layout_weight="1"/>
+                <com.rey.material.widget.Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Material.Drawable.Ripple.Wave"
+                    android:id="@+id/btn_work_order"
+                    android:text="@string/order_count_label"
+                    app:rd_enable="true"
+                    android:textColor="@android:color/white"
+                    android:background="@color/primary"
+                    app:rd_rippleAnimDuration="500"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+        </LinearLayout>
 
         <ListView
             android:id="@+id/drawer_list"

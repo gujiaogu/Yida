@@ -1,16 +1,96 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" tools:context="com.yida.handset.FirstFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent" tools:context="com.yida.handset.ResourceFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="@string/generate_qr_code"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/generate_code"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/selections"
+        android:paddingLeft="@dimen/resource_spinner_padding"
+        android:paddingRight="@dimen/resource_spinner_padding">
+        <com.rey.material.widget.Spinner
+            style="@style/StyleSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/resource_spinner_height"
+            android:gravity="center_vertical"
+            android:id="@+id/spinner_station" />
+        <com.rey.material.widget.Spinner
+            style="@style/StyleSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/resource_spinner_height"
+            android:gravity="center_vertical"
+            android:id="@+id/spinner_rack" />
+        <com.rey.material.widget.Spinner
+            style="@style/StyleSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/resource_spinner_height"
+            android:gravity="center_vertical"
+            android:id="@+id/spinner_frame" />
+        <com.rey.material.widget.Spinner
+            style="@style/StyleSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/resource_spinner_height"
+            android:gravity="center_vertical"
+            android:id="@+id/spinner_disk" />
+    </LinearLayout>
+
+    <com.rey.material.widget.Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Material.Drawable.Ripple.Wave"
+        android:id="@+id/btn_warning"
+        android:text="@string/resource_warning_btn_text"
+        android:layout_below="@id/selections"
+        android:layout_marginTop="@dimen/resource_warning_btn_margin_top"
+        android:layout_marginLeft="@dimen/login_edit_text_margin"
+        android:layout_marginRight="@dimen/login_edit_text_margin"
+        app:rd_enable="true"
+        android:textColor="@android:color/white"
+        android:background="@drawable/button_warning_background"
+        app:rd_rippleAnimDuration="500"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@id/btn_warning"
+        android:layout_marginTop="@dimen/resource_warning_btn_margin_top"
+        android:layout_marginLeft="@dimen/login_edit_text_margin"
+        android:layout_marginRight="@dimen/login_edit_text_margin"
+        android:id="@+id/place_button_generate">
+        <com.rey.material.widget.Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Material.Drawable.Ripple.Wave"
+            android:text="@string/check_detail_text"
+            android:id="@+id/check_detail"
+            app:rd_enable="true"
+            android:textColor="@android:color/white"
+            android:background="@drawable/button_login_background"
+            app:rd_rippleAnimDuration="500"
+            android:layout_weight="1"/>
+        <com.rey.material.widget.Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Material.Drawable.Ripple.Wave"
+            android:text="@string/generate_qr_code"
+            android:id="@+id/generate_code"
+            app:rd_enable="true"
+            android:textColor="@android:color/white"
+            android:background="@drawable/button_login_background"
+            app:rd_rippleAnimDuration="500"
+            android:layout_weight="1"
+            android:layout_marginLeft="8dp"/>
+    </LinearLayout>
+
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:id="@+id/img"/>
+        android:id="@+id/img"
+        android:layout_below="@id/place_button_generate"
+        android:layout_marginTop="@dimen/resource_image_margin_top"/>
 
 </RelativeLayout>
