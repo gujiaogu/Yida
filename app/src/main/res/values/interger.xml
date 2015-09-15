@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="post_delay">200</integer>
+    <integer name="post_delay_login">820</integer>
+    <integer name="ripple_duration">500</integer>
+</resources>

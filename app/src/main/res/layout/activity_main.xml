@@ -41,8 +41,8 @@
                     android:text="@string/resource_management_label"
                     app:rd_enable="true"
                     android:textColor="@android:color/white"
-                    android:background="@color/primaryClicked"
-                    app:rd_rippleAnimDuration="500"
+                    android:background="@drawable/color_main_text_state"
+                    app:rd_rippleAnimDuration="@integer/ripple_duration"
                     android:layout_weight="1"/>
                 <com.rey.material.widget.Button
                     android:layout_width="wrap_content"
@@ -52,8 +52,8 @@
                     android:text="@string/order_count_label"
                     app:rd_enable="true"
                     android:textColor="@android:color/white"
-                    android:background="@color/primary"
-                    app:rd_rippleAnimDuration="500"
+                    android:background="@drawable/color_main_text_state"
+                    app:rd_rippleAnimDuration="@integer/ripple_duration"
                     android:layout_weight="1"/>
             </LinearLayout>
         </LinearLayout>

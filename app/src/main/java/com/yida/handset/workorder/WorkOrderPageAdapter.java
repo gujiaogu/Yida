@@ -33,6 +33,7 @@ public class WorkOrderPageAdapter extends FragmentPagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
+
         return (listFragments != null && listFragments.size() > 0)
                 ? listFragments.get(position).getName() : "";
     }

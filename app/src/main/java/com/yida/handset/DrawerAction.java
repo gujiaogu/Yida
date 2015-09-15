@@ -1,10 +1,10 @@
 package com.yida.handset;
 
-import android.support.v4.app.FragmentActivity;
+import android.content.Context;
 
 /**
  * Created by gujiao on 15-8-21.
  */
 public interface DrawerAction {
-    void act(FragmentActivity context);
+    void act(Context context);
 }

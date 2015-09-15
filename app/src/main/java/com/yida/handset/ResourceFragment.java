@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.AppCompatSpinner;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +35,7 @@ import butterknife.ButterKnife;
  * Use the {@link ResourceFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ResourceFragment extends ActionFragment implements View.OnClickListener{
+public class ResourceFragment extends Fragment implements View.OnClickListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -65,7 +66,7 @@ public class ResourceFragment extends ActionFragment implements View.OnClickList
     @Bind(R.id.spinner_frame)
     Spinner mSpinnerFrame;
     @Bind(R.id.spinner_disk)
-    Spinner mSpinnerDisk;
+    AppCompatSpinner mSpinnerDisk;
 
     public static ResourceFragment newInstance(String param1, String param2) {
         ResourceFragment fragment = new ResourceFragment();

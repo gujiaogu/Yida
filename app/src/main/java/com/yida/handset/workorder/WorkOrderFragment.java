@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.astuetz.PagerSlidingTabStrip;
-import com.yida.handset.ActionFragment;
 import com.yida.handset.R;
 
 import java.util.ArrayList;
@@ -24,16 +23,16 @@ import java.util.ArrayList;
  * Use the {@link WorkOrderFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class WorkOrderFragment extends ActionFragment {
+public class WorkOrderFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private static ArrayList<FragmentWrapper> pages = new ArrayList<>();
     static {
-        pages.add(new FragmentWrapper(0, "First", new PlannedFragment()));
-        pages.add(new FragmentWrapper(1, "Second", new OngoingFragment()));
-        pages.add(new FragmentWrapper(2,"Third", new CompletedFragment()));
+        pages.add(new FragmentWrapper(0, "计划中", new PlannedFragment()));
+        pages.add(new FragmentWrapper(1, "进行中", new OngoingFragment()));
+        pages.add(new FragmentWrapper(2,"已完成", new CompletedFragment()));
     }
 
     private ViewPager mViewPager;
@@ -73,7 +72,6 @@ public class WorkOrderFragment extends ActionFragment {
         View rootView = inflater.inflate(R.layout.fragment_third, container, false);
         mViewPager = (ViewPager) rootView.findViewById(R.id.viewpager);
         mViewPager.setAdapter(new WorkOrderPageAdapter(getChildFragmentManager(), pages));
-
 
         mTabStrips = (PagerSlidingTabStrip) rootView.findViewById(R.id.tabs);
         mTabStrips.setShouldExpand(true);

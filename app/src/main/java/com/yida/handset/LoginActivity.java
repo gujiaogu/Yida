@@ -9,6 +9,7 @@ import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.rey.material.widget.Button;
@@ -30,6 +31,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     MaterialEditText mEditTextPwd;
     @Bind(R.id.user_name)
     MaterialEditText mEditTextUsername;
+    @Bind(R.id.modify_text)
+    TextView mModifyPwd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +52,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         mBtnLogin.setOnClickListener(this);
         mSwitch.setOnCheckedChangeListener(this);
+        mModifyPwd.setOnClickListener(this);
     }
 
     @Override
@@ -56,6 +60,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         switch (view.getId()) {
             case R.id.login_btn:
                 login();
+                break;
+            case R.id.modify_text:
+                modifyPwd();
                 break;
             default:
                 break;
@@ -79,9 +86,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             public void run() {
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
-                finish();
+//                finish();
             }
-        }, 850);
+        }, getResources().getInteger(R.integer.post_delay_login));
+    }
+
+    private void modifyPwd() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(LoginActivity.this, UpdatePwdActivity.class);
+                startActivity(intent);
+            }
+        }, getResources().getInteger(R.integer.post_delay));
     }
 
     private void hiddenPasswordOrNot(boolean isChecked) {

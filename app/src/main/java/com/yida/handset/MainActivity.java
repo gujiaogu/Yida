@@ -1,7 +1,6 @@
 package com.yida.handset;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -15,6 +14,9 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.rey.material.widget.Button;
+import com.yida.handset.slide.AboutAction;
+import com.yida.handset.slide.UpdateAction;
+import com.yida.handset.slide.UpdatePwdAction;
 import com.yida.handset.workorder.FragmentWrapper;
 import com.yida.handset.workorder.WorkOrderFragment;
 
@@ -25,7 +27,12 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private ArrayList<ActionWrapper> mSlideActions = new ArrayList<>();
+    private static final ArrayList<ActionWrapper> mSlideActions = new ArrayList<>();
+    static {
+        mSlideActions.add(new ActionWrapper(0, "软件升级", new UpdateAction()));
+        mSlideActions.add(new ActionWrapper(1, "修改密码", new UpdatePwdAction()));
+        mSlideActions.add(new ActionWrapper(2, "关于", new AboutAction()));
+    }
     private static final ArrayList<FragmentWrapper> mPages = new ArrayList<>();
     static {
         mPages.add(new FragmentWrapper(0, "First", new ResourceFragment()));
@@ -54,10 +61,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        mSlideActions.add(new ActionWrapper(0, "First", new ResourceFragment()));
-        mSlideActions.add(new ActionWrapper(1, "Second", new SecondFragment()));
-        mSlideActions.add(new ActionWrapper(2, "Third", new WorkOrderFragment()));
-
         setSupportActionBar(mToolBar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mViewPager.setAdapter(new MainPageAdapter(getSupportFragmentManager(), mPages));
@@ -69,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (mDrawerLayout.isDrawerOpen(mDrawerList)) {
                     mDrawerLayout.closeDrawers();
                 }
-
+                mSlideActions.get(i).getAction().act(MainActivity.this);
             }
         });
 
@@ -91,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mBtnWorkOrder.setOnClickListener(this);
         mBtnResource.setOnClickListener(this);
+        mBtnResource.setSelected(true);
 
     }
 
@@ -125,13 +129,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch(view.getId()) {
             case R.id.btn_work_order:
                 mViewPager.setCurrentItem(1);
-                mBtnWorkOrder.setBackgroundResource(R.color.primaryClicked);
-                mBtnResource.setBackgroundResource(R.color.primary);
+                mBtnWorkOrder.setSelected(true);
+                mBtnResource.setSelected(false);
                 break;
             case R.id.btn_resource:
                 mViewPager.setCurrentItem(0);
-                mBtnWorkOrder.setBackgroundResource(R.color.primary);
-                mBtnResource.setBackgroundResource(R.color.primaryClicked);
+                mBtnResource.setSelected(true);
+                mBtnWorkOrder.setSelected(false);
                 break;
             default:
                 break;

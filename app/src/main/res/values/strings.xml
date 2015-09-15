@@ -27,5 +27,13 @@
     <string name="resource_management_label">资源管理</string>
     <string name="order_count_label">工单</string>
     <string name="resource_warning_btn_text">警告信息</string>
+    <string name="title_activity_modify_pwd">修改密码</string>
+    <string name="login_text_for_modify_pwd">修改密码</string>
+    <string name="modify_pwd_hint_edit_text_old_pwd">请输入旧密码</string>
+    <string name="modify_pwd_hint_edit_text_new_pwd">请输入新密码</string>
+    <string name="modify_pwd_hint_edit_text_new_pwd_again">请确认新密码</string>
+    <string name="modify_pwd_confirm">确认修改密码</string>
+    <string name="title_activity_update">UpdateActivity</string>
+    <string name="title_activity_about">AboutActivity</string>
 
 </resources>
