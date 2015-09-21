@@ -1,6 +1,8 @@
 package com.yida.handset;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -43,6 +46,7 @@ public class ResourceFragment extends Fragment implements View.OnClickListener{
 
     private static final int QR_WIDTH = 600;
     private static final int QR_HEIGHT = 600;
+    private static final int REQUEST_ENABLE_BLUETOOTH = 1;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -50,6 +54,7 @@ public class ResourceFragment extends Fragment implements View.OnClickListener{
 
     private OnFragmentInteractionListener mListener;
     private ArrayAdapter<String> adapter;
+    private BluetoothAdapter mBluetoothAdapter;
 
     @Bind(R.id.generate_code)
     Button mGenerator;
@@ -138,6 +143,9 @@ public class ResourceFragment extends Fragment implements View.OnClickListener{
         switch (view.getId()) {
             case R.id.generate_code:
                 generateQRCode();
+                if (checkBluetooth()) {
+                    startBluetoothActivity();
+                }
                 break;
             case R.id.btn_warning:
                 break;
@@ -190,5 +198,37 @@ public class ResourceFragment extends Fragment implements View.OnClickListener{
         } catch (WriterException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean checkBluetooth() {
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (mBluetoothAdapter == null) {
+            Toast.makeText(getActivity(), R.string.text_cannot_support_bluetooth, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent mIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(mIntent, REQUEST_ENABLE_BLUETOOTH);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_ENABLE_BLUETOOTH:
+                if (resultCode == Activity.RESULT_OK) {
+                    startBluetoothActivity();
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void startBluetoothActivity() {
+        Intent intent = new Intent(getActivity(), BluetoothActivity.class);
+        startActivity(intent);
     }
 }

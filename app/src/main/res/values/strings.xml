@@ -35,5 +35,15 @@
     <string name="modify_pwd_confirm">确认修改密码</string>
     <string name="title_activity_update">UpdateActivity</string>
     <string name="title_activity_about">AboutActivity</string>
+    <string name="title_activity_bluetooth">BluetoothActivity</string>
+    <string name="text_cannot_support_bluetooth">您的设备不支持蓝牙</string>
+    <string name="text_paired_device">已配对的设备</string>
+    <string name="text_other_device">其他设备</string>
+    <string name="text_connect_failed">连接失败</string>
+    <string name="text_connect_success">连接成功</string>
+    <string name="text_search_device">搜索设备</string>
+    <string name="text_print">打印</string>
+    <string name="text_connect">连接</string>
+    <string name="text_connect_please">请先连接</string>
 
 </resources>

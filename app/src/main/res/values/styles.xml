@@ -24,10 +24,10 @@
     </style>
 
     <style name="StyleMainActivity" parent="@android:style/Animation.Activity">
-        <item name="android:activityOpenEnterAnimation">@android:anim/fade_in</item>
-        <item name="android:activityOpenExitAnimation">@android:anim/fade_out</item>
-        <item name="android:activityCloseEnterAnimation">@android:anim/fade_in</item>
-        <item name="android:activityCloseExitAnimation">@android:anim/fade_out</item>
+        <!--<item name="android:activityOpenEnterAnimation">@android:anim/fade_in</item>-->
+        <!--<item name="android:activityOpenExitAnimation">@android:anim/fade_out</item>-->
+        <!--<item name="android:activityCloseEnterAnimation">@android:anim/fade_in</item>-->
+        <!--<item name="android:activityCloseExitAnimation">@android:anim/fade_out</item>-->
     </style>
 
     <style name="StyleSpinner" parent="Material.Widget.Spinner.Light">
