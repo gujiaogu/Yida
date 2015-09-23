@@ -44,6 +44,6 @@
     <string name="text_search_device">搜索设备</string>
     <string name="text_print">打印</string>
     <string name="text_connect">连接</string>
-    <string name="text_connect_please">请先连接</string>
+    <string name="text_connect_please">正在打印中，请稍等</string>
 
 </resources>

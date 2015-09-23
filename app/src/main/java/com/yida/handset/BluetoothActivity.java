@@ -4,9 +4,9 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -29,6 +29,7 @@ import android.widget.Toast;
 import com.example.bluetoothprinter.BarcodeCreater;
 import com.example.bluetoothprinter.BlueToothService;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -47,10 +48,17 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
     public static final int MESSAGE_DEVICE_NAME = 4;
     public static final int MESSAGE_TOAST = 5;
 
+    private static Bitmap btMapa = null;
+    private static Bitmap barcode2D = null;
+
     private BlueToothService mService;
     private DeviceOtherAdapter mOtherAdapter;
     private DevicePairedAdapter mPairedAdapter;
-    private List<BluetoothDevice> bondedDevice = new ArrayList<>();
+    private ArrayList<BluetoothDevice> bondedDevice = new ArrayList<>();
+    private boolean isPrintOp = false; //判断是打印连接操作，还是配对连接操作
+    private boolean isConnectDone = true; // 判断连接是否完成，可能是连接失败，连接成功或者失去连接
+    private volatile boolean isPrinting = false;
+    private String mPrintInfo;
     private BluetoothAdapter mBtAdapter;
     private Bitmap newMap, btMap;
     private HashMap<String, Bitmap> bMapList;
@@ -79,12 +87,27 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
                             break;
                         case BlueToothService.SUCCESS_CONNECT:
                             Toast.makeText(BluetoothActivity.this, R.string.text_connect_success, Toast.LENGTH_SHORT).show();
-                            refreshPaired();
+                            if(!isPrintOp) {
+                                refreshPaired();
+                            } else if(isPrintOp) {
+                                LogWrapper.d("test success connect");
+//                                if (null != mPrintInfo && !"".equals(mPrintInfo)) {
+                                isPrinting = true;
+                                    new Thread(new PrintThread("03 previously on desperate housewives")).start();
+//                                }
+                            }
+                            isConnectDone = true;
                             break;
                         case BlueToothService.FAILED_CONNECT:
                             Toast.makeText(BluetoothActivity.this, R.string.text_connect_failed, Toast.LENGTH_SHORT).show();
+                            isPrinting = false;
+                            LogWrapper.d("test failed connect");
+                            isConnectDone = true;
                             break;
                         case BlueToothService.LOSE_CONNECT:
+                            isPrinting = false;
+                            LogWrapper.d("test lost connect");
+                            isConnectDone = true;
                             break;
                     }
                     break;
@@ -114,6 +137,7 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
             }
         });
         mBtAdapter = BluetoothAdapter.getDefaultAdapter();
+        mBtAdapter.getState();
         mSearch.setOnClickListener(this);
 
         mService = new BlueToothService(this, blueToothHandler);
@@ -130,15 +154,15 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
 
         mOtherAdapter = new DeviceOtherAdapter(this);
         mListOthers.setAdapter(mOtherAdapter);
+        bondedDevice.clear();
         refreshPaired();
-        mListPaired.setOnItemClickListener(this);
         mListOthers.setOnItemClickListener(this);
 
-        newMap= BarcodeCreater.encode2dAsBitmap("03 previously on desperate housewives", 120, 120,
-                2);
-        btMap = Bitmap.createBitmap(384, 150, Bitmap.Config.ALPHA_8);
-        bMapList = new HashMap<String,Bitmap>();
-        bMapList.put("TheTag", newMap);
+//        newMap = BarcodeCreater.encode2dAsBitmap("03 previously on desperate housewives", 120, 120,
+//                2);
+//        btMap = Bitmap.createBitmap(384, 150, Bitmap.Config.ALPHA_8);
+//        bMapList = new HashMap<String,Bitmap>();
+//        bMapList.put("TheTag", newMap);
     }
 
     @Override
@@ -189,15 +213,16 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        if (mService.GetScanState() == BlueToothService.STATE_SCANING) {
-            mService.StopScan();
+        isPrintOp = false;
+        if (isConnectDone && !isPrinting) {
+            isConnectDone = false;
+            if (mService.GetScanState() == BlueToothService.STATE_SCANING) {
+                mService.StopScan();
+            }
+            if (adapterView == mListOthers) {
+                mService.connect((BluetoothDevice) mOtherAdapter.getItem(i));
+            }
         }
-        if (adapterView == mListOthers) {
-            mService.connect((BluetoothDevice) mOtherAdapter.getItem(i));
-        }
-//        if (adapterView == mListPaired) {
-//            mService.connect((BluetoothDevice) mPairedAdapter.getItem(i));
-//        }
     }
 
     @Override
@@ -225,34 +250,32 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
     private class DevicePairedAdapter extends BaseAdapter {
 
         private LayoutInflater mmInflater;
-        private List<BluetoothDevice> mmDevices;
         private Context mmContext;
 
-        public DevicePairedAdapter(Context context, List<BluetoothDevice> devices) {
+        public DevicePairedAdapter(Context context) {
             this.mmContext = context;
-            this.mmDevices = devices;
             this.mmInflater = LayoutInflater.from(this.mmContext);
         }
 
         public void addDevice(BluetoothDevice device) {
-            if (mmDevices != null) {
-                mmDevices.add(device);
+            if (bondedDevice != null) {
+                bondedDevice.add(device);
                 notifyDataSetChanged();
             }
         }
 
         @Override
         public int getCount() {
-            if (mmDevices != null) {
-                return mmDevices.size();
+            if (bondedDevice != null) {
+                return bondedDevice.size();
             }
             return 0;
         }
 
         @Override
         public Object getItem(int i) {
-            if (mmDevices != null) {
-                return mmDevices.get(i);
+            if (bondedDevice != null) {
+                return bondedDevice.get(i);
             }
             return null;
         }
@@ -270,31 +293,39 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
                 view = mmInflater.inflate(R.layout.item_paired_list, null);
                 viewHolder.textView = (TextView) view.findViewById(R.id.item_paired_name);
                 viewHolder.button = (Button) view.findViewById(R.id.print_button);
-                viewHolder.buttonConnect = (Button) view.findViewById(R.id.connect_button);
                 view.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) view.getTag();
             }
-            final BluetoothDevice itemDevice = mmDevices.get(i);
+            final BluetoothDevice itemDevice = bondedDevice.get(i);
             viewHolder.textView.setText(itemDevice.getName() + "\n" + itemDevice.getAddress());
             viewHolder.button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (mService.getState() == BlueToothService.STATE_CONNECTED) {
-                        mService.PrintImage(
-                                addWatermark(btMap, bMapList, newMap.getWidth(), newMap.getHeight()));
-                    } else {
+                    if (isFastDoubleClick()) {
+                        return;
+                    }
+                    LogWrapper.d("test onclick connect before " + isPrinting);
+                    if (isPrinting) {
                         Toast.makeText(BluetoothActivity.this, R.string.text_connect_please, Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                }
-            });
-            viewHolder.buttonConnect.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (mService.getState() == BlueToothService.STATE_CONNECTED) {
-                        mService.DisConnected();
+                    if (isConnectDone) {
+                        isPrintOp = true;
+                        isConnectDone = false;
+                        isPrinting = true;
+                        LogWrapper.d("test onclick connect after " + isPrinting);
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+//                                if (mService.getState() == BlueToothService.STATE_CONNECTED) {
+//                                    mService.DisConnected();
+//                                }
+                                mService.connect(itemDevice);
+                            }
+                        }).start();
+
                     }
-                    mService.connect(itemDevice);
                 }
             });
             return view;
@@ -303,7 +334,6 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
         class ViewHolder {
             TextView textView;
             Button button;
-            Button buttonConnect;
         }
     }
 
@@ -373,15 +403,55 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-    private void refreshPaired() {
+    private synchronized void refreshPaired() {
         Set<BluetoothDevice> deviceSet = mService.GetBondedDevice();
-        if (deviceSet != null) {
+
+        if (deviceSet != null && deviceSet.size() > 0) {
+            //if there is no element, we add all devices to paired adapter
+            if (bondedDevice.size() <= 0) {
+                for(BluetoothDevice device : deviceSet) {
+                    bondedDevice.add(device);
+                }
+                mPairedAdapter = new DevicePairedAdapter(this);
+                mListPaired.setAdapter(mPairedAdapter);
+                return;
+            }
+
+            ArrayList<BluetoothDevice> tmp = bondedDevice;
             for(BluetoothDevice device : deviceSet) {
-                bondedDevice.add(device);
+                for(int i = 0; i < tmp.size(); i ++) {
+                    if (device.getAddress().equals(tmp.get(i).getAddress())) {
+                        break;
+                    }
+                    if (i == tmp.size() - 1) {
+                        mPairedAdapter.addDevice(device);
+                    }
+                }
             }
         }
-        mPairedAdapter = new DevicePairedAdapter(this, bondedDevice);
-        mListPaired.setAdapter(mPairedAdapter);
+    }
+
+    private class PrintThread implements Runnable {
+
+        private String str;
+
+        private PrintThread(String info) {
+            this.str = info;
+        }
+
+        @Override
+        public void run() {
+
+            if (mService.getState() == BlueToothService.STATE_CONNECTED) {
+                generate2DCodes(this.str);
+                Bitmap bitmapOrg = btMapa; //BitmapFactory.decodeFile(picPath);
+                int w = bitmapOrg.getWidth();
+                int h = bitmapOrg.getHeight();
+                mService.PrintImage(resizeImage(addWatermark(bitmapOrg, barcode2D), w, h));
+                isPrinting = false;
+                LogWrapper.d("======over====== " + isPrinting);
+            }
+        }
     }
 
     //批量二维码生成bitMap
@@ -437,7 +507,8 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
 
                 Map.Entry entry = (Map.Entry) iter.next();
                 String temp=String.valueOf(entry.getKey());
-                Paint p = new Paint(); String familyName ="宋体";
+                Paint p = new Paint();
+                String familyName ="宋体";
                 Typeface font = Typeface.create(familyName,Typeface.BOLD);
                 p.setColor(Color.BLACK);
                 p.setTypeface(font); p.setTextSize(17);
@@ -471,5 +542,79 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
             e.getStackTrace();
         }
         return bitmap;
+    }
+
+    private Bitmap addWatermark(Bitmap src, Bitmap watermark) {
+        if (src == null || watermark  == null) {
+            return src;
+        }
+
+        int sWid = src.getWidth();
+        int sHei = src.getHeight();
+        int wWid = watermark.getWidth();
+        int wHei = watermark.getHeight();
+        if (sWid == 0 || sHei == 0) {
+            return null;
+        }
+
+        if (sWid < wWid || sHei < wHei) {
+            return src;
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(sWid, sHei, Bitmap.Config.ARGB_8888);
+        try {
+            Canvas cv = new Canvas(bitmap);
+            cv.drawBitmap(src, 0, 0, null);
+            cv.drawColor(Color.WHITE);
+            cv.drawBitmap(watermark, sWid - wWid - 42, sHei - wHei - 5, null);
+            cv.save(Canvas.ALL_SAVE_FLAG);
+            cv.restore();
+        } catch (Exception e) {
+            bitmap = null;
+            e.getStackTrace();
+        }
+        return bitmap;
+    }
+
+    public static Bitmap resizeImage(Bitmap bitmap, int w, int h) {
+        Bitmap BitmapOrg = bitmap;
+        int width = BitmapOrg.getWidth();
+        int height = BitmapOrg.getHeight();
+        int newWidth = w;
+        int newHeight = h;
+
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+        Bitmap resizedBitmap = Bitmap.createBitmap(BitmapOrg, 0, 0, w,
+                h, matrix, true);
+        return resizedBitmap;
+    }
+
+    // 生成二维码和背景
+    public void generate2DCodes(String message) {
+        if (message.length() > 0) {
+            try {
+                message = new String(message.getBytes("utf8"));
+            } catch (UnsupportedEncodingException e1) {
+                e1.printStackTrace();
+            }
+            btMapa = Bitmap.createBitmap(384, 310, Bitmap.Config.ALPHA_8);
+            barcode2D = BarcodeCreater.encode2dAsBitmap(message,
+                    300, 300, 2);// 230依照现在设备勉强能行(34位),300很容易
+        }
+    }
+
+    private static long lastClickTime;
+
+    public static boolean isFastDoubleClick() {
+        long time = System.currentTimeMillis();
+        long timeD = time - lastClickTime;
+        lastClickTime = time;
+        if (0 < timeD && timeD < 3000) {
+            return true;
+        }
+        return false;
     }
 }
