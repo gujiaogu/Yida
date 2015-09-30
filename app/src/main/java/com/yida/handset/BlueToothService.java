@@ -44,6 +44,7 @@ public class BlueToothService {
 
 	public static final int MESSAGE_STATE_CHANGE = 1;
 	public static final int CONNECTION_READY = 8;
+	public static final int PRINT_CANCEL = 9;
 	public static final int MESSAGE_READ = 2;
 	public static final int MESSAGE_WRITE = 3;
 	public static final int STATE_SCANING = 0;// ɨ��״̬
@@ -322,6 +323,8 @@ public class BlueToothService {
 		if (D)
 			Log.d(TAG, "stop");
 		setState(STATE_NONE);
+		mHandler.obtainMessage(PRINT_CANCEL, SUCCESS_CONNECT, -1)
+				.sendToTarget();
 		if (mConnectThread != null) {
 			mConnectThread.cancel();
 			mConnectThread = null;
@@ -355,6 +358,7 @@ public class BlueToothService {
 					e.printStackTrace();
 				}
 				PrinterTypeNow = PrinterType;
+                LogWrapper.d("printer type " + PrinterType);
 				
 			}
 		}.start();
@@ -525,7 +529,6 @@ public class BlueToothService {
 	 * incoming and outgoing transmissions.
 	 */
 	public void SetPrinterType(int type) {
-
 		PrinterType = type;
 	}
 
@@ -654,8 +657,10 @@ public class BlueToothService {
 
 	public void PrintImage(Bitmap bitmapcode) {
 		if (PrinterTypeNow == 2) {
+            LogWrapper.d("====old====");
 			PrintImageOld(bitmapcode);
 		} else {
+            LogWrapper.d("====new====");
 			PrintImageNew(bitmapcode);
 		}
 	}

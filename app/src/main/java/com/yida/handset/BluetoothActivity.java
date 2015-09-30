@@ -115,8 +115,14 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
                 case MESSAGE_WRITE:
                     break;
                 case BlueToothService.CONNECTION_READY:
-                    isPrinting = true;
-                    new Thread(new PrintThread("03 previously on desperate housewives")).start();
+                    if (isPrintOp) {
+                        isPrinting = true;
+                        new Thread(new PrintThread("03 previously on desperate housewives")).start();
+                    }
+                    break;
+                case BlueToothService.PRINT_CANCEL:
+                    isPrinting = false;
+                    isConnectDone = true;
                     break;
 
             }
@@ -326,14 +332,18 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
                                 if (mService.getState() == BlueToothService.STATE_CONNECTED
                                         && mService.getConnectedDevice() != null
                                         && mService.getConnectedDevice().getAddress().equals(itemDeviceAddress)) {
+                                    LogWrapper.d("connected device : " + mService.getConnectedDevice().getAddress() + ", "
+                                            + mService.getConnectedDevice().getName());
                                     new Thread(new PrintThread("03 previously on desperate housewives")).start();
                                 } else if(mService.getState() == BlueToothService.STATE_CONNECTED
                                         && mService.getConnectedDevice() != null
                                         && !mService.getConnectedDevice().getAddress().equals(itemDeviceAddress)) {
                                     isConnectDone = false;
+                                    LogWrapper.d("aaaa");
                                     mService.disConnected();
                                     mService.connectToDevice(itemDeviceAddress);
                                 } else {
+                                    LogWrapper.d("bbbb");
                                     isConnectDone = false;
                                     mService.connectToDevice(itemDeviceAddress);
                                 }
@@ -444,15 +454,33 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
 
         @Override
         public void run() {
+            try {
+                Thread.sleep(200);
+            } catch (Exception e) {
 
+            }
             if (mService.getState() == BlueToothService.STATE_CONNECTED) {
-                generate2DCodes(this.str);
-                Bitmap bitmapOrg = btMapa; //BitmapFactory.decodeFile(picPath);
-                int w = bitmapOrg.getWidth();
-                int h = bitmapOrg.getHeight();
-//                mService.PrintImage(resizeImage(addWatermark(bitmapOrg, barcode2D), w, h));
-                isPrinting = false;
-                LogWrapper.d("======over====== " + isPrinting);
+                if (str.length() > 0) {
+                    try {
+                        str = new String(str.getBytes("utf8"));
+                    } catch (UnsupportedEncodingException e1) {
+                        e1.printStackTrace();
+                    }
+                    Bitmap bitmapOrg = Bitmap.createBitmap(384, 310, Bitmap.Config.ALPHA_8);
+                    Bitmap qrCode = BarcodeCreater.encode2dAsBitmap(str,
+                            300, 300, 2);// 230依照现在设备勉强能行(34位),300很容易
+                    int w = bitmapOrg.getWidth();
+                    int h = bitmapOrg.getHeight();
+                    LogWrapper.d("=====" + str);
+                    LogWrapper.d("=====bitmapOrg w : " + w + ", h : " + h + " qrCode w : " + qrCode.getWidth() + ", h : " + qrCode.getHeight());
+                    Bitmap waterMark = addWatermark(bitmapOrg, qrCode);
+                    LogWrapper.d("=====water Mark w : " + waterMark.getWidth() + ", h : " + waterMark.getHeight());
+                    Bitmap resizedBitmap = resizeImage(waterMark, w, h);
+                    LogWrapper.d("=====resizedBitmap w : " + resizedBitmap.getWidth() + ", h : " + resizedBitmap.getHeight());
+                    mService.PrintImage(resizedBitmap);
+                    isPrinting = false;
+                    LogWrapper.d("======over====== " + isPrinting);
+                }
             }
         }
     }
