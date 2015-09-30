@@ -27,7 +27,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.bluetoothprinter.BarcodeCreater;
-import com.example.bluetoothprinter.BlueToothService;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -54,7 +53,7 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
     private BlueToothService mService;
     private DeviceOtherAdapter mOtherAdapter;
     private DevicePairedAdapter mPairedAdapter;
-    private ArrayList<BluetoothDevice> bondedDevice = new ArrayList<>();
+//    private ArrayList<BluetoothDevice> bondedDevice = new ArrayList<>();
     private boolean isPrintOp = false; //判断是打印连接操作，还是配对连接操作
     private boolean isConnectDone = true; // 判断连接是否完成，可能是连接失败，连接成功或者失去连接
     private volatile boolean isPrinting = false;
@@ -87,16 +86,16 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
                             break;
                         case BlueToothService.SUCCESS_CONNECT:
                             Toast.makeText(BluetoothActivity.this, R.string.text_connect_success, Toast.LENGTH_SHORT).show();
-                            if(!isPrintOp) {
+                            if (!isPrintOp) {
+                                try {
+                                    Thread.sleep(200);
+                                } catch (Exception e) {
+
+                                }
                                 refreshPaired();
-                            } else if(isPrintOp) {
-                                LogWrapper.d("test success connect");
-//                                if (null != mPrintInfo && !"".equals(mPrintInfo)) {
-                                isPrinting = true;
-                                    new Thread(new PrintThread("03 previously on desperate housewives")).start();
-//                                }
                             }
                             isConnectDone = true;
+                            LogWrapper.d("test success connect");
                             break;
                         case BlueToothService.FAILED_CONNECT:
                             Toast.makeText(BluetoothActivity.this, R.string.text_connect_failed, Toast.LENGTH_SHORT).show();
@@ -114,6 +113,10 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
                 case MESSAGE_READ:
                     break;
                 case MESSAGE_WRITE:
+                    break;
+                case BlueToothService.CONNECTION_READY:
+                    isPrinting = true;
+                    new Thread(new PrintThread("03 previously on desperate housewives")).start();
                     break;
 
             }
@@ -143,10 +146,10 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
         mService = new BlueToothService(this, blueToothHandler);
         mService.setOnReceive(new BlueToothService.OnReceiveDataHandleEvent() {
             @Override
-            public void OnReceive(BluetoothDevice bluetoothDevice) {
+            public void onReceive(BluetoothDevice bluetoothDevice) {
                 if (bluetoothDevice != null
                         && (bluetoothDevice.getBondState() != BluetoothDevice.BOND_BONDED)) {
-                    mOtherAdapter.addDevice(bluetoothDevice);
+                    mOtherAdapter.addDevice(bluetoothDevice.getName() + "\n" + bluetoothDevice.getAddress());
                 }
             }
         });
@@ -154,7 +157,6 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
 
         mOtherAdapter = new DeviceOtherAdapter(this);
         mListOthers.setAdapter(mOtherAdapter);
-        bondedDevice.clear();
         refreshPaired();
         mListOthers.setOnItemClickListener(this);
 
@@ -200,11 +202,11 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.search_device:
-                if (mService.GetScanState() == BlueToothService.STATE_SCANING) {
-                    mService.StopScan();
+                if (mService.getScanState() == BlueToothService.STATE_SCANING) {
+                    mService.stopScan();
                 }
                 mOtherAdapter.clear();
-                mService.ScanDevice();
+                mService.scanDevice();
                 break;
             default:
                 break;
@@ -213,14 +215,15 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        isPrintOp = false;
         if (isConnectDone && !isPrinting) {
+            isPrintOp = false;
             isConnectDone = false;
-            if (mService.GetScanState() == BlueToothService.STATE_SCANING) {
-                mService.StopScan();
+            if (mService.getScanState() == BlueToothService.STATE_SCANING) {
+                mService.stopScan();
             }
             if (adapterView == mListOthers) {
-                mService.connect((BluetoothDevice) mOtherAdapter.getItem(i));
+                String device = (String) adapterView.getAdapter().getItem(i);
+                mService.connectToDevice(device.substring(device.indexOf("\n") + 1, device.length()));
             }
         }
     }
@@ -251,31 +254,33 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
 
         private LayoutInflater mmInflater;
         private Context mmContext;
+        private ArrayList<String> mData = new ArrayList<>();
 
-        public DevicePairedAdapter(Context context) {
+        public DevicePairedAdapter(Context context, ArrayList<String> data) {
             this.mmContext = context;
             this.mmInflater = LayoutInflater.from(this.mmContext);
+            this.mData = data;
         }
 
-        public void addDevice(BluetoothDevice device) {
-            if (bondedDevice != null) {
-                bondedDevice.add(device);
+        public void addDevice(String device) {
+            if (mData != null) {
+                mData.add(device);
                 notifyDataSetChanged();
             }
         }
 
         @Override
         public int getCount() {
-            if (bondedDevice != null) {
-                return bondedDevice.size();
+            if (mData != null) {
+                return mData.size();
             }
             return 0;
         }
 
         @Override
         public Object getItem(int i) {
-            if (bondedDevice != null) {
-                return bondedDevice.get(i);
+            if (mData != null) {
+                return mData.get(i);
             }
             return null;
         }
@@ -297,8 +302,9 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
             } else {
                 viewHolder = (ViewHolder) view.getTag();
             }
-            final BluetoothDevice itemDevice = bondedDevice.get(i);
-            viewHolder.textView.setText(itemDevice.getName() + "\n" + itemDevice.getAddress());
+            final String itemDevice = mData.get(i);
+            final String itemDeviceAddress = itemDevice.substring(itemDevice.indexOf("\n") + 1, itemDevice.length());
+            viewHolder.textView.setText(itemDevice);
             viewHolder.button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -312,16 +318,25 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
                     }
                     if (isConnectDone) {
                         isPrintOp = true;
-                        isConnectDone = false;
                         isPrinting = true;
                         LogWrapper.d("test onclick connect after " + isPrinting);
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-//                                if (mService.getState() == BlueToothService.STATE_CONNECTED) {
-//                                    mService.DisConnected();
-//                                }
-                                mService.connect(itemDevice);
+                                if (mService.getState() == BlueToothService.STATE_CONNECTED
+                                        && mService.getConnectedDevice() != null
+                                        && mService.getConnectedDevice().getAddress().equals(itemDeviceAddress)) {
+                                    new Thread(new PrintThread("03 previously on desperate housewives")).start();
+                                } else if(mService.getState() == BlueToothService.STATE_CONNECTED
+                                        && mService.getConnectedDevice() != null
+                                        && !mService.getConnectedDevice().getAddress().equals(itemDeviceAddress)) {
+                                    isConnectDone = false;
+                                    mService.disConnected();
+                                    mService.connectToDevice(itemDeviceAddress);
+                                } else {
+                                    isConnectDone = false;
+                                    mService.connectToDevice(itemDeviceAddress);
+                                }
                             }
                         }).start();
 
@@ -340,7 +355,7 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
     private class DeviceOtherAdapter extends BaseAdapter {
 
         private LayoutInflater mmInflater;
-        private List<BluetoothDevice> mmDevices = new ArrayList<>();
+        private List<String> mmDevices = new ArrayList<>();
         private Context mmContext;
 
         public DeviceOtherAdapter(Context context) {
@@ -348,10 +363,12 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
             this.mmInflater = LayoutInflater.from(this.mmContext);
         }
 
-        public void addDevice(BluetoothDevice device) {
+        public void addDevice(String device) {
             if (mmDevices != null) {
-                mmDevices.add(device);
-                notifyDataSetChanged();
+                if (!mmDevices.contains(device)) {
+                    mmDevices.add(device);
+                    notifyDataSetChanged();
+                }
             }
         }
 
@@ -394,7 +411,7 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
             } else {
                 holder = (ViewHolder) view.getTag();
             }
-            holder.textView.setText(mmDevices.get(i).getName() + "\n" + mmDevices.get(i).getAddress());
+            holder.textView.setText(mmDevices.get(i));
             return view;
         }
 
@@ -404,30 +421,16 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
     }
 
     private synchronized void refreshPaired() {
-        Set<BluetoothDevice> deviceSet = mService.GetBondedDevice();
-
+        Set<BluetoothDevice> deviceSet = mService.getBondedDevice();
+        LogWrapper.d("device set size : " + deviceSet.size());
+        ArrayList<String> data = new ArrayList<>();
         if (deviceSet != null && deviceSet.size() > 0) {
             //if there is no element, we add all devices to paired adapter
-            if (bondedDevice.size() <= 0) {
-                for(BluetoothDevice device : deviceSet) {
-                    bondedDevice.add(device);
-                }
-                mPairedAdapter = new DevicePairedAdapter(this);
-                mListPaired.setAdapter(mPairedAdapter);
-                return;
-            }
-
-            ArrayList<BluetoothDevice> tmp = bondedDevice;
             for(BluetoothDevice device : deviceSet) {
-                for(int i = 0; i < tmp.size(); i ++) {
-                    if (device.getAddress().equals(tmp.get(i).getAddress())) {
-                        break;
-                    }
-                    if (i == tmp.size() - 1) {
-                        mPairedAdapter.addDevice(device);
-                    }
-                }
+                data.add(device.getName() + "\n" + device.getAddress());
             }
+            mPairedAdapter = new DevicePairedAdapter(this, data);
+            mListPaired.setAdapter(mPairedAdapter);
         }
     }
 
@@ -447,7 +450,7 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
                 Bitmap bitmapOrg = btMapa; //BitmapFactory.decodeFile(picPath);
                 int w = bitmapOrg.getWidth();
                 int h = bitmapOrg.getHeight();
-                mService.PrintImage(resizeImage(addWatermark(bitmapOrg, barcode2D), w, h));
+//                mService.PrintImage(resizeImage(addWatermark(bitmapOrg, barcode2D), w, h));
                 isPrinting = false;
                 LogWrapper.d("======over====== " + isPrinting);
             }
