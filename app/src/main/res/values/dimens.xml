@@ -14,4 +14,6 @@
     <dimen name="resource_spinner_arrow_padding">16dp</dimen>
     <dimen name="resource_image_margin_top">20dp</dimen>
     <dimen name="resource_warning_btn_margin_top">20dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="main_action_width">100dp</dimen>
 </resources>

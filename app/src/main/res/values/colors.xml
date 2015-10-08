@@ -8,4 +8,5 @@
     <color name="accent">#4527A0</color>
     <color name="alpha_scanner_title">#33FFFFFF</color>
     <color name="colorWarningBtn">#e91e63</color>
+    <color name="colorWarningBtnPrimary">#ad1457</color>
 </resources>

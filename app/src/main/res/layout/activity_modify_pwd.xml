@@ -56,7 +56,7 @@
         android:layout_marginRight="@dimen/login_edit_text_margin"
         app:rd_enable="true"
         android:textColor="@android:color/white"
-        android:background="@drawable/button_login_background"
+        android:background="@drawable/button_unselected"
         app:rd_rippleAnimDuration="500"/>
 
 </RelativeLayout>

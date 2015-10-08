@@ -20,7 +20,7 @@ import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-import com.rey.material.widget.Button;
+import android.widget.Button;
 import com.rey.material.widget.Spinner;
 
 import java.util.HashMap;

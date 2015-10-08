@@ -2,7 +2,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-
     tools:context="com.yida.handset.LoginActivity">
 
     <android.support.v7.widget.Toolbar
@@ -23,7 +22,8 @@
         android:layout_marginTop="@dimen/login_edit_text_margin_top"
         android:id="@+id/user_name"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/toolbar"/>
+        android:layout_below="@id/toolbar"
+        android:maxLength="15"/>
     <com.rengwuxian.materialedittext.MaterialEditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -34,7 +34,8 @@
         android:id="@+id/password"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/user_name"
-        android:inputType="textPassword" />
+        android:inputType="textPassword"
+        android:maxLength="15"/>
     <com.rey.material.widget.CheckBox
         android:id="@+id/switch_hidden"
         android:layout_width="wrap_content"
@@ -48,20 +49,18 @@
         android:layout_marginLeft="@dimen/login_edit_text_margin"
         app:cbd_strokeColor="@color/primary"
         app:cbd_animDuration="300" />
-    <com.rey.material.widget.Button
+    <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/Material.Drawable.Ripple.Wave"
         android:id="@+id/login_btn"
         android:text="@string/title_activity_login"
         android:layout_below="@id/switch_hidden"
         android:layout_marginTop="@dimen/login_edit_text_margin_top3"
         android:layout_marginLeft="@dimen/login_edit_text_margin"
         android:layout_marginRight="@dimen/login_edit_text_margin"
-        app:rd_enable="true"
         android:textColor="@android:color/white"
-        android:background="@drawable/button_login_background"
-        app:rd_rippleAnimDuration="@integer/ripple_duration"/>
+        android:background="@drawable/button_background_selector"
+        />
 
     <TextView
         android:layout_width="wrap_content"

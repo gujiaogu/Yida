@@ -88,7 +88,7 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
                             Toast.makeText(BluetoothActivity.this, R.string.text_connect_success, Toast.LENGTH_SHORT).show();
                             if (!isPrintOp) {
                                 try {
-                                    Thread.sleep(200);
+                                    Thread.sleep(500);
                                 } catch (Exception e) {
 
                                 }
@@ -450,12 +450,13 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
 
         private PrintThread(String info) {
             this.str = info;
+            mService.setPrinterType2();
         }
 
         @Override
         public void run() {
             try {
-                Thread.sleep(200);
+                Thread.sleep(220);
             } catch (Exception e) {
 
             }

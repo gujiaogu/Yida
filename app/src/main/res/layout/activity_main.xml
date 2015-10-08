@@ -4,69 +4,139 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".MainActivity" >
 
-    <android.support.v7.widget.Toolbar
-        style="@style/ToolBarStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="?attr/actionBarSize"
-        android:id="@+id/toolbar"
-        android:background="?attr/colorPrimary"
-        android:fitsSystemWindows="true"/>
-
     <android.support.v4.widget.DrawerLayout
-        android:layout_below="@id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/drawer_layout">
+        android:id="@+id/drawer_layout"
+        >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"  >
+            <android.support.v7.widget.Toolbar
+                style="@style/ToolBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="?attr/actionBarSize"
+                android:id="@+id/toolbar"
+                android:background="?attr/colorPrimary" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true">
+                <LinearLayout
+                    android:layout_width="@dimen/main_action_width"
+                    android:layout_height="@dimen/main_action_width"
+                    android:orientation="vertical"
+                    android:id="@+id/main_action_resource"
+                    android:background="@drawable/button_background_selector"
+                    android:gravity="center">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@android:drawable/ic_btn_speak_now" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/resource_management_label"
+                        android:textColor="@android:color/white"
+                        android:layout_marginTop="12dp"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="@dimen/main_action_width"
+                    android:layout_height="@dimen/main_action_width"
+                    android:orientation="vertical"
+                    android:id="@+id/main_action_log"
+                    android:background="@drawable/button_background_selector"
+                    android:layout_toRightOf="@id/main_action_resource"
+                    android:layout_marginLeft="20dp"
+                    android:gravity="center">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@android:drawable/ic_btn_speak_now"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/text_main_log"
+                        android:textColor="@android:color/white"
+                        android:layout_marginTop="12dp"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="@dimen/main_action_width"
+                    android:layout_height="@dimen/main_action_width"
+                    android:orientation="vertical"
+                    android:id="@+id/main_action_work_order"
+                    android:background="@drawable/button_background_selector"
+                    android:layout_below="@id/main_action_resource"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@android:drawable/ic_btn_speak_now"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/text_main_work_order"
+                        android:textColor="@android:color/white"
+                        android:layout_marginTop="12dp"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="@dimen/main_action_width"
+                    android:layout_height="@dimen/main_action_width"
+                    android:orientation="vertical"
+                    android:id="@+id/main_action_sync"
+                    android:background="@drawable/button_background_selector"
+                    android:layout_toRightOf="@id/main_action_work_order"
+                    android:layout_below="@id/main_action_log"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@android:drawable/ic_btn_speak_now"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/text_main_sync"
+                        android:textColor="@android:color/white"
+                        android:layout_marginTop="12dp"/>
+                </LinearLayout>
+            </RelativeLayout>
+        </RelativeLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical" >
-            <android.support.v4.view.ViewPager
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/viewPager"
-                android:layout_weight="1"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                >
-                <com.rey.material.widget.Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/Material.Drawable.Ripple.Wave"
-                    android:id="@+id/btn_resource"
-                    android:text="@string/resource_management_label"
-                    app:rd_enable="true"
-                    android:textColor="@android:color/white"
-                    android:background="@drawable/color_main_text_state"
-                    app:rd_rippleAnimDuration="@integer/ripple_duration"
-                    android:layout_weight="1"/>
-                <com.rey.material.widget.Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/Material.Drawable.Ripple.Wave"
-                    android:id="@+id/btn_work_order"
-                    android:text="@string/order_count_label"
-                    app:rd_enable="true"
-                    android:textColor="@android:color/white"
-                    android:background="@drawable/color_main_text_state"
-                    app:rd_rippleAnimDuration="@integer/ripple_duration"
-                    android:layout_weight="1"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <ListView
-            android:id="@+id/drawer_list"
-            android:scrollbars="vertical"
             android:layout_width="240dp"
             android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:background="@android:color/white"
             android:layout_gravity="start"
-            android:choiceMode="singleChoice"
-            style="?android:absListViewStyle"
-            android:background="@android:color/white"/>
+            android:id="@+id/drawer">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:background="@color/primary">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/drawer_title"
+                    android:text="Cosmic"
+                    android:layout_centerInParent="true"
+                    android:textColor="@android:color/white"/>
+            </RelativeLayout>
+            <ListView
+                android:id="@+id/drawer_list"
+                android:scrollbars="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:choiceMode="singleChoice"
+                style="?android:absListViewStyle" />
+
+        </LinearLayout>
+
     </android.support.v4.widget.DrawerLayout>
 
 </RelativeLayout>

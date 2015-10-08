@@ -40,5 +40,7 @@
         <item name="spn_arrowPadding">@dimen/resource_spinner_arrow_padding</item>
         <item name="spn_labelEnable">true</item>
     </style>
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 </resources>

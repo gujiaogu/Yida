@@ -346,6 +346,10 @@ public class BlueToothService {
 				.sendToTarget();
 	}
 
+	public void setPrinterType2() {
+		PrinterTypeNow = PrinterType;
+	}
+
 	private void setPrinterInf() {
 		// TODO Auto-generated method stub
 		
