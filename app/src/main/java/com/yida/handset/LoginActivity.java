@@ -24,9 +24,9 @@ import butterknife.ButterKnife;
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener,
         CompoundButton.OnCheckedChangeListener{
 
-    public static final String REFENCE_USERNAME = "yida.username";
-    public static final String REFENCE_PASSWORD = "yida.password";
-    public static final String REFENCE_NAME = "yida";
+    public static final String REFERENCE_USERNAME = "yida.username";
+    public static final String REFERENCE_PASSWORD = "yida.password";
+    public static final String REFERENCE_NAME = "yida";
 
     @Bind(R.id.toolbar)
     Toolbar mToolBar;
@@ -38,8 +38,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     MaterialEditText mEditTextPwd;
     @Bind(R.id.user_name)
     MaterialEditText mEditTextUsername;
-    @Bind(R.id.modify_text)
-    TextView mModifyPwd;
+    @Bind(R.id.forget_pwd)
+    TextView mForgetPwd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +59,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         mBtnLogin.setOnClickListener(this);
         mSwitch.setOnCheckedChangeListener(this);
-        mModifyPwd.setOnClickListener(this);
+        mForgetPwd.setOnClickListener(this);
     }
 
     @Override
@@ -68,8 +68,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             case R.id.login_btn:
                 login();
                 break;
-            case R.id.modify_text:
-                modifyPwd();
+            case R.id.forget_pwd:
+                forgetPwd();
                 break;
             default:
                 break;
@@ -95,10 +95,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             return;
         }
 
-        SharedPreferences preferences = getSharedPreferences(REFENCE_NAME, Context.MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(REFERENCE_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(REFENCE_USERNAME, userName);
-        editor.putString(REFENCE_PASSWORD, password);
+        editor.putString(REFERENCE_USERNAME, userName);
+        editor.putString(REFERENCE_PASSWORD, password);
         editor.apply();
 
         Intent intent = new Intent(LoginActivity.this, ResourceActivity.class);
@@ -106,11 +106,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         finish();
     }
 
-    private void modifyPwd() {
+    private void forgetPwd() {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent intent = new Intent(LoginActivity.this, UpdatePwdActivity.class);
+                Intent intent = new Intent(LoginActivity.this, PwdProtectActivity.class);
                 startActivity(intent);
             }
         }, getResources().getInteger(R.integer.post_delay));

@@ -7,4 +7,11 @@
         <item>站四</item>
         <item>站五</item>
     </string-array>
+    <string-array name="pwd_protect">
+        <item>问题一</item>
+        <item>问题二</item>
+        <item>问题三</item>
+        <item>问题四</item>
+        <item>问题五</item>
+    </string-array>
 </resources>

@@ -28,7 +28,7 @@
     <string name="order_count_label">工单</string>
     <string name="resource_warning_btn_text">警告信息</string>
     <string name="title_activity_modify_pwd">修改密码</string>
-    <string name="login_text_for_modify_pwd">修改密码</string>
+    <string name="login_text_for_modify_pwd">忘记密码</string>
     <string name="modify_pwd_hint_edit_text_old_pwd">请输入旧密码</string>
     <string name="modify_pwd_hint_edit_text_new_pwd">请输入新密码</string>
     <string name="modify_pwd_hint_edit_text_new_pwd_again">请确认新密码</string>
@@ -51,6 +51,14 @@
     <string name="text_main_log">日志管理</string>
     <string name="text_main_work_order">工单管理</string>
     <string name="text_main_sync">数据同步</string>
-    <string name="title_activity_log">LogActivity</string>
+    <string name="title_activity_log">日志</string>
+    <string name="title_activity_forget">新密码</string>
+    <string name="hint_forget_enter">请输入新密码</string>
+    <string name="hint_forget_confirm">确认新密码</string>
+    <string name="btn_forget_confirm">确认</string>
+    <string name="title_activity_pwd_protect">密保</string>
+    <string name="hint_pwd_protect">请填写答案</string>
+    <string name="hint_pwd_protect_spinner">请选择问题</string>
+    <string name="protect_spinner_btn">下一步</string>
 
 </resources>

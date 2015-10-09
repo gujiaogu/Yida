@@ -68,7 +68,7 @@
         android:layout_below="@id/login_btn"
         android:text="@string/login_text_for_modify_pwd"
         android:layout_marginTop="@dimen/login_edit_text_margin_top3"
-        android:id="@+id/modify_text"
+        android:id="@+id/forget_pwd"
         android:layout_centerHorizontal="true"
         android:textColor="@color/color_text_state"
         android:background="@android:color/transparent"/>
