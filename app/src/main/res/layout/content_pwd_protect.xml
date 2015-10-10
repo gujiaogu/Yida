@@ -36,7 +36,6 @@
         android:layout_marginTop="@dimen/login_edit_text_margin_top3"
         android:layout_marginLeft="@dimen/login_edit_text_margin"
         android:layout_marginRight="@dimen/login_edit_text_margin"
-        android:textColor="@android:color/white"
-        android:background="@drawable/button_background_selector"
+        style="@style/StyleButton"
         />
 </RelativeLayout>

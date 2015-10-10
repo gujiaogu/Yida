@@ -77,7 +77,6 @@ public class WorkOrderFragment extends Fragment {
         mTabStrips.setShouldExpand(true);
         mTabStrips.setIndicatorHeight(5);
         mTabStrips.setIndicatorColorResource(R.color.primary);
-        mTabStrips.setDividerColorResource(R.color.primary);
         mTabStrips.setUnderlineColorResource(R.color.primary);
         mTabStrips.setUnderlineHeight(0);
         mTabStrips.setViewPager(mViewPager);

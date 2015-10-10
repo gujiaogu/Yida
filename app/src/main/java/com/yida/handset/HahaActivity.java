@@ -110,6 +110,8 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(intent1);
                 break;
             case R.id.main_action_work_order:
+                Intent intent2 = new Intent(this, WorkOrderActivity.class);
+                startActivity(intent2);
                 break;
             case R.id.main_action_sync:
                 break;

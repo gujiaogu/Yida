@@ -1,11 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="stations">
-        <item>站一</item>
-        <item>站二</item>
-        <item>站三</item>
-        <item>站四</item>
-        <item>站五</item>
+        <item>网元一</item>
+        <item>网元二</item>
+        <item>网元三</item>
+        <item>网元四</item>
+        <item>网元五</item>
+    </string-array>
+    <string-array name="racks">
+        <item>机架一</item>
+        <item>机架二</item>
+        <item>机架三</item>
+        <item>机架四</item>
+        <item>机架五</item>
+    </string-array>
+    <string-array name="frames">
+        <item>机框一</item>
+        <item>机框二</item>
+        <item>机框三</item>
+        <item>机框四</item>
+        <item>机框五</item>
+    </string-array>
+    <string-array name="disks">
+        <item>盘一</item>
+        <item>盘二</item>
+        <item>盘三</item>
+        <item>盘四</item>
+        <item>盘五</item>
     </string-array>
     <string-array name="pwd_protect">
         <item>问题一</item>

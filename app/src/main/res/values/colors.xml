@@ -9,4 +9,11 @@
     <color name="alpha_scanner_title">#33FFFFFF</color>
     <color name="colorWarningBtn">#e91e63</color>
     <color name="colorWarningBtnPrimary">#ad1457</color>
+    <color name="detail_line_dark_gray">#e0e0e0</color>
+    <color name="detail_port_green">#4caf50</color>
+    <color name="detail_port_green_selected">#388e3c</color>
+    <color name="detail_port_red">#f44336</color>
+    <color name="detail_port_red_selected">#c62828</color>
+    <color name="detail_port_gray">#9e9e9e</color>
+    <color name="detail_port_gray_selected">#424242</color>
 </resources>

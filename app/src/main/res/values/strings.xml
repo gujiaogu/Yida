@@ -4,7 +4,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
-    <string name="generate_qr_code">生成二维码</string>
+    <string name="generate_qr_code">打印二维码</string>
     <string name="check_detail_text">查看详情</string>
     <string name="hello_second_fragment">Hello second fragment</string>
     <string name="hello_third_fragment">Hello third fragment</string>
@@ -60,5 +60,13 @@
     <string name="hint_pwd_protect">请填写答案</string>
     <string name="hint_pwd_protect_spinner">请选择问题</string>
     <string name="protect_spinner_btn">下一步</string>
+    <string name="resource_edit_first_hint">网元</string>
+    <string name="resource_edit_second_hint">机架</string>
+    <string name="resource_edit_third_hint">机框</string>
+    <string name="resource_edit_forth_hint">盘</string>
+    <string name="title_activity_detail">详情</string>
+    <string name="detail_label_info">详细信息: </string>
+    <string name="detail_label_status">状态: </string>
+    <string name="title_activity_work_order">WorkOrderActivity</string>
 
 </resources>

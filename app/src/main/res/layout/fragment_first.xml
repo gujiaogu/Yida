@@ -16,25 +16,41 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/resource_spinner_height"
             android:gravity="center_vertical"
-            android:id="@+id/spinner_station" />
+            android:id="@+id/spinner_station"
+            android:layout_marginTop="@dimen/resource_edit_text_margin_top"
+            app:spn_label="@string/resource_edit_first_hint"/>
         <com.rey.material.widget.Spinner
             style="@style/StyleSpinner"
             android:layout_width="match_parent"
             android:layout_height="@dimen/resource_spinner_height"
             android:gravity="center_vertical"
-            android:id="@+id/spinner_rack" />
+            android:id="@+id/spinner_rack"
+            android:layout_marginTop="@dimen/resource_edit_text_margin_top"
+            app:spn_label="@string/resource_edit_second_hint"/>
         <com.rey.material.widget.Spinner
             style="@style/StyleSpinner"
             android:layout_width="match_parent"
             android:layout_height="@dimen/resource_spinner_height"
             android:gravity="center_vertical"
-            android:id="@+id/spinner_frame" />
-        <android.support.v7.widget.AppCompatSpinner
-            style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+            android:id="@+id/spinner_frame"
+            android:layout_marginTop="@dimen/resource_edit_text_margin_top"
+            app:spn_label="@string/resource_edit_third_hint"/>
+        <com.rey.material.widget.Spinner
+            style="@style/StyleSpinner"
             android:layout_width="match_parent"
             android:layout_height="@dimen/resource_spinner_height"
             android:gravity="center_vertical"
-            android:id="@+id/spinner_disk" />
+            android:id="@+id/spinner_disk"
+            android:layout_marginTop="@dimen/resource_edit_text_margin_top"
+            app:spn_label="@string/resource_edit_forth_hint"/>
+
+        <!--<android.support.v7.widget.AppCompatSpinner-->
+            <!--style="@style/Base.Widget.AppCompat.Spinner.Underlined"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="@dimen/resource_spinner_height"-->
+            <!--android:gravity="center_vertical"-->
+            <!--android:id="@+id/spinner_disk"-->
+            <!--/>-->
     </LinearLayout>
 
     <Button
@@ -63,16 +79,14 @@
             android:layout_height="wrap_content"
             android:text="@string/check_detail_text"
             android:id="@+id/check_detail"
-            android:textColor="@android:color/white"
-            android:background="@drawable/button_background_selector"
+            style="@style/StyleButton"
             android:layout_weight="1"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/generate_qr_code"
             android:id="@+id/generate_code"
-            android:textColor="@android:color/white"
-            android:background="@drawable/button_background_selector"
+            style="@style/StyleButton"
             android:layout_weight="1"
             android:layout_marginLeft="8dp"/>
     </LinearLayout>
