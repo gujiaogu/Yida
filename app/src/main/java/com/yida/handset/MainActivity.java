@@ -20,8 +20,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         SharedPreferences preferences = getSharedPreferences(LoginActivity.REFERENCE_NAME, Context.MODE_PRIVATE);
-        final String username = preferences.getString(LoginActivity.REFERENCE_USERNAME, "");
-        final String password = preferences.getString(LoginActivity.REFERENCE_PASSWORD, "");
+        final String user = preferences.getString(LoginActivity.REFERENCE_USER, "");
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -31,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }
                 Intent intent = null;
-                if (username.equals("") || password.equals("")) {
+                if (user.equals("")) {
                     intent = new Intent(MainActivity.this, LoginActivity.class);
                 } else {
                     intent = new Intent(MainActivity.this, HahaActivity.class);

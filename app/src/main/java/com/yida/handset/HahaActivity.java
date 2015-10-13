@@ -14,6 +14,9 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.yida.handset.entity.User;
 import com.yida.handset.slide.AboutAction;
 import com.yida.handset.slide.UpdateAction;
 import com.yida.handset.slide.UpdatePwdAction;
@@ -52,6 +55,7 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
     LinearLayout mActionSync;
 
     private ActionBarDrawerToggle mDrawerToggle;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +66,10 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
         ButterKnife.bind(this);
 
         SharedPreferences preferences = getSharedPreferences(LoginActivity.REFERENCE_NAME, Context.MODE_PRIVATE);
-        String username = preferences.getString(LoginActivity.REFERENCE_USERNAME, "");
-        mDrawerTitle.setText(username);
+        String userStr = preferences.getString(LoginActivity.REFERENCE_USER, "");
+        Gson gson = new Gson();
+        user = gson.fromJson(userStr, new TypeToken<User>(){}.getType());
+        mDrawerTitle.setText(user.getUsername());
 
         mDrawerList.setAdapter(new DrawerAdapter(this, mSlideActions));
         mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
