@@ -1,7 +1,9 @@
 package com.yida.handset;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -29,6 +31,7 @@ public class PwdProtectActivity extends AppCompatActivity implements View.OnClic
     public static final String ANSWER = "answer";
     public static final String QUESTION = "question";
 
+
     @Bind(R.id.spinner_question)
     Spinner mSpinnerQuestion;
     @Bind(R.id.answer)
@@ -38,6 +41,15 @@ public class PwdProtectActivity extends AppCompatActivity implements View.OnClic
 
     private ArrayAdapter adapter;
     private User user;
+
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(UpdatePwdActivity.PWD_UPDATED.equals(intent.getAction())) {
+                finish();
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +78,9 @@ public class PwdProtectActivity extends AppCompatActivity implements View.OnClic
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinnerQuestion.setAdapter(adapter);
         mNextBtn.setOnClickListener(this);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(UpdatePwdActivity.PWD_UPDATED);
+        registerReceiver(mReceiver, filter);
     }
 
     @Override
@@ -97,5 +112,11 @@ public class PwdProtectActivity extends AppCompatActivity implements View.OnClic
         intent.putExtra(QUESTION, user.getQuestion());
         startActivity(intent);
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
     }
 }

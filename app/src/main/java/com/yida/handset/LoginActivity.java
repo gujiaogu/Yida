@@ -43,8 +43,6 @@ import butterknife.ButterKnife;
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener,
         CompoundButton.OnCheckedChangeListener{
 
-    public static final String REFERENCE_USERNAME = "yida.username";
-    public static final String REFERENCE_PASSWORD = "yida.password";
     public static final String REFERENCE_NAME = "yida";
     public static final String REFERENCE_USER = "yida.user";
 
@@ -66,8 +64,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     TextView mForgetPwd;
 
     private ProgressDialog pd;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,7 +142,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     SharedPreferences preferences = getSharedPreferences(REFERENCE_NAME, Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = preferences.edit();
                     String user = gson.toJson(result.getObject());
-                    editor.putString("", user);
+                    editor.putString(REFERENCE_USER, user);
                     editor.apply();
 
                     Intent intent = new Intent(LoginActivity.this, HahaActivity.class);
@@ -154,7 +150,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     finish();
                 } else if(CODE_FAILURE.equals(result.getCode())) {
                     Toast.makeText(LoginActivity.this, result.getMessage(), Toast.LENGTH_SHORT).show();
-                    return;
                 }
                 dismiss();
             }
@@ -191,24 +186,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             mEditTextPwd.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
         } else {
             mEditTextPwd.setTransformationMethod(PasswordTransformationMethod.getInstance());
-        }
-    }
-
-    private class LoginTask extends AsyncTask<String, Void, Void> {
-        @Override
-        protected Void doInBackground(String... params) {
-
-            return null;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
         }
     }
 }

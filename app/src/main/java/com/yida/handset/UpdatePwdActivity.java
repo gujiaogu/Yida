@@ -3,6 +3,7 @@ package com.yida.handset;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +19,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.rengwuxian.materialedittext.MaterialEditText;
+import com.yida.handset.entity.LoginResult;
 import com.yida.handset.entity.User;
 
 import butterknife.Bind;
@@ -26,6 +28,7 @@ import butterknife.ButterKnife;
 public class UpdatePwdActivity extends AppCompatActivity implements View.OnClickListener{
 
     private static final String UPDATE_PWD_TAG = "tag_update_pwd";
+    public static final String PWD_UPDATED = "com.yida.handset.action.PWD_UPDATED";
 
     @Bind(R.id.toolbar)
     Toolbar mToolBar;
@@ -78,7 +81,7 @@ public class UpdatePwdActivity extends AppCompatActivity implements View.OnClick
 
     public void confirm() {
         String oldPassword = mEditOldPassword.getText().toString().trim();
-        String newPassword = mEditNewPassword.getText().toString().trim();
+        final String newPassword = mEditNewPassword.getText().toString().trim();
         String newPasswordAgain = mEditNewPasswordAgain.getText().toString().trim();
 
         if ("".equals(oldPassword) || "".equals(newPassword)
@@ -110,10 +113,29 @@ public class UpdatePwdActivity extends AppCompatActivity implements View.OnClick
         });
         pd.show();
 
-        String params = "?oldPwd=" + user.getPassword() + "&newPwd=" + newPassword;
+        String params = "?oldPwd=" + user.getPassword() + "&newPwd=" + newPassword + "&token=" + user.getToken();
         StringRequest updatePwdRequest = new StringRequest(Request.Method.POST, Constants.MODIFY_PASSWORD + params, new Response.Listener<String>() {
             @Override
             public void onResponse(String s) {
+                Gson gson = new Gson();
+                LoginResult result = gson.fromJson(s, new TypeToken<LoginResult>() {
+                    }.getType());
+                if (LoginActivity.CODE_SUCCESS.equals(result.getCode())) {
+                    user.setPassword(newPassword);
+                    String newUserInfo = gson.toJson(user, new TypeToken<LoginResult>() {
+                            }.getType());
+                    SharedPreferences preferences = getSharedPreferences(LoginActivity.REFERENCE_NAME, Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString(LoginActivity.REFERENCE_USER, newUserInfo);
+                    editor.apply();
+
+                    Intent pwdUpdated = new Intent();
+                    pwdUpdated.setAction(PWD_UPDATED);
+                    sendBroadcast(pwdUpdated);
+                    finish();
+                } else if(LoginActivity.CODE_FAILURE.equals(result.getCode())) {
+                    Toast.makeText(UpdatePwdActivity.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+                }
                 LogWrapper.d(s);
                 dismiss();
             }
