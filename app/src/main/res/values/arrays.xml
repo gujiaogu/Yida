@@ -28,11 +28,17 @@
         <item>盘四</item>
         <item>盘五</item>
     </string-array>
-    <string-array name="pwd_protect">
-        <item>问题一</item>
-        <item>问题二</item>
-        <item>问题三</item>
-        <item>问题四</item>
-        <item>问题五</item>
+    <string-array name="order_type">
+        <item>全部类型</item>
+        <item>施工工单</item>
+        <item>巡检工单</item>
+        <item>配置工单</item>
+        <item>写入电子标签</item>
+    </string-array>
+    <string-array name="order_status">
+        <item>全部状态</item>
+        <item>未接受</item>
+        <item>进行中</item>
+        <item>已完成</item>
     </string-array>
 </resources>

@@ -9,13 +9,26 @@
     <com.rengwuxian.materialedittext.MaterialEditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="@string/hint_forget_username"
+        android:layout_marginLeft="@dimen/login_edit_text_margin"
+        android:layout_marginRight="@dimen/login_edit_text_margin"
+        android:layout_marginTop="@dimen/login_edit_text_margin_top"
+        android:id="@+id/enter_username"
+        android:layout_centerHorizontal="true"
+        android:maxLength="15"/>
+
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:hint="@string/hint_forget_enter"
         android:layout_marginLeft="@dimen/login_edit_text_margin"
         android:layout_marginRight="@dimen/login_edit_text_margin"
         android:layout_marginTop="@dimen/login_edit_text_margin_top"
         android:id="@+id/enter_new_pwd"
         android:layout_centerHorizontal="true"
-        android:maxLength="15"/>
+        android:maxLength="15"
+        android:layout_below="@id/enter_username"
+        android:inputType="textPassword"/>
     <com.rengwuxian.materialedittext.MaterialEditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -26,7 +39,8 @@
         android:id="@+id/confirm_new_pwd"
         android:layout_centerHorizontal="true"
         android:maxLength="15"
-        android:layout_below="@id/enter_new_pwd"/>
+        android:layout_below="@id/enter_new_pwd"
+        android:inputType="textPassword"/>
 
     <Button
         android:layout_width="match_parent"

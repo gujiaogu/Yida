@@ -1,19 +1,65 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.yida.handset.workorder.WorkOrderFragment">
+    android:orientation="vertical"
+    tools:context="com.yida.handset.workorder.WorkOrderFragment"
+    android:background="@color/work_order_management_background">
 
-    <com.astuetz.PagerSlidingTabStrip
-        android:id="@+id/tabs"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        app:pstsDividerColor="@android:color/transparent" />
-    <android.support.v4.view.ViewPager
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/work_order_management_top_background"
+        android:gravity="center_vertical"
+        android:paddingBottom="12dp"
+        android:paddingTop="12dp">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="全部类型"
+                android:id="@+id/order_type_text_top"
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:textColor="@color/order_manager_text_selector"
+                android:drawableRight="@mipmap/ic_keyboard_arrow_down_black_24dp"/>
+        </RelativeLayout>
+        <ImageView
+            android:layout_width="1.5dp"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="2dp"
+            android:layout_marginTop="2dp"
+            android:background="@drawable/work_order_divider"/>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="全部状态"
+                android:id="@+id/order_status_text_top"
+                android:gravity="center"
+                android:layout_centerInParent="true"
+                android:textColor="@color/order_manager_text_selector"
+                android:drawableRight="@mipmap/ic_keyboard_arrow_down_black_24dp"/>
+        </RelativeLayout>
+    </LinearLayout>
+    <ListView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/viewpager"
-        android:layout_below="@+id/tabs" />
+        android:layout_height="wrap_content"
+        android:id="@+id/order_list"
+        android:layout_weight="1"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="26dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"/>
 
-</RelativeLayout>
+</LinearLayout>

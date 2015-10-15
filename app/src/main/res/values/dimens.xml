@@ -21,4 +21,7 @@
     <dimen name="detail_text_margin_left">5dp</dimen>
     <dimen name="detail_text_size">16sp</dimen>
     <dimen name="detail_oval_width">45dp</dimen>
+    <dimen name="order_list_item_margin_left">8dp</dimen>
+    <dimen name="order_list_item_margin_right">8dp</dimen>
+    <dimen name="construct_order_margin_left">16dp</dimen>
 </resources>

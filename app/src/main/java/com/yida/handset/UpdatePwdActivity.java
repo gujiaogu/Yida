@@ -121,17 +121,17 @@ public class UpdatePwdActivity extends AppCompatActivity implements View.OnClick
                 LoginResult result = gson.fromJson(s, new TypeToken<LoginResult>() {
                     }.getType());
                 if (LoginActivity.CODE_SUCCESS.equals(result.getCode())) {
-                    user.setPassword(newPassword);
-                    String newUserInfo = gson.toJson(user, new TypeToken<LoginResult>() {
-                            }.getType());
                     SharedPreferences preferences = getSharedPreferences(LoginActivity.REFERENCE_NAME, Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = preferences.edit();
-                    editor.putString(LoginActivity.REFERENCE_USER, newUserInfo);
+                    editor.putString(LoginActivity.REFERENCE_USER, "");
                     editor.apply();
 
                     Intent pwdUpdated = new Intent();
                     pwdUpdated.setAction(PWD_UPDATED);
                     sendBroadcast(pwdUpdated);
+                    Intent intent = new Intent(UpdatePwdActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    Toast.makeText(UpdatePwdActivity.this, R.string.pwd_update_success, Toast.LENGTH_SHORT).show();
                     finish();
                 } else if(LoginActivity.CODE_FAILURE.equals(result.getCode())) {
                     Toast.makeText(UpdatePwdActivity.this, result.getMessage(), Toast.LENGTH_SHORT).show();

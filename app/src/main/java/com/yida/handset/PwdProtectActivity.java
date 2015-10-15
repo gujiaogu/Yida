@@ -30,7 +30,8 @@ public class PwdProtectActivity extends AppCompatActivity implements View.OnClic
 
     public static final String ANSWER = "answer";
     public static final String QUESTION = "question";
-
+    public static final String[] FORGOT_PASSWORD_QUESTION_LIST = {"你的父亲叫什么名字？","你的母亲叫什么名字？","你的出生地在哪里？","你就读的小学叫什么名字？","你就读的高中叫什么名字？",
+            "你最喜欢的歌手是谁？","你的初恋是在多少岁？","你的身高是多少厘米？","你最喜欢的服装品牌是哪个？","你穿多少码的鞋子？"};
 
     @Bind(R.id.spinner_question)
     Spinner mSpinnerQuestion;
@@ -40,12 +41,10 @@ public class PwdProtectActivity extends AppCompatActivity implements View.OnClic
     Button mNextBtn;
 
     private ArrayAdapter adapter;
-    private User user;
-
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(UpdatePwdActivity.PWD_UPDATED.equals(intent.getAction())) {
+            if(ForgetActivity.PWD_RESET.equals(intent.getAction())) {
                 finish();
             }
         }
@@ -71,15 +70,14 @@ public class PwdProtectActivity extends AppCompatActivity implements View.OnClic
         SharedPreferences preferences = getSharedPreferences(LoginActivity.REFERENCE_NAME, Context.MODE_PRIVATE);
         String userStr = preferences.getString(LoginActivity.REFERENCE_USER, "");
         Gson gson = new Gson();
-        user = gson.fromJson(userStr, new TypeToken<User>(){}.getType());
 
         adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_dropdown_item, getResources().getStringArray(R.array.pwd_protect));
+                android.R.layout.simple_spinner_dropdown_item, FORGOT_PASSWORD_QUESTION_LIST);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinnerQuestion.setAdapter(adapter);
         mNextBtn.setOnClickListener(this);
         IntentFilter filter = new IntentFilter();
-        filter.addAction(UpdatePwdActivity.PWD_UPDATED);
+        filter.addAction(ForgetActivity.PWD_RESET);
         registerReceiver(mReceiver, filter);
     }
 
@@ -96,22 +94,12 @@ public class PwdProtectActivity extends AppCompatActivity implements View.OnClic
 
     private void checkQuestion() {
         String selectedQuestion = mSpinnerQuestion.getSelectedItem().toString();
-        if (!user.getQuestion().equals(selectedQuestion)) {
-            Toast.makeText(this, R.string.question_is_not_correct, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         String answer = mAnswer.getText().toString().trim();
-        if (!user.getAnswer().equals(Md5.getMD5Str(answer))) {
-            Toast.makeText(this, R.string.answer_is_not_correct, Toast.LENGTH_SHORT).show();
-            return;
-        }
 
         Intent intent = new Intent(this, ForgetActivity.class);
         intent.putExtra(ANSWER, answer);
-        intent.putExtra(QUESTION, user.getQuestion());
+        intent.putExtra(QUESTION, selectedQuestion);
         startActivity(intent);
-
     }
 
     @Override

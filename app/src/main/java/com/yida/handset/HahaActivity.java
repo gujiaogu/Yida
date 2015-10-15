@@ -1,7 +1,9 @@
 package com.yida.handset;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -56,6 +58,21 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
 
     private ActionBarDrawerToggle mDrawerToggle;
     private User user;
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction() == null || "".equals(intent.getAction())) {
+                return;
+            }
+            switch (intent.getAction()) {
+                case UpdatePwdActivity.PWD_UPDATED:
+                    finish();
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +119,10 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
         mActionLog.setOnClickListener(this);
         mActionWorkOder.setOnClickListener(this);
         mActionSync.setOnClickListener(this);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(UpdatePwdActivity.PWD_UPDATED);
+        registerReceiver(mReceiver, filter);
     }
 
     @Override
@@ -124,5 +145,11 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
     }
 }

@@ -55,6 +55,7 @@
     <string name="title_activity_forget">新密码</string>
     <string name="hint_forget_enter">请输入新密码</string>
     <string name="hint_forget_confirm">确认新密码</string>
+    <string name="hint_forget_username">确输入用户名</string>
     <string name="btn_forget_confirm">确认</string>
     <string name="title_activity_pwd_protect">密保</string>
     <string name="hint_pwd_protect">请填写答案</string>
@@ -67,10 +68,14 @@
     <string name="title_activity_detail">详情</string>
     <string name="detail_label_info">详细信息: </string>
     <string name="detail_label_status">状态: </string>
-    <string name="title_activity_work_order">WorkOrderActivity</string>
+    <string name="title_activity_work_order">工单管理</string>
     <string name="loading">加载中...</string>
     <string name="please_enter_correctly">请输入正确</string>
     <string name="question_is_not_correct">你选择的问题不正确</string>
     <string name="answer_is_not_correct">请输入正确答案</string>
+    <string name="pwd_update_success">密码修改成功</string>
+    <string name="order_types">工单类型</string>
+    <string name="order_status">工单状态</string>
+    <string name="title_activity_construct_order">施工工单</string>
 
 </resources>
