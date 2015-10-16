@@ -24,14 +24,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:id="@+id/order_operate_type"
+            android:id="@+id/order_status"
             android:layout_marginRight="16dp"/>
     </LinearLayout>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/construct_order_margin_left"
-        android:id="@+id/order_status"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

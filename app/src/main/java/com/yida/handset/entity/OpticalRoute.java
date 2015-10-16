@@ -5,12 +5,15 @@ package com.yida.handset.entity;
  */
 public class OpticalRoute {
 
+    public static final String[] OPERATE = {"新装", "拆除", "更改"};
+    public static final String[] ROUTE_TYPE = {"双端跳接", "单端跳接", "尾纤型光分路由器跳接"};
+
     private static final int OPERATE_NEW = 0; //新装
     private static final int OPERATE_DISMANTLE = 1; //拆除
     private static final int OPERATE_MODIFY = 2; //更改
-    private static final int OPERATE_TWO = 3; //双端跳接
-    private static final int OPERATE_ONE = 4; //单端跳接
-    private static final int OPERATE_TAIL = 5; //尾纤型光分路由器跳接
+    private static final int ROUTE_TWO = 0; //双端跳接
+    private static final int ROUTE_ONE = 1; //单端跳接
+    private static final int ROUTE_TAIL = 2; //尾纤型光分路由器跳接
 
     private String aDeviceName;
     private String aDeviceId;

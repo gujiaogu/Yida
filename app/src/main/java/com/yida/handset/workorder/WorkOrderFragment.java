@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +30,10 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class WorkOrderFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener{
+
+    public static final String TAG_ID = "tag_id";
+    public static final String TAG_ORDER_STATUS = "tag_order_status";
+    public static final String TAG_SITE = "tag_site";
 
     private static List<OrderItem> orderItems = new ArrayList<>();
     private static String[] status = {"未开始", "进行中", "已完成"};
@@ -72,6 +78,10 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
     TextView mOrderStatusText;
     @Bind(R.id.order_list)
     ListView mOrderList;
+    @Bind(R.id.order_mine)
+    ImageView mOrderMine;
+    @Bind(R.id.order_history)
+    ImageView mOrderHistory;
 
     public static WorkOrderFragment newInstance(String param1, String param2) {
         WorkOrderFragment fragment = new WorkOrderFragment();
@@ -105,6 +115,8 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
         OrderListAdapter adapter = new OrderListAdapter(getActivity(), orderItems);
         mOrderList.setAdapter(adapter);
         mOrderList.setOnItemClickListener(this);
+        mOrderMine.setOnClickListener(this);
+        mOrderHistory.setOnClickListener(this);
         return rootView;
     }
 
@@ -115,9 +127,14 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        switch (((OrderItem) parent.getAdapter().getItem(position)).getOrderType()) {
+        OrderItem item = (OrderItem) parent.getAdapter().getItem(position);
+        String orderType = item.getOrderType();
+        switch (orderType) {
             case ORDER_CONSTRUCT:
                 Intent intent = new Intent(getActivity(), ConstructOrderActivity.class);
+                intent.putExtra(TAG_ID, item.getId());
+                intent.putExtra(TAG_ORDER_STATUS, item.getOrderStatus());
+                intent.putExtra(TAG_SITE, item.getSiteName());
                 startActivity(intent);
                 break;
             case ORDER_CHECK:
@@ -141,6 +158,14 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
                 break;
             case R.id.order_status_text_top:
                 showStatusDialog();
+                break;
+            case R.id.order_mine:
+                mOrderMine.setSelected(true);
+                mOrderHistory.setSelected(false);
+                break;
+            case R.id.order_history:
+                mOrderMine.setSelected(false);
+                mOrderHistory.setSelected(true);
                 break;
             default:
                 break;
