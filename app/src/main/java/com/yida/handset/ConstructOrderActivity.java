@@ -153,9 +153,9 @@ public class ConstructOrderActivity extends AppCompatActivity {
 
             OpticalRoute item = mData.get(i);
             holder.title.setText(String.valueOf(i));
-            holder.operateType.setText(OpticalRoute.OPERATE[item.getOperateType()]);
-            holder.routeType.setText(OpticalRoute.ROUTE_TYPE[item.getRouteType()]);
-            holder.splittingRatio.setText(item.getSplittingRatio());
+            holder.operateType.setText("操作: " + OpticalRoute.OPERATE[item.getOperateType()]);
+            holder.routeType.setText("跳接: " + OpticalRoute.ROUTE_TYPE[item.getRouteType()]);
+            holder.splittingRatio.setText("分光比: " + item.getSplittingRatio());
             holder.portAInfo.setText("设备: " + item.getaDeviceName() + " > 机框: " + item.getaFrameNo() + " > 盘: " + item.getaBoardNo()
                 + " > 端口: " + item.getaPortNo());
             holder.portZInfo.setText("设备: " + item.getzDeviceName() + " > 机框: " + item.getzFrameNo() + " > 盘: " + item.getzBoardNo()

@@ -24,4 +24,10 @@
     <dimen name="order_list_item_margin_left">8dp</dimen>
     <dimen name="order_list_item_margin_right">8dp</dimen>
     <dimen name="construct_order_margin_left">16dp</dimen>
+    <dimen name="construct_order_bottom_margin_left">16dp</dimen>
+    <dimen name="construct_order_bottom_margin_right">16dp</dimen>
+    <dimen name="construct_order_bottom_margin_bottom">16dp</dimen>
+    <dimen name="construct_order_bottom_margin_inter">8dp</dimen>
+    <dimen name="construct_order_item_left_margin">8dp</dimen>
+    <dimen name="electronic_order_left_margin">16dp</dimen>
 </resources>

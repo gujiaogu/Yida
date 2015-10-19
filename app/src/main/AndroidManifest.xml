@@ -20,7 +20,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name_yida"
-            android:theme="@style/AppTheme" >
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -37,7 +37,7 @@
         </activity>
         <activity
             android:name=".ResourceActivity"
-            android:label="@string/app_name_yida" >
+            android:label="@string/resource_activity" >
         </activity>
         <activity
             android:name=".UpdateActivity"
@@ -89,6 +89,10 @@
             android:name=".ConstructOrderActivity"
             android:label="@string/title_activity_construct_order"
             android:theme="@style/AppTheme" >
+        </activity>
+        <activity
+            android:name=".ElectronicWriterActivity"
+            android:label="@string/title_activity_electronic_writer" >
         </activity>
     </application>
 

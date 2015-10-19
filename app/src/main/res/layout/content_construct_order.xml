@@ -1,47 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/activity_construct_order"
     tools:context="com.yida.handset.ConstructOrderActivity"
-    android:orientation="vertical">
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginLeft="@dimen/construct_order_margin_left"
-        android:layout_marginTop="8dp">
-        <TextView
-            android:layout_width="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/construct_order_top_layout">
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:id="@+id/order_id"/>
+            android:orientation="horizontal"
+            android:layout_marginLeft="@dimen/construct_order_margin_left"
+            android:layout_marginTop="8dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:id="@+id/order_id"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:id="@+id/order_status"
+                android:layout_marginRight="16dp"/>
+        </LinearLayout>
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:id="@+id/order_status"
-            android:layout_marginRight="16dp"/>
+            android:layout_marginLeft="@dimen/construct_order_margin_left"
+            android:id="@+id/order_site"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/construct_order_margin_left"
+            android:id="@+id/order_who_transfer"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/construct_order_margin_left"
+            android:id="@+id/order_remark"/>
     </LinearLayout>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/construct_order_margin_left"
-        android:id="@+id/order_site"/>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/construct_order_margin_left"
-        android:id="@+id/order_who_transfer"/>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/construct_order_margin_left"
-        android:id="@+id/order_remark"/>
+
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -51,6 +58,44 @@
         android:paddingRight="10dp"
         android:paddingTop="16dp"
         android:paddingBottom="16dp"
-        android:id="@+id/order_operate_list"/>
+        android:id="@+id/order_operate_list"
+        android:layout_below="@id/construct_order_top_layout"/>
 
-</LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        >
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="@dimen/construct_order_bottom_margin_left"
+            android:text="@string/order_user_operate_complete"
+            android:textColor="@android:color/white"
+            android:background="@drawable/button_background_selector"
+            android:id="@+id/complete_order"
+            android:layout_marginBottom="@dimen/construct_order_bottom_margin_bottom"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="@dimen/construct_order_bottom_margin_inter"
+            android:text="@string/order_user_operate_transfer"
+            android:textColor="@android:color/white"
+            android:background="@drawable/button_background_selector"
+            android:id="@+id/transfer_order"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="@dimen/construct_order_bottom_margin_inter"
+            android:layout_marginRight="@dimen/construct_order_bottom_margin_right"
+            android:text="@string/order_user_operate_return"
+            android:textColor="@android:color/white"
+            android:background="@drawable/button_background_selector"
+            android:id="@+id/return_order"/>
+    </LinearLayout>
+
+</RelativeLayout>

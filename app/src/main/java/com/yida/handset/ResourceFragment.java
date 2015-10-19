@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.JsonObject;
@@ -70,11 +73,11 @@ public class ResourceFragment extends Fragment implements View.OnClickListener,
     private BluetoothAdapter mBluetoothAdapter;
 
     @Bind(R.id.generate_code)
-    Button mGenerator;
+    RelativeLayout mGenerator;
     @Bind(R.id.check_detail)
-    Button mCheckDetail;
+    RelativeLayout mCheckDetail;
     @Bind(R.id.btn_warning)
-    Button mBtnWarning;
+    RelativeLayout mBtnWarning;
     @Bind(R.id.img)
     ImageView mImg;
     @Bind(R.id.spinner_station)

@@ -2,30 +2,18 @@ package com.yida.handset;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
-
-import com.rey.material.widget.Button;
-import com.yida.handset.slide.AboutAction;
-import com.yida.handset.slide.UpdateAction;
-import com.yida.handset.slide.UpdatePwdAction;
-import com.yida.handset.workorder.FragmentWrapper;
-import com.yida.handset.workorder.WorkOrderFragment;
-
-import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class ResourceActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private static final int REQUEST_CODE = 1;
 
     @Bind(R.id.toolbar)
     Toolbar mToolBar;
@@ -49,6 +37,25 @@ public class ResourceActivity extends AppCompatActivity implements View.OnClickL
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.scanner) {
+            Intent intent = new Intent(this, ScannerActivity.class);
+            startActivityForResult(intent, REQUEST_CODE);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
     }
@@ -61,27 +68,6 @@ public class ResourceActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onResume() {
         super.onResume();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                break;
-            case R.id.scanner:
-                Intent intent = new Intent(this, ScannerActivity.class);
-                startActivity(intent);
-                break;
-            default:
-                break;
-        }
-        return true;
     }
 
     @Override
@@ -98,4 +84,6 @@ public class ResourceActivity extends AppCompatActivity implements View.OnClickL
 
         }
     }
+
+
 }

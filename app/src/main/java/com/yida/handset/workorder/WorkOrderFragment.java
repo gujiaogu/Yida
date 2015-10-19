@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.rey.material.app.DialogFragment;
 import com.rey.material.app.SimpleDialog;
 import com.yida.handset.ConstructOrderActivity;
+import com.yida.handset.ElectronicWriterActivity;
 import com.yida.handset.R;
 import com.yida.handset.entity.OrderItem;
 
@@ -129,9 +130,10 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         OrderItem item = (OrderItem) parent.getAdapter().getItem(position);
         String orderType = item.getOrderType();
+        Intent intent;
         switch (orderType) {
             case ORDER_CONSTRUCT:
-                Intent intent = new Intent(getActivity(), ConstructOrderActivity.class);
+                intent = new Intent(getActivity(), ConstructOrderActivity.class);
                 intent.putExtra(TAG_ID, item.getId());
                 intent.putExtra(TAG_ORDER_STATUS, item.getOrderStatus());
                 intent.putExtra(TAG_SITE, item.getSiteName());
@@ -144,6 +146,8 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
             case ORDER_COLLECT:
                 break;
             case ORDER_WRITE_ELE_INFO:
+                intent = new Intent(getActivity(), ElectronicWriterActivity.class);
+                startActivity(intent);
                 break;
             default:
                 break;
