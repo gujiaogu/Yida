@@ -13,10 +13,9 @@
         android:background="?attr/colorPrimary"
         android:fitsSystemWindows="true"/>
 
-    <fragment
+    <include layout="@layout/fragment_first"
+        android:layout_below="@id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        class="com.yida.handset.ResourceFragment"
-        android:layout_below="@id/toolbar"/>
+        android:layout_height="match_parent"/>
 
 </RelativeLayout>

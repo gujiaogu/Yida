@@ -61,6 +61,7 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
     private BluetoothAdapter mBtAdapter;
     private Bitmap newMap, btMap;
     private HashMap<String, Bitmap> bMapList;
+    private String info = "";
 
     @Bind(R.id.toolbar)
     Toolbar mToolBar;
@@ -117,7 +118,7 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
                 case BlueToothService.CONNECTION_READY:
                     if (isPrintOp) {
                         isPrinting = true;
-                        new Thread(new PrintThread("03 previously on desperate housewives")).start();
+                        new Thread(new PrintThread(info)).start();
                     }
                     break;
                 case BlueToothService.PRINT_CANCEL:
@@ -145,6 +146,8 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
                 finish();
             }
         });
+
+        this.info = getIntent().getStringExtra(ResourceActivity.TAG_BLUETOOTH);
         mBtAdapter = BluetoothAdapter.getDefaultAdapter();
         mBtAdapter.getState();
         mSearch.setOnClickListener(this);
@@ -334,7 +337,7 @@ public class BluetoothActivity extends AppCompatActivity implements View.OnClick
                                         && mService.getConnectedDevice().getAddress().equals(itemDeviceAddress)) {
                                     LogWrapper.d("connected device : " + mService.getConnectedDevice().getAddress() + ", "
                                             + mService.getConnectedDevice().getName());
-                                    new Thread(new PrintThread("03 previously on desperate housewives")).start();
+                                    new Thread(new PrintThread(info)).start();
                                 } else if(mService.getState() == BlueToothService.STATE_CONNECTED
                                         && mService.getConnectedDevice() != null
                                         && !mService.getConnectedDevice().getAddress().equals(itemDeviceAddress)) {

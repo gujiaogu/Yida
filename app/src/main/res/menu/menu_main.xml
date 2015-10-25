@@ -6,4 +6,10 @@
         android:title="@string/ic_scanner_title"
         android:orderInCategory="200"
         app:showAsAction="ifRoom" />
+
+    <!--<item android:id="@+id/refresh"-->
+        <!--android:icon="@mipmap/ic_autorenew_white_24dp"-->
+        <!--android:title="@string/ic_auto_new"-->
+        <!--android:orderInCategory="200"-->
+        <!--app:showAsAction="ifRoom" />-->
 </menu>

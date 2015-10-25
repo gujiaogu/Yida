@@ -40,13 +40,13 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
 
-        String info = getIntent().getStringExtra(ResourceFragment.TAG_INFO);
+        String info = getIntent().getStringExtra(ResourceActivity.TAG_INFO);
         try {
             JSONObject object = new JSONObject(info);
-            mTextStation.setText(object.getString(ResourceFragment.TAG_STATION));
-            mTextRack.setText(object.getString(ResourceFragment.TAG_RACK));
-            mTextFrame.setText(object.getString(ResourceFragment.TAG_FRAME));
-            mTextDisk.setText(object.getString(ResourceFragment.TAG_DISK));
+            mTextStation.setText(object.getString(ResourceActivity.TAG_STATION));
+            mTextRack.setText(object.getString(ResourceActivity.TAG_RACK));
+            mTextFrame.setText(object.getString(ResourceActivity.TAG_FRAME));
+            mTextDisk.setText(object.getString(ResourceActivity.TAG_DISK));
         } catch (JSONException e) {
             e.printStackTrace();
         }

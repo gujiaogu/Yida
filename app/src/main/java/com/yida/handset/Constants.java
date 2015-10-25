@@ -8,4 +8,6 @@ public class Constants {
     public static final String LOGIN = MRUL + "/client/user/login.json";
     public static final String MODIFY_PASSWORD = MRUL + "/client/user/modifyPassword.json";
     public static final String FORGET_PASSWORD = MRUL + "/client/user/backPassword.json";
+    public static final String GET_RESOURCES = MRUL + "/client/resource/getResourcesData.json";
+    public static final String GET_WORKORDER = MRUL + "/client/workOrder/getWorkList.json";
 }

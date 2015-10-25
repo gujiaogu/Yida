@@ -2,7 +2,6 @@ package com.yida.handset;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +17,8 @@ import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 public class ScannerActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler, View.OnClickListener {
 
+    public static final String SCANNER_TAG_RESULT = "scanner_result";
+
     @Bind(R.id.scanner_view)
     ZXingScannerView mScannerView;
     @Bind(R.id.toolbar_scanner)
@@ -32,6 +33,16 @@ public class ScannerActivity extends AppCompatActivity implements ZXingScannerVi
         ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+//                Intent data = new Intent();
+//                setResult(AppCompatActivity.RESULT_OK, data);
+                finish();
+            }
+        });
 //        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.ic_arrow_back_white_24dp);
     }
 
@@ -64,7 +75,11 @@ public class ScannerActivity extends AppCompatActivity implements ZXingScannerVi
     public void handleResult(Result result) {
         LogWrapper.d(result.getText());
         LogWrapper.d(result.getBarcodeFormat().toString());
-        new ScannerAsyncTask().execute(result);
+//        new ScannerAsyncTask().execute(result);
+        Intent data = new Intent();
+        data.putExtra(SCANNER_TAG_RESULT, result.getText());
+        setResult(AppCompatActivity.RESULT_OK, data);
+        finish();
     }
 
     @Override
@@ -90,34 +105,4 @@ public class ScannerActivity extends AppCompatActivity implements ZXingScannerVi
 
     }
 
-    private class ScannerAsyncTask extends AsyncTask<Result, Void, Void> {
-        @Override
-        protected Void doInBackground(Result... results) {
-            try {
-                Thread.sleep(3000);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            pd = new ProgressDialog(ScannerActivity.this);
-            pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            pd.show();
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-            if (pd != null) {
-                pd.dismiss();
-            }
-            Intent data = new Intent();
-            setResult(AppCompatActivity.RESULT_OK, data);
-            finish();
-        }
-    }
 }

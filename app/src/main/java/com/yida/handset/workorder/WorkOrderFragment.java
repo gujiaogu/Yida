@@ -1,26 +1,38 @@
 package com.yida.handset.workorder;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.rey.material.app.DialogFragment;
 import com.rey.material.app.SimpleDialog;
 import com.yida.handset.ConstructOrderActivity;
 import com.yida.handset.ElectronicWriterActivity;
+import com.yida.handset.LoginActivity;
 import com.yida.handset.R;
+import com.yida.handset.RequestQueueSingleton;
 import com.yida.handset.entity.OrderItem;
+import com.yida.handset.entity.User;
+import com.yida.handset.entity.WorkOrder;
+import com.yida.handset.entity.WorkOrderDao;
+import com.yida.handset.sqlite.TableWorkOrder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,9 +47,8 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
     public static final String TAG_ID = "tag_id";
     public static final String TAG_ORDER_STATUS = "tag_order_status";
     public static final String TAG_SITE = "tag_site";
+    public static List<WorkOrder> orders = new ArrayList<>();
 
-    private static List<OrderItem> orderItems = new ArrayList<>();
-    private static String[] status = {"未开始", "进行中", "已完成"};
     private static final String ORDER_CONSTRUCT = "施工工单";
     private static final String ORDER_CHECK = "巡检工单";
     private static final String ORDER_CONFIGURATION = "配置工单";
@@ -50,19 +61,6 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
         orderTypes.put(2, ORDER_CONFIGURATION);
         orderTypes.put(3, ORDER_COLLECT);
         orderTypes.put(4, ORDER_WRITE_ELE_INFO);
-    }
-
-    static {
-        OrderItem item;
-        for (int i = 0; i < 15; i ++) {
-            item = new OrderItem();
-            item.setId(String.valueOf(i));
-            item.setOrderStatus(status[i % 3]);
-            item.setOrderType(orderTypes.get(i % 5));
-            item.setSiteName("地址 " + i);
-            item.setRemark("备注" + i);
-            orderItems.add(item);
-        }
     }
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -83,6 +81,10 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
     ImageView mOrderMine;
     @Bind(R.id.order_history)
     ImageView mOrderHistory;
+
+    private WorkOrderDao mWorkOrderDao;
+    private String username;
+    private ProgressDialog pd;
 
     public static WorkOrderFragment newInstance(String param1, String param2) {
         WorkOrderFragment fragment = new WorkOrderFragment();
@@ -113,11 +115,18 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
         ButterKnife.bind(this, rootView);
         mOrderTypeText.setOnClickListener(this);
         mOrderStatusText.setOnClickListener(this);
-        OrderListAdapter adapter = new OrderListAdapter(getActivity(), orderItems);
+        OrderListAdapter adapter = new OrderListAdapter(getActivity(), orders);
         mOrderList.setAdapter(adapter);
         mOrderList.setOnItemClickListener(this);
         mOrderMine.setOnClickListener(this);
         mOrderHistory.setOnClickListener(this);
+        mWorkOrderDao = new WorkOrderDao(getActivity());
+
+        SharedPreferences preferences = getActivity().getSharedPreferences(LoginActivity.REFERENCE_NAME, Context.MODE_PRIVATE);
+        String userStr = preferences.getString(LoginActivity.REFERENCE_USER, "");
+        Gson gson = new Gson();
+        User user = gson.fromJson(userStr, new TypeToken<User>(){}.getType());
+        this.username = user.getUsername();
         return rootView;
     }
 
@@ -166,20 +175,52 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
             case R.id.order_mine:
                 mOrderMine.setSelected(true);
                 mOrderHistory.setSelected(false);
+                setMineOrder();
                 break;
             case R.id.order_history:
                 mOrderMine.setSelected(false);
                 mOrderHistory.setSelected(true);
+                setHistoryOrder();
                 break;
             default:
                 break;
         }
     }
 
+    public void setMineOrder() {
+        new OrderTask(TableWorkOrder.USERNAME + "=?", new String[]{username}).execute();
+        OrderListAdapter adapter = new OrderListAdapter(getActivity(), orders);
+        mOrderList.setAdapter(adapter);
+    }
+
+    public void setHistoryOrder() {
+        new OrderTask(TableWorkOrder.USERNAME + "=? and " + TableWorkOrder.ORDER_STATUS + "=?", new String[]{username, WorkOrder.STATUS_COMPLETED}).execute();
+        OrderListAdapter adapter = new OrderListAdapter(getActivity(), orders);
+        mOrderList.setAdapter(adapter);
+    }
+
     private void showTypeDialog() {
         SimpleDialog.Builder builder = new SimpleDialog.Builder(R.style.SimpleDialogLight) {
             @Override
             public void onPositiveActionClicked(DialogFragment fragment) {
+                switch (getSelectedIndex()) {
+                    case 0:
+                        new OrderTask(TableWorkOrder.USERNAME + "=?", new String[]{username}).execute();
+                        break;
+                    case 1:
+                        new OrderTask(TableWorkOrder.USERNAME + "=? and " + TableWorkOrder.ORDER_TYPE + "=?", new String[]{username, String.valueOf(getSelectedIndex())}).execute();
+                        break;
+                    case 2:
+                        new OrderTask(TableWorkOrder.USERNAME + "=? and " + TableWorkOrder.ORDER_TYPE + "=?", new String[]{username, String.valueOf(getSelectedIndex())}).execute();
+                        break;
+                    case 3:
+                        new OrderTask(TableWorkOrder.USERNAME + "=? and " + TableWorkOrder.ORDER_TYPE + "=?", new String[]{username, String.valueOf(getSelectedIndex())}).execute();
+                        break;
+                    default:
+                        break;
+                }
+                OrderListAdapter adapter = new OrderListAdapter(getActivity(), orders);
+                mOrderList.setAdapter(adapter);
                 Toast.makeText(getActivity(), "You have selected " + getSelectedValue() + " as phone ringtone.", Toast.LENGTH_SHORT).show();
                 super.onPositiveActionClicked(fragment);
             }
@@ -200,9 +241,24 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
     }
 
     private void showStatusDialog() {
-        SimpleDialog.Builder builder = new SimpleDialog.Builder(R.style.SimpleDialogLight) {
+        final SimpleDialog.Builder builder = new SimpleDialog.Builder(R.style.SimpleDialogLight) {
             @Override
             public void onPositiveActionClicked(DialogFragment fragment) {
+                switch (getSelectedIndex()) {
+                    case 0:
+                        new OrderTask(TableWorkOrder.USERNAME + "=?", new String[]{username}).execute();
+                        break;
+                    case 1:
+                        new OrderTask(TableWorkOrder.USERNAME + "=? and " + TableWorkOrder.ORDER_STATUS + "=?",  new String[]{username, getSelectedValue().toString()}).execute();
+                        break;
+                    case 2:
+                        new OrderTask(TableWorkOrder.USERNAME + "=? and " + TableWorkOrder.ORDER_STATUS + "=?",  new String[]{username, getSelectedValue().toString()}).execute();
+                        break;
+                    default:
+                        break;
+                }
+                OrderListAdapter adapter = new OrderListAdapter(getActivity(), orders);
+                mOrderList.setAdapter(adapter);
                 Toast.makeText(getActivity(), "You have selected " + getSelectedValue() + " as phone ringtone.", Toast.LENGTH_SHORT).show();
                 super.onPositiveActionClicked(fragment);
             }
@@ -225,10 +281,10 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
     private class OrderListAdapter extends BaseAdapter {
 
         private Context context;
-        private List<OrderItem> data;
+        private List<WorkOrder> data;
         private LayoutInflater inflater;
 
-        public OrderListAdapter(Context context, List<OrderItem> data) {
+        public OrderListAdapter(Context context, List<WorkOrder> data) {
             this.context = context;
             this.data = data;
             this.inflater = LayoutInflater.from(this.context);
@@ -270,8 +326,8 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
                 holder = (ViewHolder) convertView.getTag();
             }
 
-            OrderItem item = data.get(position);
-            holder.itemTitle.setText("ID : " + item.getId());
+            WorkOrder item = data.get(position);
+            holder.itemTitle.setText("ID : " + item.getWorkOrderId());
             holder.itemStatus.setText("状态 : " + item.getOrderStatus());
             holder.itemType.setText("类型 : " + item.getOrderType());
             holder.itemSite.setText("地址 : " + item.getSiteName());
@@ -285,6 +341,52 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
             TextView itemStatus;
             TextView itemSite;
             TextView remark;
+        }
+    }
+
+    private class OrderTask extends AsyncTask<Void, Void, Void> {
+        private String selection;
+        private String[] selections;
+        public OrderTask(String selection, String[] selections) {
+            super();
+            this.selection = selection;
+            this.selections = selections;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pd = new ProgressDialog(getActivity());
+            pd.setMessage(getString(R.string.loading));
+            pd.setCanceledOnTouchOutside(false);
+            pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialogInterface) {
+                    dismiss();
+                    cancel(true);
+                }
+            });
+            pd.show();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            OrderListAdapter adapter = new OrderListAdapter(getActivity(), orders);
+            mOrderList.setAdapter(adapter);
+            dismiss();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            orders = mWorkOrderDao.queryAll(this.selection, this.selections, null, null, null);
+            return null;
+        }
+    }
+
+    private void dismiss() {
+        if (pd != null && pd.isShowing()) {
+            pd.dismiss();
         }
     }
 }

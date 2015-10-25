@@ -19,6 +19,7 @@
     <string name="planned_fragment">planned fragment</string>
     <string name="title_activity_scanner">scanner</string>
     <string name="ic_scanner_title">scan the barcode</string>
+    <string name="ic_auto_new">刷新</string>
     <string name="ble_support_text">你的Android版本不支持BLE</string>
     <string name="ble_not_supported">你的设备不支持BLE</string>
     <string name="title_activity_login">登录</string>
@@ -66,6 +67,7 @@
     <string name="resource_edit_second_hint">机架</string>
     <string name="resource_edit_third_hint">机框</string>
     <string name="resource_edit_forth_hint">盘</string>
+    <string name="resource_edit_wait">正在查询中，请稍等</string>
     <string name="title_activity_detail">详情</string>
     <string name="detail_label_info">详细信息: </string>
     <string name="detail_label_status">状态: </string>
@@ -85,5 +87,7 @@
     <string name="order_user_operate_return">驳回</string>
     <string name="order_user_operate_write">写入</string>
     <string name="title_activity_electronic_writer">电子标签写入</string>
+    <string name="resource_wrong_data">错误的数据</string>
+    <string name="please_sync_data">请先同步数据</string>
 
 </resources>
