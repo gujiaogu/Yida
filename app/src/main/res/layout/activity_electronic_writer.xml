@@ -68,7 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginLeft="@dimen/construct_order_bottom_margin_inter"
-            android:text="@string/order_user_operate_transfer"
+            android:text="@string/order_user_operate_accept"
             android:textColor="@android:color/white"
             android:background="@drawable/button_background_selector"
             android:id="@+id/electronic_transfer"/>

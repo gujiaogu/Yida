@@ -3,7 +3,7 @@ package com.yida.handset.entity;
 /**
  * Created by Administrator on 2015/10/15.
  */
-public class OpticalRoute {
+public class OpticalRoute implements OpticalItem {
 
     public static final String[] OPERATE = {"新装", "拆除", "更改"};
     public static final String[] ROUTE_TYPE = {"双端跳接", "单端跳接", "尾纤型光分路由器跳接"};
@@ -17,17 +17,19 @@ public class OpticalRoute {
 
     private String aDeviceName;
     private String aDeviceId;
-    private int aFrameNo;
-    private int aBoardNo;
+    private String aFrameNo;
+    private String aBoardNo;
     private int aPortNo;
     private String zDeviceName;
     private String zDeviceId;
-    private int zFrameNo;
-    private int zBoardNo;
+    private String zFrameNo;
+    private String zBoardNo;
     private int zPortNo;
     private int operateType;
-    private String SplittingRatio;
+    private String splittingRatio;
     private int routeType;
+    private int passageId;
+    private int id;
 
     public String getaDeviceName() {
         return aDeviceName;
@@ -45,20 +47,36 @@ public class OpticalRoute {
         this.aDeviceId = aDeviceId;
     }
 
-    public int getaFrameNo() {
+    public String getaFrameNo() {
         return aFrameNo;
     }
 
-    public void setaFrameNo(int aFrameNo) {
+    public void setaFrameNo(String aFrameNo) {
         this.aFrameNo = aFrameNo;
     }
 
-    public int getaBoardNo() {
+    public String getaBoardNo() {
         return aBoardNo;
     }
 
-    public void setaBoardNo(int aBoardNo) {
+    public void setaBoardNo(String aBoardNo) {
         this.aBoardNo = aBoardNo;
+    }
+
+    public String getzFrameNo() {
+        return zFrameNo;
+    }
+
+    public void setzFrameNo(String zFrameNo) {
+        this.zFrameNo = zFrameNo;
+    }
+
+    public String getzBoardNo() {
+        return zBoardNo;
+    }
+
+    public void setzBoardNo(String zBoardNo) {
+        this.zBoardNo = zBoardNo;
     }
 
     public int getaPortNo() {
@@ -85,22 +103,6 @@ public class OpticalRoute {
         this.zDeviceId = zDeviceId;
     }
 
-    public int getzFrameNo() {
-        return zFrameNo;
-    }
-
-    public void setzFrameNo(int zFrameNo) {
-        this.zFrameNo = zFrameNo;
-    }
-
-    public int getzBoardNo() {
-        return zBoardNo;
-    }
-
-    public void setzBoardNo(int zBoardNo) {
-        this.zBoardNo = zBoardNo;
-    }
-
     public int getzPortNo() {
         return zPortNo;
     }
@@ -118,11 +120,27 @@ public class OpticalRoute {
     }
 
     public String getSplittingRatio() {
-        return SplittingRatio;
+        return splittingRatio;
     }
 
     public void setSplittingRatio(String splittingRatio) {
-        SplittingRatio = splittingRatio;
+        this.splittingRatio = splittingRatio;
+    }
+
+    public int getPassageId() {
+        return passageId;
+    }
+
+    public void setPassageId(int passageId) {
+        this.passageId = passageId;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public int getRouteType() {

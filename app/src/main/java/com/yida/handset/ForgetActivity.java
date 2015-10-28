@@ -122,8 +122,9 @@ public class ForgetActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         String params = "?question=" + quest + "&answer=" + ans + "&newPwd=" + newPwd + "&loginName=" + username;
-        LogWrapper.d(Constants.FORGET_PASSWORD + params);
-        StringRequest forgetPwdRequest = new StringRequest(Request.Method.POST, Constants.FORGET_PASSWORD + params, new Response.Listener<String>() {
+        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.FORGET_PASSWORD + params;
+        LogWrapper.d(mUrl);
+        StringRequest forgetPwdRequest = new StringRequest(Request.Method.POST, mUrl, new Response.Listener<String>() {
             @Override
             public void onResponse(String s) {
                 LogWrapper.d(s);

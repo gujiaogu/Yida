@@ -31,6 +31,7 @@
     <string name="resource_warning_btn_text">上传告警信息</string>
     <string name="title_activity_modify_pwd">修改密码</string>
     <string name="login_text_for_modify_pwd">忘记密码</string>
+    <string name="login_text_for_set_ip">请联系管理员进行初始化设置</string>
     <string name="modify_pwd_hint_edit_text_old_pwd">请输入旧密码</string>
     <string name="modify_pwd_hint_edit_text_new_pwd">请输入新密码</string>
     <string name="modify_pwd_hint_edit_text_new_pwd_again">请确认新密码</string>
@@ -82,12 +83,17 @@
     <string name="title_activity_construct_order">施工工单</string>
     <string name="port_a">A端: </string>
     <string name="port_z">Z端: </string>
-    <string name="order_user_operate_complete">完成</string>
-    <string name="order_user_operate_transfer">转派</string>
+    <string name="order_user_operate_complete">回单</string>
+    <string name="order_user_operate_accept">接收</string>
     <string name="order_user_operate_return">驳回</string>
     <string name="order_user_operate_write">写入</string>
     <string name="title_activity_electronic_writer">电子标签写入</string>
     <string name="resource_wrong_data">错误的数据</string>
     <string name="please_sync_data">请先同步数据</string>
+    <string name="title_activity_setting">设置IP</string>
+    <string name="setting_IP">IP</string>
+    <string name="setting_port">端口</string>
+    <string name="setting_text_btn">设置</string>
+    <string name="setting_toast_text">请输入正确的IP和端口号</string>
 
 </resources>

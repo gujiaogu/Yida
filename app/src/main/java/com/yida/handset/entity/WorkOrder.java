@@ -1,17 +1,16 @@
 package com.yida.handset.entity;
 
+import com.yida.handset.workorder.WorkOrderFragment;
+
 /**
  * Created by gujiao on 2015/10/24.
  */
 public class WorkOrder {
 
-    public static final String STATUS_COMPLETED = "已完成";
-    public static final String STATUS_NO_COMPLETED = "未完成";
-
-    private int workOrderId;
+    private int workId;
     private String orderType;
     private String siteName;
-    private String orderStatus = STATUS_NO_COMPLETED;
+    private String orderStatus = WorkOrderFragment.orderTypes.get(WorkOrderFragment.STATUS_NO_ACCEPT);
     private String dateCompleted;
     private String remark;
     private String username;
@@ -24,12 +23,12 @@ public class WorkOrder {
         this.username = username;
     }
 
-    public int getWorkOrderId() {
-        return workOrderId;
+    public int getWorkId() {
+        return workId;
     }
 
-    public void setWorkOrderId(int workOrderId) {
-        this.workOrderId = workOrderId;
+    public void setWorkId(int workId) {
+        this.workId = workId;
     }
 
     public String getOrderType() {

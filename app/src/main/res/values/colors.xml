@@ -4,6 +4,7 @@
     <color name="btn_selected">#2891b2</color>
     <color name="primaryDark">#1565C0</color>
     <color name="primaryClicked">#e91e63</color>
+    <color name="login_set_ip">#e91e63</color>
     <color name="colorAccent">#9C27B0</color>
     <color name="colorControlNormal">#FF78909C</color>
     <color name="accent">#4527A0</color>

@@ -114,7 +114,8 @@ public class UpdatePwdActivity extends AppCompatActivity implements View.OnClick
         pd.show();
 
         String params = "?oldPwd=" + user.getPassword() + "&newPwd=" + newPassword + "&token=" + user.getToken();
-        StringRequest updatePwdRequest = new StringRequest(Request.Method.POST, Constants.MODIFY_PASSWORD + params, new Response.Listener<String>() {
+        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.MODIFY_PASSWORD + params;
+        StringRequest updatePwdRequest = new StringRequest(Request.Method.POST, mUrl, new Response.Listener<String>() {
             @Override
             public void onResponse(String s) {
                 Gson gson = new Gson();

@@ -1,4 +1,4 @@
-package com.yida.handset.entity;
+package com.yida.handset.sqlite;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteDatabase;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.yida.handset.LoginActivity;
+import com.yida.handset.entity.User;
+import com.yida.handset.entity.WorkOrder;
 import com.yida.handset.sqlite.DatabaseHelper;
 import com.yida.handset.sqlite.TableWorkOrder;
 
@@ -45,7 +47,7 @@ public class WorkOrderDao {
             WorkOrder order;
             while (cursor.moveToNext()) {
                 order = new WorkOrder();
-                order.setWorkOrderId(cursor.getInt(cursor.getColumnIndex(TableWorkOrder.WORKID)));
+                order.setWorkId(cursor.getInt(cursor.getColumnIndex(TableWorkOrder.WORKID)));
                 order.setOrderType(cursor.getString(cursor.getColumnIndex(TableWorkOrder.ORDER_TYPE)));
                 order.setSiteName(cursor.getString(cursor.getColumnIndex(TableWorkOrder.SITE_NAME)));
                 order.setDateCompleted(cursor.getString(cursor.getColumnIndex(TableWorkOrder.DATE_COMPLETED)));
@@ -71,15 +73,28 @@ public class WorkOrderDao {
         ContentValues values;
         for (WorkOrder workOrder : data) {
             values = new ContentValues();
-            values.put(TableWorkOrder.WORKID, workOrder.getWorkOrderId());
+            values.put(TableWorkOrder.WORKID, workOrder.getWorkId());
             values.put(TableWorkOrder.ORDER_TYPE, workOrder.getOrderType());
             values.put(TableWorkOrder.SITE_NAME, workOrder.getSiteName());
             values.put(TableWorkOrder.DATE_COMPLETED, workOrder.getDateCompleted());
             values.put(TableWorkOrder.ORDER_STATUS, workOrder.getOrderStatus());
             values.put(TableWorkOrder.REMARK, workOrder.getRemark());
             values.put(TableWorkOrder.USERNAME, username);
+            Cursor cursor = db.query(TableWorkOrder.TABLE_NAME, null, TableWorkOrder.WORKID + "=?", new String[]{String.valueOf(workOrder.getWorkId())}, null, null, null, null);
+            if (cursor != null && cursor.getCount() > 0) {
+                cursor.close();
+                db.update(TableWorkOrder.TABLE_NAME, values, TableWorkOrder.WORKID + "=?", new String[]{String.valueOf(workOrder.getWorkId())});
+                continue;
+            }
             db.insert(TableWorkOrder.TABLE_NAME, null, values);
         }
         db.close();
+    }
+
+    public int update(ContentValues values, String where) {
+        SQLiteDatabase db = helper.getWritableDatabase();
+        int reslut = db.update(TableWorkOrder.TABLE_NAME, values, where, null);
+        db.close();
+        return reslut;
     }
 }

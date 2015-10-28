@@ -1,5 +1,6 @@
 package com.yida.handset;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,6 +31,7 @@ import com.google.gson.reflect.TypeToken;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.rey.material.widget.CheckBox;
 import com.yida.handset.entity.LoginResult;
+import com.yida.handset.workorder.SettingActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,6 +51,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public static final String CODE_SUCCESS = "0";
     public static final String CODE_FAILURE = "-1";
     public static final String LOGIN_TAG = "tag_login";
+    public static final int REQUEST_CODE_FOR_SET_IP = 1;
 
     @Bind(R.id.toolbar)
     Toolbar mToolBar;
@@ -62,6 +65,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     MaterialEditText mEditTextUsername;
     @Bind(R.id.forget_pwd)
     TextView mForgetPwd;
+    @Bind(R.id.set_ip_text)
+    TextView mSetIp;
 
     private ProgressDialog pd;
 
@@ -80,6 +85,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 finish();
             }
         });
+
+        SharedPreferences preferences = getSharedPreferences(LoginActivity.REFERENCE_NAME, Context.MODE_PRIVATE);
+        String IP = preferences.getString(SettingActivity.PREFERENCE_IP_ADDRESS, "");
+        String port = preferences.getString(SettingActivity.PREFERENCE_PORT, "");
+        if ("".equals(IP) || "".equals(port)) {
+            setIPTextVisible(true);
+        }
 
         mBtnLogin.setOnClickListener(this);
         mSwitch.setOnCheckedChangeListener(this);
@@ -111,11 +123,32 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQUEST_CODE_FOR_SET_IP && resultCode == Activity.RESULT_OK) {
+            if (data != null) {
+                boolean isSuccess = data.getBooleanExtra(SettingActivity.PREFERENCE_SET_SUCCESS, false);
+                if (isSuccess) {
+                    setIPTextVisible(false);
+                }
+            }
+        }
+    }
+
     private void login() {
         final String userName = mEditTextUsername.getText().toString().trim();
         final String password = mEditTextPwd.getText().toString().trim();
         if (userName.equals("") || password.equals("")) {
             Toast.makeText(this, R.string.toast_hint_for_username_pwd, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (Constants.SUPER_USER.equals(userName)
+                && Constants.SUPER_PASSWORD.equals(password)) {
+            Intent intent = new Intent(this, SettingActivity.class);
+            startActivityForResult(intent, REQUEST_CODE_FOR_SET_IP);
+            mEditTextUsername.setText("");
+            mEditTextPwd.setText("");
             return;
         }
 
@@ -132,7 +165,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         pd.show();
 
         String params = "?loginName=" + userName + "&password=" + password;
-        StringRequest mLoginRequest = new StringRequest(Request.Method.GET, Constants.LOGIN + params, new Response.Listener<String>() {
+        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.LOGIN + params;
+        StringRequest mLoginRequest = new StringRequest(Request.Method.GET, mUrl, new Response.Listener<String>() {
             @Override
             public void onResponse(String s) {
                 Gson gson = new Gson();
@@ -186,6 +220,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             mEditTextPwd.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
         } else {
             mEditTextPwd.setTransformationMethod(PasswordTransformationMethod.getInstance());
+        }
+    }
+
+    public void setIPTextVisible(boolean visible) {
+        if (visible) {
+            mSetIp.setVisibility(View.VISIBLE);
+        } else {
+            mSetIp.setVisibility(View.GONE);
         }
     }
 }

@@ -72,5 +72,17 @@
         android:textColor="@color/color_text_state"
         android:background="@android:color/transparent"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/forget_pwd"
+        android:text="@string/login_text_for_set_ip"
+        android:layout_marginTop="@dimen/login_edit_text_margin_top3"
+        android:id="@+id/set_ip_text"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/login_set_ip"
+        android:background="@android:color/transparent"
+        android:visibility="gone"/>
+
 
 </RelativeLayout>

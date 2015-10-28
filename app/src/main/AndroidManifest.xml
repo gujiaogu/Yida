@@ -29,7 +29,8 @@
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:label="@string/title_activity_login" >
+            android:label="@string/title_activity_login"
+            android:launchMode="singleTop">
         </activity>
         <activity
             android:name=".ScannerActivity"
@@ -58,7 +59,8 @@
         <activity
             android:name=".HahaActivity"
             android:label="@string/app_name_yida"
-            android:theme="@style/AppTheme" >
+            android:theme="@style/AppTheme"
+            android:launchMode="singleTop">
         </activity>
         <activity
             android:name=".LogActivity"
@@ -93,6 +95,10 @@
         <activity
             android:name=".ElectronicWriterActivity"
             android:label="@string/title_activity_electronic_writer" >
+        </activity>
+        <activity
+            android:name=".workorder.SettingActivity"
+            android:label="@string/title_activity_setting" >
         </activity>
     </application>
 

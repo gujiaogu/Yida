@@ -37,7 +37,8 @@ import com.yida.handset.entity.ResourceVo;
 import com.yida.handset.entity.ResultVo;
 import com.yida.handset.entity.User;
 import com.yida.handset.entity.WorkList;
-import com.yida.handset.entity.WorkOrderDao;
+import com.yida.handset.slide.ExitAction;
+import com.yida.handset.sqlite.WorkOrderDao;
 import com.yida.handset.slide.AboutAction;
 import com.yida.handset.slide.UpdateAction;
 import com.yida.handset.slide.UpdatePwdAction;
@@ -69,6 +70,7 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
         mSlideActions.add(new ActionWrapper(0, "软件升级", new UpdateAction()));
         mSlideActions.add(new ActionWrapper(1, "修改密码", new UpdatePwdAction()));
         mSlideActions.add(new ActionWrapper(2, "关于", new AboutAction()));
+        mSlideActions.add(new ActionWrapper(3, "退出登陆", new ExitAction()));
     }
 
     private static final String RESOURCE_TAG = "tag_resource";
@@ -237,15 +239,27 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
             params += user.getString("token");
         } catch (JSONException e) {
             e.printStackTrace();
+            dismiss();
         }
 
-        StringRequest request = new StringRequest(Request.Method.GET, Constants.GET_WORKORDER + params, new Response.Listener<String>() {
+        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.GET_WORKORDER + params;
+        StringRequest request = new StringRequest(Request.Method.GET, mUrl, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 LogWrapper.d(response);
                 Gson gson = new Gson();
-                final WorkList result = gson.fromJson(response, new TypeToken<WorkList>() {
-                    }.getType());
+                WorkList result = null;
+                try {
+                    result = gson.fromJson(response, new TypeToken<WorkList>() {
+                        }.getType());
+                } catch (Exception e) {
+                    dismiss();
+                    e.printStackTrace();
+                }
+                if (result == null) {
+                    dismiss();
+                    return;
+                }
                 if(ResultVo.CODE_SUCCESS.equals(result.getCode())) {
                     mWorkOrderDao.insert(result.getWorkList());
                     WorkOrderFragment.orders = mWorkOrderDao.queryAll(TableWorkOrder.USERNAME + "=?", new String[]{HahaActivity.this.user.getUsername()}, null, null, null);
@@ -324,19 +338,31 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
         if (mRequestQueue == null) {
             mRequestQueue = RequestQueueSingleton.getInstance(this);
         }
-        StringRequest request = new StringRequest(Request.Method.GET, Constants.GET_RESOURCES, new Response.Listener<String>() {
+        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.GET_RESOURCES;
+        StringRequest request = new StringRequest(Request.Method.GET, mUrl, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 LogWrapper.d(response);
                 Gson gson = new Gson();
-                final ResourceVo result = gson.fromJson(response, new TypeToken<ResourceVo>() {
+                ResourceVo result = null;
+                try {
+                    result = gson.fromJson(response, new TypeToken<ResourceVo>() {
                     }.getType());
+                } catch (Exception e) {
+                    dismiss();
+                    e.printStackTrace();
+                }
+                if (result == null) {
+                    dismiss();
+                    return;
+                }
+                final ResourceVo result2 = result;
                 if (ResultVo.CODE_SUCCESS.equals(result.getCode())) {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
                             clearResource();
-                            insertResource(result);
+                            insertResource(result2);
                             dismiss();
                         }
                     }).start();
