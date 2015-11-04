@@ -10,10 +10,19 @@ public class WorkOrder {
     private int workId;
     private String orderType;
     private String siteName;
-    private String orderStatus = WorkOrderFragment.orderTypes.get(WorkOrderFragment.STATUS_NO_ACCEPT);
+    private String status = WorkOrderFragment.orderTypes.get(WorkOrderFragment.STATUS_NO_ACCEPT);
     private String dateCompleted;
     private String remark;
     private String username;
+    private String assignerName;
+
+    public String getAssignerName() {
+        return assignerName;
+    }
+
+    public void setAssignerName(String assignerName) {
+        this.assignerName = assignerName;
+    }
 
     public String getUsername() {
         return username;
@@ -47,12 +56,12 @@ public class WorkOrder {
         this.siteName = siteName;
     }
 
-    public String getOrderStatus() {
-        return orderStatus;
+    public String getStatus() {
+        return status;
     }
 
-    public void setOrderStatus(String orderStatus) {
-        this.orderStatus = orderStatus;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getDateCompleted() {

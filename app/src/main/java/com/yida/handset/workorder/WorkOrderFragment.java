@@ -30,12 +30,14 @@ import com.rey.material.app.SimpleDialog;
 import com.yida.handset.Constants;
 import com.yida.handset.ConstructOrderActivity;
 import com.yida.handset.ElectronicWriterActivity;
+import com.yida.handset.InspectOrderActivity;
 import com.yida.handset.LogWrapper;
 import com.yida.handset.LoginActivity;
 import com.yida.handset.R;
 import com.yida.handset.RequestQueueSingleton;
 import com.yida.handset.entity.ConstructOrderResult;
 import com.yida.handset.entity.ConstructOrderRoute;
+import com.yida.handset.entity.InspectResult;
 import com.yida.handset.entity.OpticalItem;
 import com.yida.handset.entity.OpticalRoute;
 import com.yida.handset.entity.ResultVo;
@@ -58,6 +60,7 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
     public static final String TAG_ORDER_STATUS = "tag_order_status";
     public static final String TAG_SITE = "tag_site";
     public static final int REQUEST_CODE_CONSTRUCT_ORDER = 1;
+    public static final int REQUEST_CODE_INSPECT_ORDER = 2;
     public static List<WorkOrder> orders = new ArrayList<>();
 
     private static final String ORDER_CONSTRUCT = "施工工单";
@@ -83,7 +86,7 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
     public static final String STATUS_COMPLETED = "已回单";
     public static final String STATUS_NO_ACCEPT = "未接收";
     public static final String STATUS_ACCEPTED = "已接收";
-    public static final String STATUS_NO_PUBLISHED = "未发布";
+    public static final String STATUS_NO_PUBLISHED = "已驳回"; //驳回后为未发布状态
     public static Map<String, String> orderStatus = new HashMap<>();
     static {
         orderStatus.put(STATUS_NO_PUBLISHED, "10");
@@ -102,6 +105,7 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private static final String TAG_CONSTRUCT_ORDER = "tag_construct_order";
+    private static final String TAG_INSPECT_ORDER = "tag_inspect_order";
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -181,6 +185,7 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
                 startConstructOrder(item);
                 break;
             case "2": //巡检工单
+                startInspectOrder(item);
                 break;
             case "3": //电子标签写入工单
                 intent = new Intent(getActivity(), ElectronicWriterActivity.class);
@@ -228,9 +233,75 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
                     new OrderTask(null, null).execute();
                 }
                 break;
+            case REQUEST_CODE_INSPECT_ORDER:
+                if (resultCode == Activity.RESULT_OK) {
+                    new OrderTask(null, null).execute();
+                }
+                break;
             default:
                 break;
         }
+    }
+
+    private void startInspectOrder(WorkOrder item) {
+        pd = new ProgressDialog(getActivity());
+        pd.setMessage(getString(R.string.loading));
+        pd.setCanceledOnTouchOutside(false);
+        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                dismiss();
+                RequestQueueSingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue().cancelAll(TAG_INSPECT_ORDER);
+            }
+        });
+        pd.show();
+
+        final WorkOrder order = item;
+        String params = "?workId=" + item.getWorkId();
+        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.GET_INSPECT_ORDER + params;
+        LogWrapper.d(mUrl);
+        StringRequest inspectOrderRequest = new StringRequest(Request.Method.GET, mUrl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String s) {
+                LogWrapper.d(s);
+                Gson gson = new Gson();
+                InspectResult result = null;
+                try {
+                    result = gson.fromJson(s, new TypeToken<InspectResult>() {
+                    }.getType());
+                } catch (Exception e) {
+                    dismiss();
+                    e.printStackTrace();
+                }
+                if (result == null) {
+                    dismiss();
+                    return;
+                }
+
+                if (ResultVo.CODE_SUCCESS.equals(result.getCode())) {
+                    InspectOrderActivity.workOrder = result.getWorkOrder();
+                    if (InspectOrderActivity.workOrder != null) {
+                        Intent intent = new Intent(getActivity(), InspectOrderActivity.class);
+                        intent.putExtra(TAG_ID, order.getWorkId());
+                        intent.putExtra(TAG_ORDER_STATUS, orderStatus.get(order.getStatus()));
+                        intent.putExtra(TAG_SITE, order.getSiteName());
+                        startActivityForResult(intent, REQUEST_CODE_INSPECT_ORDER);
+                    }
+                } else if(ResultVo.CODE_FAILURE.equals(result.getCode())) {
+                    Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                dismiss();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                dismiss();
+                volleyError.printStackTrace();
+            }
+        });
+        inspectOrderRequest.setTag(TAG_INSPECT_ORDER);
+
+        RequestQueueSingleton.getInstance(getActivity()).addToRequestQueue(inspectOrderRequest);
     }
 
     private void startConstructOrder(WorkOrder item) {
@@ -281,7 +352,7 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
 
                     Intent intent = new Intent(getActivity(), ConstructOrderActivity.class);
                     intent.putExtra(TAG_ID, order.getWorkId());
-                    intent.putExtra(TAG_ORDER_STATUS, orderStatus.get(order.getOrderStatus()));
+                    intent.putExtra(TAG_ORDER_STATUS, orderStatus.get(order.getStatus()));
                     intent.putExtra(TAG_SITE, order.getSiteName());
                     dismiss();
                     startActivityForResult(intent, REQUEST_CODE_CONSTRUCT_ORDER);
@@ -306,12 +377,19 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
         new OrderTask(TableWorkOrder.USERNAME + "=?", new String[]{username}).execute();
         OrderListAdapter adapter = new OrderListAdapter(getActivity(), orders);
         mOrderList.setAdapter(adapter);
+        resetTopText();
     }
 
     public void setHistoryOrder() {
-        new OrderTask(TableWorkOrder.USERNAME + "=? and " + TableWorkOrder.ORDER_STATUS + "=?", new String[]{username, orderStatus.get(STATUS_COMPLETED)}).execute();
+        new OrderTask(TableWorkOrder.USERNAME + "=? and " + TableWorkOrder.ORDER_STATUS + " in(?,?)", new String[]{username, orderStatus.get(STATUS_COMPLETED), orderStatus.get(STATUS_NO_PUBLISHED)}).execute();
         OrderListAdapter adapter = new OrderListAdapter(getActivity(), orders);
         mOrderList.setAdapter(adapter);
+        resetTopText();
+    }
+
+    private void resetTopText() {
+        mOrderTypeText.setText(getResources().getStringArray(R.array.order_type)[0]);
+        mOrderStatusText.setText(getResources().getStringArray(R.array.order_status)[0]);
     }
 
     private void showTypeDialog() {
@@ -326,7 +404,8 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
                 OrderListAdapter adapter = new OrderListAdapter(getActivity(), orders);
                 mOrderList.setAdapter(adapter);
                 mOrderTypeText.setText(getSelectedValue());
-                Toast.makeText(getActivity(), "You have selected " + getSelectedValue() + " as phone ringtone.", Toast.LENGTH_SHORT).show();
+                mOrderStatusText.setText(getResources().getStringArray(R.array.order_status)[0]);
+                Toast.makeText(getActivity(), "You have selected " + getSelectedValue(), Toast.LENGTH_SHORT).show();
                 super.onPositiveActionClicked(fragment);
             }
 
@@ -357,7 +436,8 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
                 OrderListAdapter adapter = new OrderListAdapter(getActivity(), orders);
                 mOrderList.setAdapter(adapter);
                 mOrderStatusText.setText(getSelectedValue());
-                Toast.makeText(getActivity(), "You have selected " + getSelectedValue() + " as phone ringtone.", Toast.LENGTH_SHORT).show();
+                mOrderTypeText.setText(getResources().getStringArray(R.array.order_type)[0]);
+                Toast.makeText(getActivity(), "You have selected " + getSelectedValue(), Toast.LENGTH_SHORT).show();
                 super.onPositiveActionClicked(fragment);
             }
 
@@ -418,7 +498,7 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
                 holder.itemType = (TextView) convertView.findViewById(R.id.item_type);
                 holder.itemStatus = (TextView) convertView.findViewById(R.id.item_status);
                 holder.itemSite = (TextView) convertView.findViewById(R.id.site);
-                holder.remark = (TextView) convertView.findViewById(R.id.remark);
+                holder.assignerName = (TextView) convertView.findViewById(R.id.assigner_name);
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
@@ -426,10 +506,10 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
 
             WorkOrder item = data.get(position);
             holder.itemTitle.setText("ID : " + item.getWorkId());
-            holder.itemStatus.setText("状态 : " + orderStatus.get(item.getOrderStatus()));
+            holder.itemStatus.setText("状态 : " + orderStatus.get(item.getStatus()));
             holder.itemType.setText("类型 : " + orderTypes.get(item.getOrderType()));
             holder.itemSite.setText("地址 : " + item.getSiteName());
-            holder.remark.setText("备注 : " + item.getRemark());
+            holder.assignerName.setText("责任人 : " + item.getAssignerName());
             return convertView;
         }
 
@@ -438,7 +518,7 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
             TextView itemType;
             TextView itemStatus;
             TextView itemSite;
-            TextView remark;
+            TextView assignerName;
         }
     }
 

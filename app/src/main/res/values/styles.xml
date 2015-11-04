@@ -8,8 +8,9 @@
         <item name="android:textColorPrimary">@android:color/white</item>
         <item name="android:windowBackground">@android:color/white</item>
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
-        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textColor">@color/text_color</item>
         <item name="android:windowAnimationStyle">@style/StyleMainActivity</item>
+        <!--<item name="android:progressBarStyle">@style/Material.Drawable.CircularProgress</item>-->
     </style>
 
     <style name="AppTheme" parent="AppBaseTheme"></style>

@@ -5,7 +5,7 @@
     <color name="primaryDark">#1565C0</color>
     <color name="primaryClicked">#e91e63</color>
     <color name="login_set_ip">#e91e63</color>
-    <color name="colorAccent">#9C27B0</color>
+    <color name="colorAccent">#2ea7e0</color>
     <color name="colorControlNormal">#FF78909C</color>
     <color name="accent">#4527A0</color>
     <color name="alpha_scanner_title">#33FFFFFF</color>
@@ -22,4 +22,5 @@
     <color name="work_order_management_background">#F5F5F5</color>
     <color name="work_order_management_top_background">#e0e0e0</color>
     <color name="work_order_item_gray">#757575</color>
+    <color name="text_color">#424242</color>
 </resources>

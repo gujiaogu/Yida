@@ -38,6 +38,7 @@ public class NetUnitTask extends AsyncTask<Void, Void, List<NetUnitVo>> {
     protected List<NetUnitVo> doInBackground(Void... voids) {
         List<NetUnitVo> netUnits = new ArrayList<>();
         try {
+            helper.lock();
             SQLiteDatabase db = helper.getReadableDatabase();
             Cursor cursor = db.query(TableNetUnit.TABLE_NAME, null, null, null, null, null, null);
             if (cursor != null && cursor.getCount() > 0) {
@@ -70,6 +71,7 @@ public class NetUnitTask extends AsyncTask<Void, Void, List<NetUnitVo>> {
                 }
             }
             db.close();
+            helper.unlock();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -79,6 +81,17 @@ public class NetUnitTask extends AsyncTask<Void, Void, List<NetUnitVo>> {
             for (NetUnitVo netUnitVo : ResourceActivity.netUnits) {
                 ResourceActivity.netUnitsSpinner.add(netUnitVo.getName());
             }
+        } else {
+            ResourceActivity.netUnitsSpinner.clear();
+            ResourceActivity.netUnits.clear();
+            ResourceActivity.framesSpinner.clear();
+            ResourceActivity.frames.clear();
+            ResourceActivity.containers.clear();
+            ResourceActivity.containersSpinner.clear();
+            ResourceActivity.fiberboxes.clear();
+            ResourceActivity.fiberboxesSpinner.clear();
+            ResourceActivity.ports.clear();
+            ResourceActivity.portsSpinner.clear();
         }
         return netUnits;
     }

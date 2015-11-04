@@ -38,6 +38,7 @@ public class ContainerTask extends AsyncTask<String, Void, List<ContainerVo>> {
     protected List<ContainerVo> doInBackground(String... params) {
         List<ContainerVo> containers = new ArrayList<>();
         try {
+            helper.lock();
             SQLiteDatabase db = helper.getReadableDatabase();
             Cursor cursor = db.query(TableContainer.TABLE_NAME, null, TableContainer.FRAMEID + "=?", new String[]{params[0]}, null, null, null);
             if (cursor != null && cursor.getCount() > 0) {
@@ -64,6 +65,7 @@ public class ContainerTask extends AsyncTask<String, Void, List<ContainerVo>> {
                 }
             }
             db.close();
+            helper.unlock();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -71,8 +73,15 @@ public class ContainerTask extends AsyncTask<String, Void, List<ContainerVo>> {
             ResourceActivity.containers = containers;
             ResourceActivity.containersSpinner.clear();
             for (ContainerVo containerVo : ResourceActivity.containers) {
-                ResourceActivity.containersSpinner.add(String.valueOf(containerVo.getContainerId()));
+                ResourceActivity.containersSpinner.add(String.valueOf(containerVo.getCode()));
             }
+        } else {
+            ResourceActivity.containers.clear();
+            ResourceActivity.containersSpinner.clear();
+            ResourceActivity.fiberboxes.clear();
+            ResourceActivity.fiberboxesSpinner.clear();
+            ResourceActivity.ports.clear();
+            ResourceActivity.portsSpinner.clear();
         }
         return containers;
     }

@@ -11,8 +11,6 @@ import com.google.gson.reflect.TypeToken;
 import com.yida.handset.LoginActivity;
 import com.yida.handset.entity.User;
 import com.yida.handset.entity.WorkOrder;
-import com.yida.handset.sqlite.DatabaseHelper;
-import com.yida.handset.sqlite.TableWorkOrder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +38,7 @@ public class WorkOrderDao {
 
     public List<WorkOrder> queryAll(String selection, String[] selections, String groupBy, String having, String orderBy) {
         List<WorkOrder> list = new ArrayList<>();
+        helper.lock();
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor cursor = null;
         cursor = db.query(TableWorkOrder.TABLE_NAME, null, selection, selections, groupBy, having,orderBy);
@@ -51,9 +50,10 @@ public class WorkOrderDao {
                 order.setOrderType(cursor.getString(cursor.getColumnIndex(TableWorkOrder.ORDER_TYPE)));
                 order.setSiteName(cursor.getString(cursor.getColumnIndex(TableWorkOrder.SITE_NAME)));
                 order.setDateCompleted(cursor.getString(cursor.getColumnIndex(TableWorkOrder.DATE_COMPLETED)));
-                order.setOrderStatus(cursor.getString(cursor.getColumnIndex(TableWorkOrder.ORDER_STATUS)));
+                order.setStatus(cursor.getString(cursor.getColumnIndex(TableWorkOrder.ORDER_STATUS)));
                 order.setRemark(cursor.getString(cursor.getColumnIndex(TableWorkOrder.REMARK)));
                 order.setUsername(cursor.getString(cursor.getColumnIndex(TableWorkOrder.USERNAME)));
+                order.setAssignerName(cursor.getString(cursor.getColumnIndex(TableWorkOrder.ASSIGNERNAME)));
                 list.add(order);
             }
         }
@@ -65,10 +65,12 @@ public class WorkOrderDao {
             }
         }
         db.close();
+        helper.unlock();
         return list;
     }
 
     public void insert(List<WorkOrder> data) {
+        helper.lock();
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues values;
         for (WorkOrder workOrder : data) {
@@ -77,9 +79,10 @@ public class WorkOrderDao {
             values.put(TableWorkOrder.ORDER_TYPE, workOrder.getOrderType());
             values.put(TableWorkOrder.SITE_NAME, workOrder.getSiteName());
             values.put(TableWorkOrder.DATE_COMPLETED, workOrder.getDateCompleted());
-            values.put(TableWorkOrder.ORDER_STATUS, workOrder.getOrderStatus());
+            values.put(TableWorkOrder.ORDER_STATUS, workOrder.getStatus());
             values.put(TableWorkOrder.REMARK, workOrder.getRemark());
             values.put(TableWorkOrder.USERNAME, username);
+            values.put(TableWorkOrder.ASSIGNERNAME, workOrder.getAssignerName());
             Cursor cursor = db.query(TableWorkOrder.TABLE_NAME, null, TableWorkOrder.WORKID + "=?", new String[]{String.valueOf(workOrder.getWorkId())}, null, null, null, null);
             if (cursor != null && cursor.getCount() > 0) {
                 cursor.close();
@@ -89,12 +92,15 @@ public class WorkOrderDao {
             db.insert(TableWorkOrder.TABLE_NAME, null, values);
         }
         db.close();
+        helper.unlock();
     }
 
     public int update(ContentValues values, String where) {
+        helper.lock();
         SQLiteDatabase db = helper.getWritableDatabase();
         int reslut = db.update(TableWorkOrder.TABLE_NAME, values, where, null);
         db.close();
+        helper.unlock();
         return reslut;
     }
 }

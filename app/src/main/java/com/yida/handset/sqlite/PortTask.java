@@ -46,6 +46,7 @@ public class PortTask extends AsyncTask<String, Void, List<PortVo>> {
     protected List<PortVo> doInBackground(String... params) {
         List<PortVo> ports = new ArrayList<>();
         try {
+            helper.lock();
             SQLiteDatabase db = helper.getReadableDatabase();
             Cursor cursor = db.query(TablePort.TABLE_NAME, null, TablePort.FIBERBOXID + "=?", new String[]{params[0]}, null, null, null);
             if (cursor != null && cursor.getCount() > 0) {
@@ -73,6 +74,7 @@ public class PortTask extends AsyncTask<String, Void, List<PortVo>> {
                 }
             }
             db.close();
+            helper.unlock();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -82,6 +84,9 @@ public class PortTask extends AsyncTask<String, Void, List<PortVo>> {
             for (PortVo portVo : ResourceActivity.ports) {
                 ResourceActivity.portsSpinner.add(String.valueOf(portVo.getPortId()));
             }
+        } else {
+            ResourceActivity.ports.clear();
+            ResourceActivity.portsSpinner.clear();
         }
         return ports;
     }

@@ -118,6 +118,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + TableWorkOrder.DATE_COMPLETED + " text,"
                 + TableWorkOrder.USERNAME + " text,"
                 + TableWorkOrder.ORDER_STATUS + " text,"
+                + TableWorkOrder.ASSIGNERNAME + " text,"
                 + TableWorkOrder.REMARK + " text"
                 +")";
         sqLiteDatabase.execSQL(sql_net_unit);

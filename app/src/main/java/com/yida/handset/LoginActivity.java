@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -19,25 +18,16 @@ import android.widget.TextView;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.rey.material.widget.CheckBox;
 import com.yida.handset.entity.LoginResult;
 import com.yida.handset.workorder.SettingActivity;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -168,10 +158,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.LOGIN + params;
         StringRequest mLoginRequest = new StringRequest(Request.Method.GET, mUrl, new Response.Listener<String>() {
             @Override
-            public void onResponse(String s) {
+            public void onResponse(String response) {
                 Gson gson = new Gson();
-                LoginResult result = gson.fromJson(s, new TypeToken<LoginResult>() {
-                        }.getType());
+                LoginResult result = null;
+                try {
+                    result = gson.fromJson(response, new TypeToken<LoginResult>() {
+                    }.getType());
+                } catch (Exception e) {
+                    dismiss();
+                    e.printStackTrace();
+                }
+                if (result == null) {
+                    dismiss();
+                    return;
+                }
                 if (CODE_SUCCESS.equals(result.getCode())) {
                     SharedPreferences preferences = getSharedPreferences(REFERENCE_NAME, Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = preferences.edit();

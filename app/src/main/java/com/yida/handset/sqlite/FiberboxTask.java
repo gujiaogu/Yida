@@ -35,6 +35,7 @@ class FiberboxTask extends AsyncTask<String, Void, List<FiberboxVo>> {
     protected List<FiberboxVo> doInBackground(String... params) {
         List<FiberboxVo> fiberboxes = new ArrayList<>();
         try {
+            helper.lock();
             SQLiteDatabase db = helper.getReadableDatabase();
             Cursor cursor = db.query(Fiberbox.TABLE_NAME, null, Fiberbox.CONTAINERID + "=?" ,new String[]{params[0]} ,null ,null ,null);
             if (cursor != null && cursor.getCount() > 0) {
@@ -67,6 +68,7 @@ class FiberboxTask extends AsyncTask<String, Void, List<FiberboxVo>> {
                 }
             }
             db.close();
+            helper.unlock();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -74,8 +76,13 @@ class FiberboxTask extends AsyncTask<String, Void, List<FiberboxVo>> {
             ResourceActivity.fiberboxes = fiberboxes;
             ResourceActivity.fiberboxesSpinner.clear();
             for (FiberboxVo fiberboxVo : ResourceActivity.fiberboxes) {
-                ResourceActivity.fiberboxesSpinner.add(String.valueOf(fiberboxVo.getFiberboxId()));
+                ResourceActivity.fiberboxesSpinner.add(String.valueOf(fiberboxVo.getCode()));
             }
+        } else {
+            ResourceActivity.fiberboxes.clear();
+            ResourceActivity.fiberboxesSpinner.clear();
+            ResourceActivity.ports.clear();
+            ResourceActivity.portsSpinner.clear();
         }
         return fiberboxes;
     }

@@ -1,6 +1,7 @@
 package com.yida.handset.sqlite;
 
 import android.content.Context;
+import android.content.Intent;
 
 import com.yida.handset.ResourceActivity;
 
@@ -51,19 +52,43 @@ public class TaskManager {
     }
 
     public void startFrameTask(DatabaseHelper helper, int netUnitIndex) {
-        new FrameTask(helper, this).execute(String.valueOf(ResourceActivity.netUnits.get(netUnitIndex).getNetunitId()));
+        if (netUnitIndex >= 0 && ResourceActivity.netUnits.size() > 0) {
+            new FrameTask(helper, this).execute(String.valueOf(ResourceActivity.netUnits.get(netUnitIndex).getNetunitId()));
+        } else {
+            Intent intent = new Intent();
+            intent.setAction(PortTask.TASK_FINISHED);
+            this.context.sendBroadcast(intent);
+        }
     }
 
     public void startContainer(DatabaseHelper helper, int frameIndex) {
-        new ContainerTask(helper, this).execute(String.valueOf(ResourceActivity.frames.get(frameIndex).getFrameId()));
+        if (frameIndex >= 0 && ResourceActivity.frames.size() > 0) {
+            new ContainerTask(helper, this).execute(String.valueOf(ResourceActivity.frames.get(frameIndex).getFrameId()));
+        } else {
+            Intent intent = new Intent();
+            intent.setAction(PortTask.TASK_FINISHED);
+            this.context.sendBroadcast(intent);
+        }
     }
 
     public void startFiberbox(DatabaseHelper helper, int containerIndex) {
-        new FiberboxTask(helper, this).execute(String.valueOf(ResourceActivity.containers.get(containerIndex).getContainerId()));
+        if (containerIndex >= 0 && ResourceActivity.containers.size() > 0) {
+            new FiberboxTask(helper, this).execute(String.valueOf(ResourceActivity.containers.get(containerIndex).getContainerId()));
+        } else {
+            Intent intent = new Intent();
+            intent.setAction(PortTask.TASK_FINISHED);
+            this.context.sendBroadcast(intent);
+        }
     }
 
     public void startPortTask(DatabaseHelper helper, int fiberbox) {
-        new PortTask(context, helper, this).execute(String.valueOf(ResourceActivity.fiberboxes.get(fiberbox).getFiberboxId()));
+        if (fiberbox >= 0 && ResourceActivity.fiberboxes.size() > 0) {
+            new PortTask(context, helper, this).execute(String.valueOf(ResourceActivity.fiberboxes.get(fiberbox).getFiberboxId()));
+        } else {
+            Intent intent = new Intent();
+            intent.setAction(PortTask.TASK_FINISHED);
+            this.context.sendBroadcast(intent);
+        }
     }
 
     public void setTaskStatus(boolean status) {

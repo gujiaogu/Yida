@@ -84,6 +84,10 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
     Toolbar mToolBar;
     @Bind(R.id.drawer_title)
     TextView mDrawerTitle;
+    @Bind(R.id.drawer_phone)
+    TextView mDrawerPhone;
+    @Bind(R.id.drawer_company)
+    TextView mDrawerCompany;
     @Bind(R.id.drawer)
     LinearLayout mDrawer;
     @Bind(R.id.main_action_resource)
@@ -141,6 +145,16 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
         Gson gson = new Gson();
         user = gson.fromJson(userStr, new TypeToken<User>(){}.getType());
         mDrawerTitle.setText(user.getUsername());
+        if (user.getPhone() == null || "".equals(user.getPhone())) {
+            mDrawerPhone.setVisibility(View.GONE);
+        } else {
+            mDrawerPhone.setText(user.getPhone());
+        }
+        if (user.getCompany() == null || "".equals(user.getCompany())) {
+            mDrawerCompany.setVisibility(View.GONE);
+        } else {
+            mDrawerCompany.setText(user.getCompany());
+        }
 
         mDrawerList.setAdapter(new DrawerAdapter(this, mSlideActions));
         mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -184,6 +198,8 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
         }
         mTaskManager = TaskManager.getInstance(getApplicationContext());
         mWorkOrderDao = new WorkOrderDao(this);
+
+        new VersionTask(this, VersionTask.TAG_AUTO).execute();
     }
 
     @Override
@@ -389,6 +405,7 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void clearResource() {
+        helper.lock();
         if (helper == null) {
             helper = DatabaseHelper.getInstance(this);
         }
@@ -399,9 +416,11 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
         db.delete(Fiberbox.TABLE_NAME, null, null);
         db.delete(TablePort.TABLE_NAME, null, null);
         db.close();
+        helper.unlock();
     }
 
     private void insertResource(ResourceVo resources) {
+        helper.lock();
         if (helper == null) {
             helper = DatabaseHelper.getInstance(this);
         }
@@ -417,6 +436,7 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
         insertFiberbox(db, fiberboxes);
         insertPort(db, ports);
         db.close();
+        helper.unlock();
     }
 
     private void insertNetUnits(SQLiteDatabase db, List<NetUnitVo> data) {

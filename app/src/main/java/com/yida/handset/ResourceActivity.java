@@ -282,7 +282,12 @@ public class ResourceActivity extends AppCompatActivity implements View.OnClickL
         switch (view.getId()) {
             case R.id.generate_code:
                 if (checkBluetooth()) {
-                    startBluetoothActivity(getInfo());
+                    String info = getInfo();
+                    if ("".equals(info)) {
+                        Toast.makeText(this, R.string.toast_bad_info, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    startBluetoothActivity(info);
                 }
                 break;
             case R.id.btn_warning:
@@ -300,6 +305,9 @@ public class ResourceActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onItemSelected(Spinner parent, View view, int position, long id) {
+        if (position < 0) {
+            return;
+        }
         switch (parent.getId()) {
             case R.id.spinner_station:
                 selectedStation(position);
@@ -329,21 +337,36 @@ public class ResourceActivity extends AppCompatActivity implements View.OnClickL
         rackAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_dropdown_item, framesSpinner);
         rackAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSpinnerRack.setAdapter(rackAdapter);
+        if (rackAdapter.getCount() <= 0) {
+            mSpinnerRack.setAdapter(new ArrayAdapter<>(this,
+                    android.R.layout.simple_spinner_dropdown_item, new String[]{""}));
+        } else {
+            mSpinnerRack.setAdapter(rackAdapter);
+        }
     }
 
     private void setFrameAdapter() {
         frameAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_dropdown_item, containersSpinner);
         frameAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSpinnerFrame.setAdapter(frameAdapter);
+        if (frameAdapter.getCount() <= 0) {
+            mSpinnerFrame.setAdapter(new ArrayAdapter<>(this,
+                    android.R.layout.simple_spinner_dropdown_item, new String[]{""}));
+        } else {
+            mSpinnerFrame.setAdapter(frameAdapter);
+        }
     }
 
     private void setDiskAdapter() {
         diskAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_dropdown_item, fiberboxesSpinner);
         diskAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSpinnerDisk.setAdapter(diskAdapter);
+        if (diskAdapter.getCount() <= 0) {
+            mSpinnerDisk.setAdapter(new ArrayAdapter<>(this,
+                    android.R.layout.simple_spinner_dropdown_item, new String[]{""}));
+        } else {
+            mSpinnerDisk.setAdapter(diskAdapter);
+        }
     }
 
     private void selectedStation(int position) {
@@ -442,6 +465,10 @@ public class ResourceActivity extends AppCompatActivity implements View.OnClickL
 
     public void detail() {
         String info = getInfo();
+        if ("".equals(info)) {
+            Toast.makeText(this, R.string.toast_bad_info, Toast.LENGTH_SHORT).show();
+            return;
+        }
         Intent intent = new Intent(this, DetailActivity.class);
         intent.putExtra(TAG_INFO, info);
         startActivity(intent);
@@ -458,6 +485,11 @@ public class ResourceActivity extends AppCompatActivity implements View.OnClickL
         obj.addProperty(TAG_RACK, rack);
         obj.addProperty(TAG_FRAME, frame);
         obj.addProperty(TAG_DISK, disk);
+        if ("".equals(station) || "".equals(rack)
+                || "".equals(frame) || "".equals(disk)) {
+            Toast.makeText(this, obj.toString(), Toast.LENGTH_SHORT).show();
+            return "";
+        }
         Toast.makeText(this, obj.toString(), Toast.LENGTH_SHORT).show();
 //        generateQRCode(obj.toString());
         return obj.toString();
@@ -513,7 +545,12 @@ public class ResourceActivity extends AppCompatActivity implements View.OnClickL
         switch (requestCode) {
             case REQUEST_ENABLE_BLUETOOTH:
                 if (resultCode == Activity.RESULT_OK) {
-                    startBluetoothActivity(getInfo());
+                    String info = getInfo();
+                    if ("".equals(info)) {
+                        Toast.makeText(this, R.string.toast_bad_info, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    startBluetoothActivity(info);
                 }
                 break;
             case REQUEST_CODE:
@@ -525,10 +562,28 @@ public class ResourceActivity extends AppCompatActivity implements View.OnClickL
                             Toast.makeText(this, R.string.resource_wrong_data, Toast.LENGTH_SHORT).show();
                             return;
                         }
+                        String station = "";
                         try {
                             resultObj = new JSONObject(result);
-                            String station = resultObj.getString(TAG_STATION);
+                            station = resultObj.getString(TAG_STATION);
                             if (station != null && !"".equals(station)) {
+                                if (mSpinnerStation.getSelectedItem().toString().equals(station)) {
+                                    String frame = resultObj.getString(TAG_RACK);
+                                    if (frame != null && !"".equals(frame)) {
+                                        if (frame.equals(mSpinnerRack.getSelectedItem().toString())) {
+                                            String container = resultObj.getString(TAG_FRAME);
+                                            if (container.equals(mSpinnerFrame.getSelectedItem().toString())) {
+                                                String fiberbox = resultObj.getString(TAG_DISK);
+                                                QR_TAG = QR_Port;
+                                                mSpinnerDisk.setSelection(fiberboxesSpinner.indexOf(fiberbox));
+                                            }
+                                            QR_TAG = QR_Fiberbox;
+                                            mSpinnerFrame.setSelection(containersSpinner.indexOf(container));
+                                        }
+                                        QR_TAG = QR_Container;
+                                        mSpinnerRack.setSelection(framesSpinner.indexOf(frame));
+                                    }
+                                }
                                 QR_TAG = QR_Frame;
                                 mSpinnerStation.setSelection(netUnitsSpinner.indexOf(station));
                             }

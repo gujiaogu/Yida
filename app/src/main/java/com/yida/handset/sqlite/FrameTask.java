@@ -38,6 +38,7 @@ public class FrameTask extends AsyncTask<String, Void, List<FrameVo>> {
     protected List<FrameVo> doInBackground(String... params) {
         List<FrameVo> frames = new ArrayList<>();
         try {
+            helper.lock();
             SQLiteDatabase db = helper.getReadableDatabase();
             Cursor cursor = db.query(TableFrame.TABLE_NAME, null, TableFrame.NETUNITID + "=?", new String[]{params[0]}, null, null, null);
             if (cursor != null && cursor.getCount() > 0) {
@@ -71,6 +72,7 @@ public class FrameTask extends AsyncTask<String, Void, List<FrameVo>> {
                 }
             }
             db.close();
+            helper.unlock();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -78,8 +80,17 @@ public class FrameTask extends AsyncTask<String, Void, List<FrameVo>> {
             ResourceActivity.frames = frames;
             ResourceActivity.framesSpinner.clear();
             for (FrameVo frameVo : ResourceActivity.frames) {
-                ResourceActivity.framesSpinner.add(String.valueOf(frameVo.getFrameId()));
+                ResourceActivity.framesSpinner.add(String.valueOf(frameVo.getCode()));
             }
+        } else {
+            ResourceActivity.framesSpinner.clear();
+            ResourceActivity.frames.clear();
+            ResourceActivity.containers.clear();
+            ResourceActivity.containersSpinner.clear();
+            ResourceActivity.fiberboxes.clear();
+            ResourceActivity.fiberboxesSpinner.clear();
+            ResourceActivity.ports.clear();
+            ResourceActivity.portsSpinner.clear();
         }
         return frames;
     }

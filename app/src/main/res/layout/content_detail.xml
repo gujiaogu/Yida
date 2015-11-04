@@ -23,7 +23,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/black"
             android:id="@+id/text_station"
             android:textSize="@dimen/detail_text_size"
             android:layout_marginLeft="@dimen/detail_text_margin_left"/>
@@ -35,7 +34,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/black"
             android:id="@+id/text_rack"
             android:textSize="@dimen/detail_text_size"
             android:layout_marginLeft="@dimen/detail_text_margin_left"/>
@@ -47,7 +45,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/black"
             android:id="@+id/text_frame"
             android:textSize="@dimen/detail_text_size"
             android:layout_marginLeft="@dimen/detail_text_margin_left"/>
@@ -59,7 +56,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/black"
             android:id="@+id/text_disk"
             android:textSize="@dimen/detail_text_size"
             android:layout_marginLeft="@dimen/detail_text_margin_left"/>
@@ -102,8 +98,7 @@
             style="@style/StyleTextViewDetail"
             android:id="@+id/text4"
             android:background="@drawable/detail_port_green_selector"
-            android:text="4"
-            android:visibility="invisible"/>
+            android:text="4"  />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

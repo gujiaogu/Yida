@@ -14,4 +14,5 @@ public interface TableWorkOrder extends BaseColumns{
     String DATE_COMPLETED = "dateCompleted";
     String REMARK = "remark";
     String USERNAME = "username";
+    String ASSIGNERNAME = "assignerName";
 }

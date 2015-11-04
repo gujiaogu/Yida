@@ -17,7 +17,7 @@
     <string name="completed_fragment">completed fragment</string>
     <string name="ongoing_fragment">ongoing fragment</string>
     <string name="planned_fragment">planned fragment</string>
-    <string name="title_activity_scanner">scanner</string>
+    <string name="title_activity_scanner">扫描</string>
     <string name="ic_scanner_title">scan the barcode</string>
     <string name="ic_auto_new">刷新</string>
     <string name="ble_support_text">你的Android版本不支持BLE</string>
@@ -36,9 +36,9 @@
     <string name="modify_pwd_hint_edit_text_new_pwd">请输入新密码</string>
     <string name="modify_pwd_hint_edit_text_new_pwd_again">请确认新密码</string>
     <string name="modify_pwd_confirm">确认修改密码</string>
-    <string name="title_activity_update">UpdateActivity</string>
-    <string name="title_activity_about">AboutActivity</string>
-    <string name="title_activity_bluetooth">BluetoothActivity</string>
+    <string name="title_activity_update">升级</string>
+    <string name="title_activity_about">关于</string>
+    <string name="title_activity_bluetooth">打印</string>
     <string name="text_cannot_support_bluetooth">您的设备不支持蓝牙</string>
     <string name="text_paired_device">已配对的设备</string>
     <string name="text_other_device">其他设备</string>
@@ -95,5 +95,20 @@
     <string name="setting_port">端口</string>
     <string name="setting_text_btn">设置</string>
     <string name="setting_toast_text">请输入正确的IP和端口号</string>
+    <string name="reject_dialog_text">驳回原因</string>
+    <string name="reject_dialog_text_star">*</string>
+    <string name="reject_dialog_text_hint">请填写驳回原因</string>
+    <string name="complete_dialog_text_hint">确认回单</string>
+    <string name="complete_info_dialog_text_hint">确认完成后回单，是否回单？\n备注：</string>
+    <string name="complete_edit_dialog_text_hint">备注</string>
+    <string name="complete_dialog_text_hint_result">已回单</string>
+    <string name="title_activity_inspect_order">巡检工单</string>
+    <string name="order_inspect_btn">开始巡检</string>
+    <string name="toast_bad_info">请检查数据</string>
+    <string name="you_should_update_your_app">您的应用有更新</string>
+    <string name="update_dialog">信息</string>
+    <string name="check_update_text">检查更新</string>
+    <string name="download_new_app">下载新版本</string>
+    <string name="log_action_clear">清除</string>
 
 </resources>

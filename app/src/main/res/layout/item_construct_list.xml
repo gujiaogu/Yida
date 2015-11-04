@@ -10,7 +10,8 @@
         android:background="@color/primary"
         android:textColor="@android:color/white"
         android:textSize="24sp"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:visibility="gone"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -31,7 +32,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/splitting_ratio"
-        android:layout_marginLeft="@dimen/construct_order_item_left_margin"/>
+        android:layout_marginLeft="@dimen/construct_order_item_left_margin"
+        android:visibility="gone"/>
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
