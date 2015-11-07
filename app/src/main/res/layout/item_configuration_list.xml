@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/work_order_management_background">
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="3dp">
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/device_name"
+                android:background="@color/primary"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_weight="1"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:textSize="16sp"/>
+        </TableRow>
+        <TableRow>
+            <TextView android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/device_id"
+                android:layout_weight="1"/>
+            <TextView android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/device_type"
+                android:layout_weight="1"/>
+        </TableRow>
+        <TableRow>
+            <TextView android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/device_ip"
+                android:layout_weight="1"/>
+            <TextView android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/device_mac"
+                android:layout_weight="1"/>
+        </TableRow>
+        <TableRow>
+            <TextView android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/device_gateway"
+                android:layout_weight="1"/>
+            <TextView android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/NMSIPAddr"
+                android:layout_weight="1"/>
+        </TableRow>
+        <TableRow>
+            <TextView android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/NMSTrapPort"
+                android:layout_weight="1"/>
+            <TextView android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/NMSTrapEnable"
+                android:layout_weight="1"/>
+        </TableRow>
+        <TableRow>
+            <TextView android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/NMSTrapSecurityName"
+                android:layout_weight="1"/>
+            <TextView android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/SNMPGroupName"
+                android:layout_weight="1"/>
+        </TableRow>
+        <TableRow>
+            <TextView android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/SNMPAuthority"
+                android:layout_weight="1"/>
+            <TextView android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/SNMPViewEnable"
+                android:layout_weight="1"/>
+        </TableRow>
+        <TableRow>
+            <TextView android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/SNMPViewName" />
+        </TableRow>
+    </TableLayout>
+
+</LinearLayout>

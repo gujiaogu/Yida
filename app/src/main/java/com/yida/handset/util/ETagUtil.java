@@ -67,15 +67,15 @@ public class ETagUtil {
         }
 
 
-        eTag.setOid(new String(Arrays.copyOfRange(eTagByte, 2, 5)));
-        eTag.setSerialnumber(new String(Arrays.copyOfRange(eTagByte, 5, 21)));
+        eTag.setOid(new String(Arrays.copyOfRange(eTagByte, 2, 5)).trim());
+        eTag.setSerialnumber(new String(Arrays.copyOfRange(eTagByte, 5, 21)).trim());
         eTag.setPortNumber(Integer.parseInt(String.valueOf(eTagByte[21]), 16));
         eTag.setEnterPortNumber(Integer.parseInt(String.valueOf(eTagByte[22]), 16));
         eTag.setOutPortNumber(Integer.parseInt(String.valueOf(eTagByte[23]), 16));
         eTag.setOperator(eTagByte[24]);
-        eTag.setOperatorInfo(new String(Arrays.copyOfRange(eTagByte, 25, 29)));
+        eTag.setOperatorInfo(new String(Arrays.copyOfRange(eTagByte, 25, 29)).trim());
         eTag.setCRC(eTagByte[31]);
-        eTag.setExtras(new String(Arrays.copyOfRange(eTagByte, 32, eTagByte.length)));
+        eTag.setExtras(new String(Arrays.copyOfRange(eTagByte, 32, eTagByte.length)).trim());
         return eTag;
     }
 

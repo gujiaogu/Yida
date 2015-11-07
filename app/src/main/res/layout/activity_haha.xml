@@ -35,86 +35,42 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 >
-                <LinearLayout
+                <ImageButton
                     android:layout_width="@dimen/main_action_width"
                     android:layout_height="@dimen/main_action_width"
                     android:orientation="vertical"
                     android:id="@+id/main_action_resource"
-                    android:background="@drawable/button_background_selector"
-                    android:gravity="center">
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@mipmap/ic_resource_management" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/resource_management_label"
-                        android:textColor="@android:color/white"
-                        android:layout_marginTop="12dp"/>
-                </LinearLayout>
-                <LinearLayout
+                    android:background="@drawable/main_resource_selector"
+                    android:gravity="center"/>
+                <ImageButton
                     android:layout_width="@dimen/main_action_width"
                     android:layout_height="@dimen/main_action_width"
                     android:orientation="vertical"
                     android:id="@+id/main_action_log"
-                    android:background="@drawable/button_background_selector"
+                    android:background="@drawable/main_log_selector"
                     android:layout_toRightOf="@id/main_action_resource"
                     android:layout_marginLeft="30dp"
-                    android:gravity="center">
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@mipmap/ic_log_management"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/text_main_log"
-                        android:textColor="@android:color/white"
-                        android:layout_marginTop="12dp"/>
-                </LinearLayout>
-                <LinearLayout
+                    android:gravity="center" />
+                <ImageButton
                     android:layout_width="@dimen/main_action_width"
                     android:layout_height="@dimen/main_action_width"
                     android:orientation="vertical"
                     android:id="@+id/main_action_work_order"
-                    android:background="@drawable/button_background_selector"
+                    android:background="@drawable/main_work_order_selector"
                     android:layout_below="@id/main_action_resource"
                     android:layout_marginTop="30dp"
-                    android:gravity="center">
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@mipmap/ic_order_management"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/text_main_work_order"
-                        android:textColor="@android:color/white"
-                        android:layout_marginTop="12dp"/>
-                </LinearLayout>
-                <LinearLayout
+                    android:gravity="center" />
+                <ImageButton
                     android:layout_width="@dimen/main_action_width"
                     android:layout_height="@dimen/main_action_width"
                     android:orientation="vertical"
                     android:id="@+id/main_action_sync"
-                    android:background="@drawable/button_background_selector"
+                    android:background="@drawable/main_sync_selector"
                     android:layout_toRightOf="@id/main_action_work_order"
                     android:layout_below="@id/main_action_log"
                     android:layout_marginLeft="30dp"
                     android:layout_marginTop="30dp"
-                    android:gravity="center">
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@mipmap/ic_sync"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/text_main_sync"
-                        android:textColor="@android:color/white"
-                        android:layout_marginTop="12dp"/>
-                </LinearLayout>
+                    android:gravity="center" />
             </RelativeLayout>
         </RelativeLayout>
 

@@ -203,7 +203,7 @@ public class ConstructOrderActivity extends AppCompatActivity implements View.On
                                 mRejectOrder.setVisibility(View.GONE);
                                 mAcceptOrder.setVisibility(View.GONE);
                                 mCompleteOrder.setVisibility(View.GONE);
-                                mOrderStatus.setText(WorkOrderFragment.STATUS_COMPLETED);
+                                mOrderStatus.setText("工单状态 : " + WorkOrderFragment.STATUS_COMPLETED);
                                 isStatusChanged = true;
                                 Toast.makeText(ConstructOrderActivity.this, R.string.complete_dialog_text_hint_result, Toast.LENGTH_SHORT).show();
                             }
@@ -292,7 +292,7 @@ public class ConstructOrderActivity extends AppCompatActivity implements View.On
                                 mRejectOrder.setVisibility(View.GONE);
                                 mAcceptOrder.setVisibility(View.GONE);
                                 mCompleteOrder.setVisibility(View.GONE);
-                                mOrderStatus.setText(WorkOrderFragment.STATUS_NO_PUBLISHED);
+                                mOrderStatus.setText("工单状态 : " + WorkOrderFragment.STATUS_NO_PUBLISHED);
                                 isStatusChanged = true;
                             }
                         } else if(ResultVo.CODE_FAILURE.equals(result.getCode())) {
@@ -368,7 +368,7 @@ public class ConstructOrderActivity extends AppCompatActivity implements View.On
                         mRejectOrder.setVisibility(View.GONE);
                         mAcceptOrder.setVisibility(View.GONE);
                         mCompleteOrder.setVisibility(View.VISIBLE);
-                        mOrderStatus.setText(WorkOrderFragment.STATUS_ACCEPTED);
+                        mOrderStatus.setText("工单状态 : " + WorkOrderFragment.STATUS_ACCEPTED);
                         isStatusChanged = true;
                     }
 

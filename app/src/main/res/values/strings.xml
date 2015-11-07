@@ -104,11 +104,13 @@
     <string name="complete_dialog_text_hint_result">已回单</string>
     <string name="title_activity_inspect_order">巡检工单</string>
     <string name="order_inspect_btn">开始巡检</string>
+    <string name="order_write_btn">写入电子标签</string>
     <string name="toast_bad_info">请检查数据</string>
     <string name="you_should_update_your_app">您的应用有更新</string>
     <string name="update_dialog">信息</string>
     <string name="check_update_text">检查更新</string>
     <string name="download_new_app">下载新版本</string>
     <string name="log_action_clear">清除</string>
+    <string name="title_activity_configuration">配置工单</string>
 
 </resources>

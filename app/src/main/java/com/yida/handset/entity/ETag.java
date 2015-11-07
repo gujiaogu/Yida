@@ -181,4 +181,38 @@ public class ETag {
     public void setPort(String port) {
         this.port = port;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        ETag eTag = null;
+        if (o instanceof ETag) {
+            eTag = (ETag) o;
+        } else {
+            return false;
+        }
+
+        if (this.version == eTag.getVersion()
+                && this.productType != null
+                && this.productType.equals(eTag.getProductType())
+                && this.productTypeOther == eTag.getProductTypeOther()
+                && this.port != null
+                && this.port.equals(eTag.getPort())
+                && this.portOther == eTag.getPortOther()
+                && this.oid != null
+                && this.oid.equals(eTag.getOid())
+                && this.serialnumber != null
+                && this.serialnumber.equals(eTag.getSerialnumber())
+                && this.portNumber == eTag.getPortNumber()
+                && this.enterPortNumber == eTag.getEnterPortNumber()
+                && this.outPortNumber == eTag.getOutPortNumber()
+                && this.operator == eTag.getOperator()
+                && this.operatorInfo != null
+                && this.operatorInfo.equals(eTag.getOperatorInfo())
+                && this.CRC == eTag.getCRC()
+                && this.extras != null
+                && this.extras.equals(eTag.getExtras())) {
+            return true;
+        }
+        return false;
+    }
 }

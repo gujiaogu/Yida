@@ -19,7 +19,11 @@ public class Constants {
     public static String GET_WORKORDER = "/client/workOrder/getWorkList.json";
     public static String GET_CONSTRUCT_ORDER = "/client/workOrder/getConstrucationOrder.json";
     public static String GET_INSPECT_ORDER = "/client/workOrder/getInspectOrder.json";
+    public static String GET_ETAG_WRITE_ORDER = "/client/workOrder/getWriteLabelOrder.json";
+    public static String GET_CONFIGURATION_ORDER = "";
     public static String ACCEPT_ORDER = "/client/workOrder/changeStatus.json";
     public static String REJECT_ORDER = "/client/workOrder/rejectOrder.json";
     public static String COMPLETE_CONSTRUCT_ORDER = "/client/workOrder/backConstructionOrder.json";
+    public static String COMPLETE_INSPECT_ORDER = "/client/workOrder/backInspectOrder.json";
+    public static String COMPLETE_ETAG_WRITE_ORDER = "/client/workOrder/backWriteLabelOrder.json";
 }

@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -91,13 +92,13 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
     @Bind(R.id.drawer)
     LinearLayout mDrawer;
     @Bind(R.id.main_action_resource)
-    LinearLayout mActionResource;
+    ImageButton mActionResource;
     @Bind(R.id.main_action_log)
-    LinearLayout mActionLog;
+    ImageButton mActionLog;
     @Bind(R.id.main_action_work_order)
-    LinearLayout mActionWorkOder;
+    ImageButton mActionWorkOder;
     @Bind(R.id.main_action_sync)
-    LinearLayout mActionSync;
+    ImageButton mActionSync;
 
     private RequestQueueSingleton mRequestQueue;
     private ProgressDialog pd;

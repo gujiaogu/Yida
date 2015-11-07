@@ -104,12 +104,18 @@
             android:name=".InspectOrderActivity"
             android:label="@string/title_activity_inspect_order" >
         </activity>
-        <receiver android:name=".DownloadManageReceiver">
+
+        <receiver android:name=".DownloadManageReceiver" >
             <intent-filter>
                 <action android:name="com.yida.handset.action.APP_DOWNLOADING" />
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
             </intent-filter>
         </receiver>
+
+        <activity
+            android:name=".ConfigurationActivity"
+            android:label="@string/title_activity_configuration" >
+        </activity>
     </application>
 
 </manifest>

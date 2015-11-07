@@ -69,6 +69,11 @@ public class DrawerAdapter extends BaseAdapter {
             drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
             viewHolder.mTextView.setCompoundDrawables(drawable, null, null, null);
         }
+        if (i == 3) {
+            Drawable drawable = res.getDrawable(R.mipmap.ic_exit);
+            drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+            viewHolder.mTextView.setCompoundDrawables(drawable, null, null, null);
+        }
         return view;
     }
 

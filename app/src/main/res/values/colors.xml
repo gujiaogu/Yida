@@ -9,8 +9,8 @@
     <color name="colorControlNormal">#FF78909C</color>
     <color name="accent">#4527A0</color>
     <color name="alpha_scanner_title">#33FFFFFF</color>
-    <color name="colorWarningBtn">#ff1010</color>
-    <color name="colorWarningBtnPrimary">#ad1457</color>
+    <color name="colorWarningBtn">#ef443c</color>
+    <color name="colorWarningBtnPrimary">#ff1010</color>
     <color name="detail_line_dark_gray">#e0e0e0</color>
     <color name="detail_port_green">#4caf50</color>
     <color name="detail_port_green_selected">#388e3c</color>

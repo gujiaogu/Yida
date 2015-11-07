@@ -4,5 +4,5 @@
     tools:context="com.yida.handset.BluetoothActivity">
     <item android:id="@+id/clear_log" android:title="@string/log_action_clear"
         android:orderInCategory="100" app:showAsAction="ifRoom"
-        android:icon="@mipmap/ic_clear_all_white_36dp"/>
+        android:icon="@mipmap/ic_clean"/>
 </menu>

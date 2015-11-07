@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.rey.material.app.DialogFragment;
 import com.rey.material.app.SimpleDialog;
+import com.yida.handset.ConfigurationActivity;
 import com.yida.handset.Constants;
 import com.yida.handset.ConstructOrderActivity;
 import com.yida.handset.ElectronicWriterActivity;
@@ -35,6 +36,7 @@ import com.yida.handset.LogWrapper;
 import com.yida.handset.LoginActivity;
 import com.yida.handset.R;
 import com.yida.handset.RequestQueueSingleton;
+import com.yida.handset.entity.ConfigurationResult;
 import com.yida.handset.entity.ConstructOrderResult;
 import com.yida.handset.entity.ConstructOrderRoute;
 import com.yida.handset.entity.InspectResult;
@@ -106,6 +108,8 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
     private static final String ARG_PARAM2 = "param2";
     private static final String TAG_CONSTRUCT_ORDER = "tag_construct_order";
     private static final String TAG_INSPECT_ORDER = "tag_inspect_order";
+    private static final String TAG_ETAG_WRITE_ORDER = "tag_etag_write_order";
+    private static final String TAG_CONFIGURATION_ORDER = "tag_configuration_order";
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -188,10 +192,14 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
                 startInspectOrder(item);
                 break;
             case "3": //电子标签写入工单
-                intent = new Intent(getActivity(), ElectronicWriterActivity.class);
-                startActivity(intent);
+//                intent = new Intent(getActivity(), ConfigurationActivity.class);
+//                startActivity(intent);
+                startEtagWriterOrder(item);
                 break;
             case "4":
+//                intent = new Intent(getActivity(), ConfigurationActivity.class);
+//                startActivity(intent);
+                startConfigurationOrder(item);
                 break;
             case "5":
                 break;
@@ -241,6 +249,128 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
             default:
                 break;
         }
+    }
+
+    private void startConfigurationOrder(WorkOrder item) {
+        pd = new ProgressDialog(getActivity());
+        pd.setMessage(getString(R.string.loading));
+        pd.setCanceledOnTouchOutside(false);
+        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                dismiss();
+                RequestQueueSingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue().cancelAll(TAG_CONFIGURATION_ORDER);
+            }
+        });
+        pd.show();
+
+        final WorkOrder order = item;
+        String params = "?workId=" + item.getWorkId();
+        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.GET_CONFIGURATION_ORDER + params;
+        LogWrapper.d(mUrl);
+        StringRequest configurationOrderRequest = new StringRequest(Request.Method.GET, mUrl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String s) {
+                LogWrapper.d(s);
+                Gson gson = new Gson();
+                ConfigurationResult result = null;
+                try {
+                    result = gson.fromJson(s, new TypeToken<ConfigurationResult>() {
+                    }.getType());
+                } catch (Exception e) {
+                    dismiss();
+                    e.printStackTrace();
+                }
+                if (result == null) {
+                    dismiss();
+                    return;
+                }
+
+                if (ResultVo.CODE_SUCCESS.equals(result.getCode())) {
+                    ConfigurationActivity.configurationEntities = result.getDevices();
+                    if (ConfigurationActivity.configurationEntities != null) {
+                        Intent intent = new Intent(getActivity(), ConfigurationActivity.class);
+                        intent.putExtra(TAG_ID, order.getWorkId());
+                        intent.putExtra(TAG_ORDER_STATUS, orderStatus.get(order.getStatus()));
+                        intent.putExtra(TAG_SITE, order.getSiteName());
+                        startActivityForResult(intent, REQUEST_CODE_INSPECT_ORDER);
+                    }
+                } else if(ResultVo.CODE_FAILURE.equals(result.getCode())) {
+                    Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                dismiss();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                dismiss();
+                volleyError.printStackTrace();
+            }
+        });
+        configurationOrderRequest.setTag(TAG_CONFIGURATION_ORDER);
+
+        RequestQueueSingleton.getInstance(getActivity()).addToRequestQueue(configurationOrderRequest);
+    }
+
+    private void startEtagWriterOrder(WorkOrder item) {
+        pd = new ProgressDialog(getActivity());
+        pd.setMessage(getString(R.string.loading));
+        pd.setCanceledOnTouchOutside(false);
+        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                dismiss();
+                RequestQueueSingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue().cancelAll(TAG_ETAG_WRITE_ORDER);
+            }
+        });
+        pd.show();
+
+        final WorkOrder order = item;
+        String params = "?workId=" + item.getWorkId();
+        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.GET_ETAG_WRITE_ORDER + params;
+        LogWrapper.d(mUrl);
+        StringRequest etagWriteOrderRequest = new StringRequest(Request.Method.GET, mUrl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String s) {
+                LogWrapper.d(s);
+                Gson gson = new Gson();
+                InspectResult result = null;
+                try {
+                    result = gson.fromJson(s, new TypeToken<InspectResult>() {
+                    }.getType());
+                } catch (Exception e) {
+                    dismiss();
+                    e.printStackTrace();
+                }
+                if (result == null) {
+                    dismiss();
+                    return;
+                }
+
+                if (ResultVo.CODE_SUCCESS.equals(result.getCode())) {
+                    ElectronicWriterActivity.workOrder = result.getWorkOrder();
+                    if (ElectronicWriterActivity.workOrder != null) {
+                        Intent intent = new Intent(getActivity(), ElectronicWriterActivity.class);
+                        intent.putExtra(TAG_ID, order.getWorkId());
+                        intent.putExtra(TAG_ORDER_STATUS, orderStatus.get(order.getStatus()));
+                        intent.putExtra(TAG_SITE, order.getSiteName());
+                        startActivityForResult(intent, REQUEST_CODE_INSPECT_ORDER);
+                    }
+                } else if(ResultVo.CODE_FAILURE.equals(result.getCode())) {
+                    Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                dismiss();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                dismiss();
+                volleyError.printStackTrace();
+            }
+        });
+        etagWriteOrderRequest.setTag(TAG_ETAG_WRITE_ORDER);
+
+        RequestQueueSingleton.getInstance(getActivity()).addToRequestQueue(etagWriteOrderRequest);
     }
 
     private void startInspectOrder(WorkOrder item) {

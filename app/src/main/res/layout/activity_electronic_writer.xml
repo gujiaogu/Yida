@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.yida.handset.ElectronicWriterActivity">
+    tools:context="com.yida.handset.InspectOrderActivity"
+    android:background="@color/work_order_management_background">
 
     <android.support.v7.widget.Toolbar
         style="@style/ToolBarStyle"
@@ -12,76 +13,161 @@
         android:id="@+id/toolbar"
         android:background="?attr/colorPrimary"
         android:fitsSystemWindows="true" />
-    <TextView
+
+    <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/electronic_order_left_margin"
-        android:id="@+id/vendor_id"
+        android:id="@+id/etag_writer_top_layout"
         android:layout_below="@id/toolbar"
-        android:text="供应商ID：skf-34"
-        android:layout_marginTop="16dp"/>
-    <TextView
+        android:paddingLeft="@dimen/construct_order_margin_left"
+        android:paddingRight="@dimen/construct_order_bottom_margin_right"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/white">
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:id="@+id/order_id"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:id="@+id/order_status"
+                android:layout_marginRight="16dp"
+                android:layout_weight="1"/>
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:visibility="gone">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/order_remark"
+                android:layout_weight="1"/>
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:id="@+id/device_name"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:id="@+id/device_type"
+                android:layout_marginRight="16dp"
+                android:layout_weight="1"/>
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:id="@+id/hardware_version"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:id="@+id/software_version"
+                android:layout_marginRight="16dp"
+                android:layout_weight="1"/>
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/order_site"
+                android:layout_weight="1"/>
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/write_port_count"
+                android:layout_weight="1"/>
+        </TableRow>
+
+    </TableLayout>
+
+    <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/electronic_order_left_margin"
-        android:id="@+id/device_id"
-        android:layout_below="@id/vendor_id"
-        android:text="设备ID：SNB-CC-980"/>
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@drawable/detail_line"
-        android:layout_marginTop="3dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:id="@+id/line"
-        android:layout_below="@id/device_id"/>
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="26dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:id="@+id/electronic_list"
-        android:layout_below="@id/line"/>
+        android:layout_marginLeft="@dimen/construct_order_bottom_margin_left"
+        android:layout_marginRight="@dimen/construct_order_bottom_margin_right"
+        android:layout_marginTop="20dp"
+        android:text="@string/order_write_btn"
+        android:textColor="@android:color/white"
+        android:background="@drawable/button_background_selector"
+        android:id="@+id/write_ports"
+        android:visibility="gone"
+        android:layout_below="@id/etag_writer_top_layout"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_alignParentBottom="true"
+        android:id="@+id/operate_bottom"
         >
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginLeft="@dimen/construct_order_bottom_margin_left"
-            android:text="@string/order_user_operate_write"
+            android:layout_marginRight="@dimen/construct_order_bottom_margin_right"
+            android:text="@string/order_user_operate_complete"
             android:textColor="@android:color/white"
             android:background="@drawable/button_background_selector"
-            android:id="@+id/electronic_write"
-            android:layout_marginBottom="@dimen/construct_order_bottom_margin_bottom"/>
+            android:id="@+id/complete_order"
+            android:layout_marginBottom="@dimen/construct_order_bottom_margin_bottom"
+            android:visibility="gone"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginLeft="@dimen/construct_order_bottom_margin_inter"
+            android:layout_marginRight="@dimen/order_bottom_button_margin"
             android:text="@string/order_user_operate_accept"
             android:textColor="@android:color/white"
             android:background="@drawable/button_background_selector"
-            android:id="@+id/electronic_transfer"/>
+            android:layout_marginBottom="@dimen/construct_order_bottom_margin_bottom"
+            android:id="@+id/accept_order"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginLeft="@dimen/construct_order_bottom_margin_inter"
             android:layout_marginRight="@dimen/construct_order_bottom_margin_right"
+            android:layout_marginLeft="10dp"
             android:text="@string/order_user_operate_return"
             android:textColor="@android:color/white"
             android:background="@drawable/button_background_selector"
-            android:id="@+id/electronic_return"/>
+            android:layout_marginBottom="@dimen/construct_order_bottom_margin_bottom"
+            android:id="@+id/reject_order"/>
     </LinearLayout>
+
 
 </RelativeLayout>

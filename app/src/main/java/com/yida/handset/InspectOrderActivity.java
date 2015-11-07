@@ -8,8 +8,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -23,11 +23,13 @@ import android.widget.Toast;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.yida.handset.entity.InspectItem;
 import com.yida.handset.entity.InspectOrder;
+import com.yida.handset.entity.InspectUploadEntity;
 import com.yida.handset.entity.ResourceVo;
 import com.yida.handset.entity.ResultVo;
 import com.yida.handset.entity.User;
@@ -35,7 +37,14 @@ import com.yida.handset.sqlite.TableWorkOrder;
 import com.yida.handset.sqlite.WorkOrderDao;
 import com.yida.handset.workorder.WorkOrderFragment;
 
-import org.w3c.dom.Text;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -47,6 +56,7 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
     private static final String TAG_ACCEPT_ORDER = "accept_inspect_order";
     private static final String TAG_REJECT_ORDER = "reject_inspect_order";
     private static final String TAG_COMPLETE_ORDER = "complete_inspect_order";
+    private static SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
 
     @Bind(R.id.toolbar)
     Toolbar mToolBar;
@@ -82,6 +92,7 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
     private int workId;
     private boolean isStatusChanged;
     private WorkOrderDao mWorkOrderDao;
+    private InspectUploadEntity inspectResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,11 +121,11 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
         user = gson.fromJson(userStr, new TypeToken<User>(){}.getType());
         if (workOrder != null && workOrder.getDevices().size() > 0) {
             InspectItem device = workOrder.getDevices().get(0);
-            mDeviceName.setText("设备名: " + device.getDeviceName());
-            mDeviceType.setText("设备类型: " + device.getDeviceType());
-            mHardwareVersion.setText("硬件版本: " + device.getDeviceHardwareVersion());
-            mSoftwareVersion.setText("软件版本: " + device.getDeviceSoftwareVersion());
-            mPortCount.setText("端口数: " + device.getResourceData().size());
+            mDeviceName.setText("设备名: " + (device.getDeviceName() == null ? "" : device.getDeviceName()));
+            mDeviceType.setText("设备类型: " + (device.getDeviceType() == null ? "" : device.getDeviceType()));
+            mHardwareVersion.setText("硬件版本: " + (device.getDeviceHardwareVersion() == null ? "" : device.getDeviceHardwareVersion()));
+            mSoftwareVersion.setText("软件版本: " + (device.getDeviceSoftwareVersion() == null ? "" : device.getDeviceSoftwareVersion()));
+            mPortCount.setText("待巡检端口数: " + (device.getResourceData() == null ? 0 : device.getResourceData().size()));
         }
 
         Intent extraIntent = getIntent();
@@ -123,11 +134,12 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
             String workStatus = extraIntent.getStringExtra(WorkOrderFragment.TAG_ORDER_STATUS);
             mOrderId.setText("工单ID : " + workId);
             mOrderStatus.setText("工单状态 : " + workStatus);
-            mOrderSite.setText("地址 : " + extraIntent.getStringExtra(WorkOrderFragment.TAG_SITE));
+            mOrderSite.setText("地址 : " + (extraIntent.getStringExtra(WorkOrderFragment.TAG_SITE) == null
+                    ? "" : extraIntent.getStringExtra(WorkOrderFragment.TAG_SITE)));
             mOrderRemark.setText("备注：这是一个巡检工单");
             if (workStatus != null && !"".equals(workStatus)) {
                 if (workStatus.equals(WorkOrderFragment.STATUS_ACCEPTED)) {
-                    mCompleteOrder.setVisibility(View.VISIBLE);
+                    mCompleteOrder.setVisibility(View.GONE);
                     mRejectOrder.setVisibility(View.GONE);
                     mAcceptOrder.setVisibility(View.GONE);
                     mInspectDevice.setVisibility(View.VISIBLE);
@@ -157,9 +169,10 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
                 rejectOrder();
                 break;
             case R.id.complete_order:
-//                completeOrder();
+                completeOrder();
                 break;
             case R.id.inspect_device:
+                inspect();
                 break;
             default:
                 break;
@@ -172,6 +185,74 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
             setResult(Activity.RESULT_OK);
         }
         super.onBackPressed();
+    }
+
+    public void completeOrder() {
+        if (inspectResult == null) {
+            Toast.makeText(InspectOrderActivity.this, "请先巡检！", Toast.LENGTH_SHORT).show();
+            mCompleteOrder.setVisibility(View.GONE);
+            mInspectDevice.setVisibility(View.VISIBLE);
+            return;
+        }
+        pd = new ProgressDialog(this);
+        pd.setMessage(getString(R.string.loading));
+        pd.setCanceledOnTouchOutside(false);
+        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                dismiss();
+                RequestQueueSingleton.getInstance(getApplicationContext()).getRequestQueue().cancelAll(TAG_COMPLETE_ORDER);
+            }
+        });
+        pd.show();
+
+        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.COMPLETE_INSPECT_ORDER;
+        LogWrapper.d(mUrl);
+        Gson gson = new Gson();
+
+        String uploadStr = gson.toJson(inspectResult);
+        JsonObjectRequest uploadInspectResult = new JsonObjectRequest(Request.Method.POST, mUrl, uploadStr, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                LogWrapper.d(response.toString());
+                try {
+                    if (ResultVo.CODE_SUCCESS.equals(response.getString("code"))) {
+                        ContentValues values = new ContentValues();
+                        values.put(TableWorkOrder.ORDER_STATUS, WorkOrderFragment.orderStatus.get(WorkOrderFragment.STATUS_COMPLETED));
+
+                        String where = TableWorkOrder.WORKID + "='" + workId + "'";
+                        int resultCodeDB = mWorkOrderDao.update(values, where);
+                        if (resultCodeDB > 0) {
+                            mRejectOrder.setVisibility(View.GONE);
+                            mAcceptOrder.setVisibility(View.GONE);
+                            mCompleteOrder.setVisibility(View.GONE);
+                            mInspectDevice.setVisibility(View.GONE);
+                            mOrderStatus.setText("工单状态 : " + WorkOrderFragment.STATUS_COMPLETED);
+                            isStatusChanged = true;
+                            Toast.makeText(InspectOrderActivity.this, R.string.complete_dialog_text_hint_result, Toast.LENGTH_SHORT).show();
+                        }
+                    } else if(ResultVo.CODE_FAILURE.equals(response.getString("code"))) {
+                        Toast.makeText(InspectOrderActivity.this, response.getString("message"), Toast.LENGTH_SHORT).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                dismiss();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                dismiss();
+                error.printStackTrace();
+            }
+        });
+        uploadInspectResult.setTag(TAG_COMPLETE_ORDER);
+
+        RequestQueueSingleton.getInstance(this).addToRequestQueue(uploadInspectResult);
+    }
+
+    public void inspect() {
+        new InspectTask().execute();
     }
 
     private void acceptOrder() {
@@ -217,9 +298,9 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
                     if (resultCodeDB > 0) {
                         mRejectOrder.setVisibility(View.GONE);
                         mAcceptOrder.setVisibility(View.GONE);
-                        mCompleteOrder.setVisibility(View.VISIBLE);
+                        mCompleteOrder.setVisibility(View.GONE);
                         mInspectDevice.setVisibility(View.VISIBLE);
-                        mOrderStatus.setText(WorkOrderFragment.STATUS_ACCEPTED);
+                        mOrderStatus.setText("工单状态 : " + WorkOrderFragment.STATUS_ACCEPTED);
                         isStatusChanged = true;
                     }
 
@@ -296,7 +377,8 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
                                 mRejectOrder.setVisibility(View.GONE);
                                 mAcceptOrder.setVisibility(View.GONE);
                                 mCompleteOrder.setVisibility(View.GONE);
-                                mOrderStatus.setText(WorkOrderFragment.STATUS_NO_PUBLISHED);
+                                mInspectDevice.setVisibility(View.GONE);
+                                mOrderStatus.setText("工单状态 : " + WorkOrderFragment.STATUS_NO_PUBLISHED);
                                 isStatusChanged = true;
                             }
                         } else if (ResultVo.CODE_FAILURE.equals(result.getCode())) {
@@ -331,6 +413,68 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
     private void dismiss() {
         if (pd != null && pd.isShowing()) {
             pd.dismiss();
+        }
+    }
+
+    private class InspectTask extends AsyncTask<Void, Void, Void> {
+        public InspectTask() {
+            super();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pd = new ProgressDialog(InspectOrderActivity.this);
+            pd.setMessage(getString(R.string.loading));
+            pd.setCanceledOnTouchOutside(false);
+            pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialogInterface) {
+                    dismiss();
+                    cancel(true);
+                }
+            });
+            pd.show();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            dismiss();
+            mCompleteOrder.setVisibility(View.VISIBLE);
+            mInspectDevice.setVisibility(View.GONE);
+            Toast.makeText(InspectOrderActivity.this,"完成巡检", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            mCompleteOrder.setVisibility(View.GONE);
+            mInspectDevice.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            inspectResult = new InspectUploadEntity();
+            inspectResult.setWorkOrderId(workOrder.getWorkOrderId());
+            inspectResult.setInspectTime(df.format(new Date()));
+            List<InspectItem> devices = new ArrayList<>();
+            for (InspectItem item : workOrder.getDevices()) {
+                //在这里做巡检任务
+                //
+                //
+                //
+                //
+                devices.add(item);
+            }
+            inspectResult.setDevices(devices);
+            inspectResult.setToken(user.getToken());
+            if (devices.size() > 0) {
+                inspectResult.setResult("true");
+            } else {
+                inspectResult.setResult("false");
+            }
+            return null;
         }
     }
 
