@@ -115,5 +115,6 @@
     <string name="title_activity_collect">资源采集工单</string>
     <string name="collect_item_status"> -- 已采集</string>
     <string name="collect_item_label">待采集设备</string>
+    <string name="already_inspected">已巡检</string>
 
 </resources>

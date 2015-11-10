@@ -29,10 +29,12 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.yida.handset.entity.InspectItem;
 import com.yida.handset.entity.InspectOrder;
+import com.yida.handset.entity.InspectResultEntity;
 import com.yida.handset.entity.InspectUploadEntity;
 import com.yida.handset.entity.ResourceVo;
 import com.yida.handset.entity.ResultVo;
 import com.yida.handset.entity.User;
+import com.yida.handset.sqlite.InspectDao;
 import com.yida.handset.sqlite.TableWorkOrder;
 import com.yida.handset.sqlite.WorkOrderDao;
 import com.yida.handset.workorder.WorkOrderFragment;
@@ -78,6 +80,8 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
     TextView mSoftwareVersion;
     @Bind(R.id.inspect_port_count)
     TextView mPortCount;
+    @Bind(R.id.already_inspected)
+    TextView mAlreadyInspected;
     @Bind(R.id.complete_order)
     Button mCompleteOrder;
     @Bind(R.id.reject_order)
@@ -93,6 +97,7 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
     private boolean isStatusChanged;
     private WorkOrderDao mWorkOrderDao;
     private InspectUploadEntity inspectResult;
+    private InspectDao inspectDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +119,8 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
         });
 
         mWorkOrderDao = new WorkOrderDao(this);
+        inspectDao = new InspectDao(this);
+
 
         SharedPreferences preferences = getSharedPreferences(LoginActivity.REFERENCE_NAME, Context.MODE_PRIVATE);
         String userStr = preferences.getString(LoginActivity.REFERENCE_USER, "");
@@ -131,6 +138,14 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
         Intent extraIntent = getIntent();
         if (extraIntent != null) {
             workId = extraIntent.getIntExtra(WorkOrderFragment.TAG_ID, 0);
+            InspectResultEntity inspectResultEntity = inspectDao.query(workId);
+            if (inspectResultEntity != null) {
+                try {
+                    inspectResult = gson.fromJson(inspectResultEntity.getData(), new TypeToken<InspectUploadEntity>(){}.getType());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             String workStatus = extraIntent.getStringExtra(WorkOrderFragment.TAG_ORDER_STATUS);
             mOrderId.setText("工单ID : " + workId);
             mOrderStatus.setText("工单状态 : " + workStatus);
@@ -139,10 +154,18 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
             mOrderRemark.setText("备注：这是一个巡检工单");
             if (workStatus != null && !"".equals(workStatus)) {
                 if (workStatus.equals(WorkOrderFragment.STATUS_ACCEPTED)) {
-                    mCompleteOrder.setVisibility(View.GONE);
-                    mRejectOrder.setVisibility(View.GONE);
-                    mAcceptOrder.setVisibility(View.GONE);
-                    mInspectDevice.setVisibility(View.VISIBLE);
+                    if (inspectResult != null && inspectResult.getResult().equals("true")) {
+                        mCompleteOrder.setVisibility(View.VISIBLE);
+                        mRejectOrder.setVisibility(View.GONE);
+                        mAcceptOrder.setVisibility(View.GONE);
+                        mInspectDevice.setVisibility(View.GONE);
+                        mAlreadyInspected.setVisibility(View.VISIBLE);
+                    } else {
+                        mCompleteOrder.setVisibility(View.GONE);
+                        mRejectOrder.setVisibility(View.GONE);
+                        mAcceptOrder.setVisibility(View.GONE);
+                        mInspectDevice.setVisibility(View.VISIBLE);
+                    }
                 } else if (workStatus.equals(WorkOrderFragment.STATUS_COMPLETED)
                         || workStatus.equals(WorkOrderFragment.STATUS_NO_PUBLISHED)) {
                     mCompleteOrder.setVisibility(View.GONE);
@@ -443,6 +466,7 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
             dismiss();
             mCompleteOrder.setVisibility(View.VISIBLE);
             mInspectDevice.setVisibility(View.GONE);
+            mAlreadyInspected.setVisibility(View.VISIBLE);
             Toast.makeText(InspectOrderActivity.this,"完成巡检", Toast.LENGTH_SHORT).show();
         }
 
@@ -474,6 +498,11 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
             } else {
                 inspectResult.setResult("false");
             }
+            Gson gson = new Gson();
+            InspectResultEntity inspectResultEntity = new InspectResultEntity();
+            inspectResultEntity.setWorkId(workId);
+            inspectResultEntity.setData(gson.toJson(inspectResult));
+            inspectDao.insert(inspectResultEntity);
             return null;
         }
     }

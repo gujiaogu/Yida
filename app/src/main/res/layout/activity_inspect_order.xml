@@ -109,6 +109,16 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/inspect_port_count"
                 android:layout_weight="1"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:id="@+id/already_inspected"
+                android:text="@string/already_inspected"
+                android:textColor="@color/green"
+                android:layout_marginRight="16dp"
+                android:layout_weight="1"
+                android:visibility="gone"/>
         </TableRow>
 
     </TableLayout>

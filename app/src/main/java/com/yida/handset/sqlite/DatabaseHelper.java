@@ -128,6 +128,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + TableLog.TYPE + " text, "
                 + TableLog.USERNAME + " text"
                 +")";
+        String sql_inspect = "create table if not exists " + TableInspectResult.TABLE_NAME
+                + "(" + TableInspectResult.WORKID + " integer primary key, "
+                + TableInspectResult.DATA + " text"
+                +")";
         sqLiteDatabase.execSQL(sql_net_unit);
         sqLiteDatabase.execSQL(sql_frame);
         sqLiteDatabase.execSQL(sql_container);
@@ -135,6 +139,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(sql_port);
         sqLiteDatabase.execSQL(sql_workorder);
         sqLiteDatabase.execSQL(sql_log);
+        sqLiteDatabase.execSQL(sql_inspect);
     }
 
     @Override

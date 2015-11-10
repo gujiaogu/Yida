@@ -25,11 +25,11 @@ public class LogActivity extends AppCompatActivity {
 
     public static List<LogEntity> data;
 
-    @Bind(android.R.id.list)
+    @Bind(R.id.list)
     ListView mList;
 
     private LogDao dao;
-    LogAdapter adapter;
+    private LogAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,12 +47,13 @@ public class LogActivity extends AppCompatActivity {
                 finish();
             }
         });
+        dao = new LogDao(this);
+
         if (data != null && data.size() > 0) {
             adapter = new LogAdapter(this, data);
             mList.setAdapter(adapter);
         }
 
-        dao = new LogDao(this);
 
     }
 
@@ -72,10 +73,10 @@ public class LogActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.clear_log) {
-//            dao.clear();
-//            if (adapter != null) {
-//                adapter.clear();
-//            }
+            dao.clear();
+            if (adapter != null) {
+                adapter.clear();
+            }
             return true;
         }
 
@@ -85,27 +86,27 @@ public class LogActivity extends AppCompatActivity {
     private class LogAdapter extends BaseAdapter {
 
         private Context context;
-        private List<LogEntity> data;
+        private List<LogEntity> entities;
         private LayoutInflater inflater;
 
         public LogAdapter(Context context, List<LogEntity> data) {
             this.context = context;
-            this.data = data;
+            this.entities = data;
             this.inflater = LayoutInflater.from(this.context);
         }
 
         @Override
         public int getCount() {
-            if (this.data != null) {
-                this.data.size();
+            if (this.entities != null) {
+                return this.entities.size();
             }
             return 0;
         }
 
         @Override
         public Object getItem(int i) {
-            if (this.data != null) {
-                this.data.get(i);
+            if (this.entities != null) {
+                return this.entities.get(i);
             }
             return 0;
         }
@@ -129,7 +130,7 @@ public class LogActivity extends AppCompatActivity {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
 
-            LogEntity entity = data.get(position);
+            LogEntity entity = entities.get(position);
             viewHolder.username.setText(entity.getUsername());
             viewHolder.type.setText(entity.getType());
             viewHolder.time.setText(entity.getTime());
@@ -137,8 +138,8 @@ public class LogActivity extends AppCompatActivity {
         }
 
         public void clear() {
-            if (this.data != null) {
-                this.data.clear();
+            if (this.entities != null) {
+                this.entities.clear();
             }
             notifyDataSetChanged();
         }
@@ -149,5 +150,7 @@ public class LogActivity extends AppCompatActivity {
             TextView time;
         }
     }
+
+
 
 }
