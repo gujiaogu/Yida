@@ -9,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -29,7 +28,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.yida.handset.entity.ConfigurationEntity;
+import com.yida.handset.entity.ResourceCollectEntity;
 import com.yida.handset.entity.ResourceVo;
 import com.yida.handset.entity.ResultVo;
 import com.yida.handset.entity.User;
@@ -37,41 +36,28 @@ import com.yida.handset.sqlite.TableWorkOrder;
 import com.yida.handset.sqlite.WorkOrderDao;
 import com.yida.handset.workorder.WorkOrderFragment;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class ConfigurationActivity extends AppCompatActivity implements View.OnClickListener {
+public class CollectActivity extends AppCompatActivity implements View.OnClickListener{
 
-    public static List<ConfigurationEntity> configurationEntities;
+    private static final String TAG_ACCEPT_ORDER = "accept_collect_order";
+    private static final String TAG_REJECT_ORDER = "reject_collect_order";
+    private static final String TAG_COMPLETE_ORDER = "complete_collect_order";
 
-    private static final String TAG_ACCEPT_ORDER = "accept_configuration_order";
-    private static final String TAG_REJECT_ORDER = "reject_configuration_order";
-    private static final String TAG_COMPLETE_ORDER = "complete_configuration_order";
+    public static List<ResourceCollectEntity> entities;
+
     static {
-        configurationEntities = new ArrayList<>();
-        ConfigurationEntity entity;
-        for (int i = 0; i < 10; i ++) {
-            entity = new ConfigurationEntity();
-            entity.setDeviceName("设备" + i);
-            entity.setDeviceID(String.valueOf(i));
-            entity.setDeviceIPAddr("192.168.5." + i);
-            entity.setDeviceIPAddrMask("4B:3C:6A:5F");
-            entity.setDeviceIPGateway("192.110.123.2");
-            entity.setDeviceType("SBN-" + i);
-            entity.setNMSIPAddr("192.122.6." + i);
-            entity.setNMSTrapEnable(true);
-            entity.setNMSTrapPort(String.valueOf(i % 2));
-            entity.setNMSTrapSecurityName("安全名" + i);
-            entity.setSNMPAuthority("SNMP授权" + i);
-            entity.setSNMPGroupName("组织" + i);
-            entity.setSNMPViewEnable(false);
-            entity.setSNMPViewName("视图" + i);
-            configurationEntities.add(entity);
+        entities = new ArrayList<>();
+        ResourceCollectEntity entity;
+        for (int i = 0; i < 20; i ++) {
+            entity = new ResourceCollectEntity();
+            entity.setDeviceID("设备ID" + i);
+            entity.setVendorID("供应商ID" + i);
+            entities.add(entity);
         }
     }
 
@@ -81,26 +67,31 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
     TextView mOrderId;
     @Bind(R.id.order_status)
     TextView mOrderStatus;
+    @Bind(R.id.order_site)
+    TextView mOrderSite;
+    @Bind(R.id.order_remark)
+    TextView mOrderRemark;
     @Bind(R.id.complete_order)
     Button mCompleteOrder;
     @Bind(R.id.reject_order)
     Button mRejectOrder;
     @Bind(R.id.accept_order)
     Button mAcceptOrder;
-    @Bind(R.id.order_configuration_list)
-    ListView mListConfiguration;
+    @Bind(R.id.order_collect_list)
+    ListView mCollectList;
 
     private ProgressDialog pd;
     private User user;
     private int workId;
     private boolean isStatusChanged;
     private WorkOrderDao mWorkOrderDao;
-    private ConfigurationAdapter adapter;
+    private CollectAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_configuration);
+        setContentView(R.layout.activity_collect);
+
         ButterKnife.bind(this);
 
         setSupportActionBar(mToolBar);
@@ -116,8 +107,6 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
             }
         });
 
-        mWorkOrderDao = new WorkOrderDao(this);
-
         SharedPreferences preferences = getSharedPreferences(LoginActivity.REFERENCE_NAME, Context.MODE_PRIVATE);
         String userStr = preferences.getString(LoginActivity.REFERENCE_USER, "");
         Gson gson = new Gson();
@@ -129,12 +118,11 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
             String workStatus = extraIntent.getStringExtra(WorkOrderFragment.TAG_ORDER_STATUS);
             mOrderId.setText("工单ID : " + workId);
             mOrderStatus.setText("工单状态 : " + workStatus);
-//            mOrderSite.setText("地址 : " + (extraIntent.getStringExtra(WorkOrderFragment.TAG_SITE) == null
-//                    ? "" : extraIntent.getStringExtra(WorkOrderFragment.TAG_SITE)));
-//            mOrderRemark.setText("备注：这是一个巡检工单");
+            mOrderSite.setText("地址 : " + (extraIntent.getStringExtra(WorkOrderFragment.TAG_SITE) == null
+                    ? "" : extraIntent.getStringExtra(WorkOrderFragment.TAG_SITE)));
             if (workStatus != null && !"".equals(workStatus)) {
                 if (workStatus.equals(WorkOrderFragment.STATUS_ACCEPTED)) {
-                    mCompleteOrder.setVisibility(View.GONE);
+                    mCompleteOrder.setVisibility(View.VISIBLE);
                     mRejectOrder.setVisibility(View.GONE);
                     mAcceptOrder.setVisibility(View.GONE);
                 } else if (workStatus.equals(WorkOrderFragment.STATUS_COMPLETED)
@@ -146,24 +134,34 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
             }
         }
 
-        if (configurationEntities != null && configurationEntities.size() > 0) {
-            adapter = new ConfigurationAdapter(this, configurationEntities);
-            mListConfiguration.setAdapter(adapter);
-        }
+        mWorkOrderDao = new WorkOrderDao(this);
 
         mCompleteOrder.setOnClickListener(this);
         mRejectOrder.setOnClickListener(this);
         mAcceptOrder.setOnClickListener(this);
+
+        if (entities != null) {
+            adapter = new CollectAdapter(this, entities);
+            mCollectList.setAdapter(adapter);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (isStatusChanged) {
+            setResult(Activity.RESULT_OK);
+        }
+        super.onBackPressed();
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.accept_order:
-                acceptOrder();
+//                acceptOrder();
                 break;
             case R.id.reject_order:
-                rejectOrder();
+//                rejectOrder();
                 break;
             case R.id.complete_order:
 //                completeOrder();
@@ -222,7 +220,7 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
                     }
 
                 } else if(ResultVo.CODE_FAILURE.equals(result.getCode())) {
-                    Toast.makeText(ConfigurationActivity.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CollectActivity.this, result.getMessage(), Toast.LENGTH_SHORT).show();
                 }
                 dismiss();
             }
@@ -248,11 +246,11 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
             public void onClick(DialogInterface dialogInterface, int i) {
                 String reason = editText.getText().toString().trim();
                 if ("".equals(reason)) {
-                    Toast.makeText(ConfigurationActivity.this, R.string.reject_dialog_text_hint, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CollectActivity.this, R.string.reject_dialog_text_hint, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                pd = new ProgressDialog(ConfigurationActivity.this);
+                pd = new ProgressDialog(CollectActivity.this);
                 pd.setMessage(getString(R.string.loading));
                 pd.setCanceledOnTouchOutside(false);
                 pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -298,7 +296,7 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
                                 isStatusChanged = true;
                             }
                         } else if (ResultVo.CODE_FAILURE.equals(result.getCode())) {
-                            Toast.makeText(ConfigurationActivity.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CollectActivity.this, result.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                         dismiss();
                     }
@@ -317,7 +315,7 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Toast.makeText(ConfigurationActivity.this, "Cancelled", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CollectActivity.this, "Cancelled", Toast.LENGTH_SHORT).show();
             }
         });
         builder.setView(view);
@@ -332,31 +330,30 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
         }
     }
 
-    private class ConfigurationAdapter extends BaseAdapter {
 
-        private List<ConfigurationEntity> data;
+    private class CollectAdapter extends BaseAdapter {
+
         private Context context;
+        private List<ResourceCollectEntity> data;
         private LayoutInflater inflater;
 
-        public ConfigurationAdapter(Context context, List<ConfigurationEntity> data) {
-            this.data = data;
+        public CollectAdapter(Context context, List<ResourceCollectEntity> data) {
             this.context = context;
+            this.data = data;
             this.inflater = LayoutInflater.from(this.context);
         }
+
         @Override
         public int getCount() {
-            if (this.data != null) {
-                return this.data.size();
+            if (this.data.size() > 0) {
+                return data.size();
             }
             return 0;
         }
 
         @Override
         public Object getItem(int i) {
-            if (this.data != null) {
-                return this.data.get(i);
-            }
-            return null;
+            return data.get(i);
         }
 
         @Override
@@ -369,61 +366,22 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
             ViewHolder viewHolder;
             if (convertView == null) {
                 viewHolder = new ViewHolder();
-                convertView = this.inflater.inflate(R.layout.item_configuration_list, null);
-                viewHolder.deviceName = (TextView) convertView.findViewById(R.id.device_name);
-                viewHolder.deviceID = (TextView) convertView.findViewById(R.id.device_id);
-                viewHolder.deviceType = (TextView) convertView.findViewById(R.id.device_type);
-                viewHolder.deviceIPAddr = (TextView) convertView.findViewById(R.id.device_ip);
-                viewHolder.deviceIPAddrMask = (TextView) convertView.findViewById(R.id.device_mac);
-                viewHolder.deviceIPGateway = (TextView) convertView.findViewById(R.id.device_gateway);
-                viewHolder.NMSIPAddr = (TextView) convertView.findViewById(R.id.NMSIPAddr);
-                viewHolder.NMSTrapPort = (TextView) convertView.findViewById(R.id.NMSTrapPort);
-                viewHolder.NMSTrapEnable = (TextView) convertView.findViewById(R.id.NMSTrapEnable);
-                viewHolder.NMSTrapSecurityName = (TextView) convertView.findViewById(R.id.NMSTrapSecurityName);
-                viewHolder.SNMPGroupName = (TextView) convertView.findViewById(R.id.SNMPGroupName);
-                viewHolder.SNMPAuthority = (TextView) convertView.findViewById(R.id.SNMPAuthority);
-                viewHolder.SNMPViewEnable = (TextView) convertView.findViewById(R.id.SNMPViewEnable);
-                viewHolder.SNMPViewName = (TextView) convertView.findViewById(R.id.SNMPViewName);
+                convertView = inflater.inflate(R.layout.item_collect_list, null);
+                viewHolder.vendorId = (TextView) convertView.findViewById(R.id.vendorId);
+                viewHolder.deviceId = (TextView) convertView.findViewById(R.id.deviceId);
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
-            ConfigurationEntity entity = this.data.get(position);
-            viewHolder.deviceName.setText(entity.getDeviceName());
-            viewHolder.deviceID.setText("设备ID: " + entity.getDeviceID());
-            viewHolder.deviceType.setText("设备类型: " + entity.getDeviceType());
-            viewHolder.deviceIPAddr.setText("设备IP: " + entity.getDeviceIPAddr());
-            viewHolder.deviceIPAddrMask.setText("设备Mac: " + entity.getDeviceIPAddrMask());
-            viewHolder.deviceIPGateway.setText("设备网关: " + entity.getDeviceIPGateway());
-            viewHolder.NMSIPAddr.setText("网管IP: " + entity.getNMSIPAddr());
-            viewHolder.NMSTrapPort.setText("网管Trap端口: " + entity.getNMSTrapPort());
-            viewHolder.NMSTrapEnable.setText("网管Trap使能: " + (entity.isNMSTrapEnable() ? "使能" : "不使能"));
-            viewHolder.NMSTrapSecurityName.setText("网管Trap安全名: " + entity.getNMSTrapSecurityName());
-            viewHolder.SNMPGroupName.setText("SNMP名: " + entity.getSNMPGroupName());
-            viewHolder.SNMPAuthority.setText("SNMP权限: " + entity.getSNMPAuthority());
-            viewHolder.SNMPViewEnable.setText("SNMP启用: " + (entity.isSNMPViewEnable() ? "配置" : "不配置"));
-            viewHolder.SNMPViewName.setText("SNMP名: " + entity.getSNMPViewName());
+            ResourceCollectEntity item = data.get(position);
+            viewHolder.deviceId.setText(item.getDeviceID());
+            viewHolder.vendorId.setText(item.getVendorID());
             return convertView;
         }
 
         class ViewHolder {
-            TextView deviceName;
-            TextView deviceID;
-            TextView deviceType;
-            TextView deviceIPAddr;
-            TextView deviceIPAddrMask;
-            TextView deviceIPGateway;
-            TextView NMSIPAddr;
-            TextView NMSTrapPort;
-            TextView NMSTrapEnable;
-            TextView NMSTrapSecurityName;
-            TextView SNMPGroupName;
-            TextView SNMPAuthority;
-            TextView SNMPViewEnable;
-            TextView SNMPViewName;
+            TextView vendorId;
+            TextView deviceId;
         }
-
-
     }
-
 }

@@ -10,7 +10,7 @@
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
         <item name="android:textColor">@color/text_color</item>
         <item name="android:windowAnimationStyle">@style/StyleMainActivity</item>
-        <!--<item name="android:progressBarStyle">@style/Material.Drawable.CircularProgress</item>-->
+        <item name="android:progressBarStyle">@style/Widget.AppCompat.ProgressBar</item>
     </style>
 
     <style name="AppTheme" parent="AppBaseTheme"></style>

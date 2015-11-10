@@ -112,5 +112,8 @@
     <string name="download_new_app">下载新版本</string>
     <string name="log_action_clear">清除</string>
     <string name="title_activity_configuration">配置工单</string>
+    <string name="title_activity_collect">资源采集工单</string>
+    <string name="collect_item_status"> -- 已采集</string>
+    <string name="collect_item_label">待采集设备</string>
 
 </resources>

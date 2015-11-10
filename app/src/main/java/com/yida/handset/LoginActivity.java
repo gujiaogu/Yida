@@ -26,8 +26,15 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.rey.material.widget.CheckBox;
+import com.yida.handset.entity.LogEntity;
 import com.yida.handset.entity.LoginResult;
+import com.yida.handset.entity.User;
+import com.yida.handset.sqlite.LogDao;
 import com.yida.handset.workorder.SettingActivity;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -37,6 +44,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     public static final String REFERENCE_NAME = "yida";
     public static final String REFERENCE_USER = "yida.user";
+    public static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.CHINA);
 
     public static final String CODE_SUCCESS = "0";
     public static final String CODE_FAILURE = "-1";
@@ -59,6 +67,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     TextView mSetIp;
 
     private ProgressDialog pd;
+    private LogDao dao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +95,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mBtnLogin.setOnClickListener(this);
         mSwitch.setOnCheckedChangeListener(this);
         mForgetPwd.setOnClickListener(this);
+
+        dao = new LogDao(this);
     }
 
     @Override
@@ -178,6 +189,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     String user = gson.toJson(result.getObject());
                     editor.putString(REFERENCE_USER, user);
                     editor.apply();
+
+                    User userEntity = gson.fromJson(user, new TypeToken<User>() {}.getType());
+                    LogEntity entity = new LogEntity();
+                    entity.setUsername(userEntity.getUsername());
+                    entity.setTime(format.format(new Date()));
+                    entity.setType(LogEntity.TYPE_LOGIN);
+                    dao.insert(entity);
 
                     Intent intent = new Intent(LoginActivity.this, HahaActivity.class);
                     startActivity(intent);

@@ -109,7 +109,7 @@ public class ConstructOrderActivity extends AppCompatActivity implements View.On
             String workStatus = extraIntent.getStringExtra(WorkOrderFragment.TAG_ORDER_STATUS);
             mOrderId.setText("工单ID : " + workId);
             mOrderStatus.setText("工单状态 : " + workStatus);
-            mOrderSite.setText("地址 : " + extraIntent.getStringExtra(WorkOrderFragment.TAG_SITE));
+            mOrderSite.setText("地址 : " + (extraIntent.getStringExtra(WorkOrderFragment.TAG_SITE) == null ? "" : extraIntent.getStringExtra(WorkOrderFragment.TAG_SITE)));
             if (workStatus != null && !"".equals(workStatus)) {
                 if (workStatus.equals(WorkOrderFragment.STATUS_ACCEPTED)) {
                     mCompleteOrder.setVisibility(View.VISIBLE);

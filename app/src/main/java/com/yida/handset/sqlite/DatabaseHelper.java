@@ -121,12 +121,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + TableWorkOrder.ASSIGNERNAME + " text,"
                 + TableWorkOrder.REMARK + " text"
                 +")";
+
+        String sql_log = "create table if not exists " + TableLog.TABLE_NAME
+                + "(" + TableLog._ID + " integer primary key autoincrement, "
+                + TableLog.TIME + " text, "
+                + TableLog.TYPE + " text, "
+                + TableLog.USERNAME + " text"
+                +")";
         sqLiteDatabase.execSQL(sql_net_unit);
         sqLiteDatabase.execSQL(sql_frame);
         sqLiteDatabase.execSQL(sql_container);
         sqLiteDatabase.execSQL(sql_fiberbox);
         sqLiteDatabase.execSQL(sql_port);
         sqLiteDatabase.execSQL(sql_workorder);
+        sqLiteDatabase.execSQL(sql_log);
     }
 
     @Override

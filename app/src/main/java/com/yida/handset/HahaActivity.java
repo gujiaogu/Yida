@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -39,6 +40,7 @@ import com.yida.handset.entity.ResultVo;
 import com.yida.handset.entity.User;
 import com.yida.handset.entity.WorkList;
 import com.yida.handset.slide.ExitAction;
+import com.yida.handset.sqlite.LogDao;
 import com.yida.handset.sqlite.WorkOrderDao;
 import com.yida.handset.slide.AboutAction;
 import com.yida.handset.slide.UpdateAction;
@@ -210,8 +212,7 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
                 startResource();
                 break;
             case R.id.main_action_log:
-                Intent intent1 = new Intent(this, LogActivity.class);
-                startActivity(intent1);
+                startLog();
                 break;
             case R.id.main_action_work_order:
                 startWorkOrder();
@@ -228,6 +229,10 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mReceiver);
+    }
+
+    private void startLog() {
+        new LogTask().execute();
     }
 
     private void startWorkOrder() {
@@ -542,6 +547,43 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
             values.put(TablePort.UPDATEBY, port.getUpdateBy());
             values.put(TablePort.UPDATETIME, port.getUpdateTime());
             db.insert(TablePort.TABLE_NAME, null, values);
+        }
+    }
+
+    private class LogTask extends AsyncTask<Void, Void, Void> {
+        public LogTask() {
+            super();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pd = new ProgressDialog(HahaActivity.this);
+            pd.setMessage(getString(R.string.loading));
+            pd.setCanceledOnTouchOutside(false);
+            pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialogInterface) {
+                    dismiss();
+                    cancel(true);
+                }
+            });
+            pd.show();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            dismiss();
+            Intent intent = new Intent(HahaActivity.this, LogActivity.class);
+            startActivity(intent);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            LogDao dao = new LogDao(HahaActivity.this);
+            LogActivity.data = dao.queryAll();
+            return null;
         }
     }
 }

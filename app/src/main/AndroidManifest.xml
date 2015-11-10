@@ -116,6 +116,9 @@
             android:name=".ConfigurationActivity"
             android:label="@string/title_activity_configuration" >
         </activity>
+        <activity android:name=".CollectActivity"
+            android:label="@string/title_activity_collect">
+        </activity>
     </application>
 
 </manifest>

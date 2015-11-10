@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.rey.material.app.DialogFragment;
 import com.rey.material.app.SimpleDialog;
+import com.yida.handset.CollectActivity;
 import com.yida.handset.ConfigurationActivity;
 import com.yida.handset.Constants;
 import com.yida.handset.ConstructOrderActivity;
@@ -192,16 +193,16 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
                 startInspectOrder(item);
                 break;
             case "3": //电子标签写入工单
-//                intent = new Intent(getActivity(), ConfigurationActivity.class);
-//                startActivity(intent);
                 startEtagWriterOrder(item);
                 break;
             case "4":
-//                intent = new Intent(getActivity(), ConfigurationActivity.class);
-//                startActivity(intent);
-                startConfigurationOrder(item);
+                intent = new Intent(getActivity(), ConfigurationActivity.class);
+                startActivity(intent);
+//                startConfigurationOrder(item);
                 break;
             case "5":
+                intent = new Intent(getActivity(), CollectActivity.class);
+                startActivity(intent);
                 break;
             default:
                 break;
@@ -474,8 +475,10 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
                     for (ConstructOrderRoute route : opticalRouteList) {
                         data.add(route);
                         List<OpticalRoute> opticalRoutes = route.getOpticalRoute();
-                        for(OpticalRoute item : opticalRoutes) {
-                            data.add(item);
+                        if (opticalRoutes != null && opticalRoutes.size() > 0) {
+                            for(OpticalRoute item : opticalRoutes) {
+                                data.add(item);
+                            }
                         }
                     }
                     ConstructOrderActivity.mOpticalItems = data;
@@ -638,7 +641,7 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
             holder.itemTitle.setText("ID : " + item.getWorkId());
             holder.itemStatus.setText("状态 : " + orderStatus.get(item.getStatus()));
             holder.itemType.setText("类型 : " + orderTypes.get(item.getOrderType()));
-            holder.itemSite.setText("地址 : " + item.getSiteName());
+            holder.itemSite.setText("地址 : " + (item.getSiteName() == null ? "" : item.getSiteName()));
             holder.assignerName.setText("责任人 : " + item.getAssignerName());
             return convertView;
         }

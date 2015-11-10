@@ -23,4 +23,5 @@
     <color name="work_order_management_top_background">#e0e0e0</color>
     <color name="work_order_item_gray">#757575</color>
     <color name="text_color">#424242</color>
+    <color name="green">#4caf50</color>
 </resources>
