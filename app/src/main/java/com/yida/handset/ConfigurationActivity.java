@@ -128,7 +128,8 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
             workId = extraIntent.getIntExtra(WorkOrderFragment.TAG_ID, 0);
             String workStatus = extraIntent.getStringExtra(WorkOrderFragment.TAG_ORDER_STATUS);
             mOrderId.setText("工单ID : " + workId);
-            mOrderStatus.setText("工单状态 : " + workStatus);
+            mOrderStatus.setText("工单状态 : 未接受");
+//            mOrderStatus.setText("工单状态 : " + workStatus);
 //            mOrderSite.setText("地址 : " + (extraIntent.getStringExtra(WorkOrderFragment.TAG_SITE) == null
 //                    ? "" : extraIntent.getStringExtra(WorkOrderFragment.TAG_SITE)));
 //            mOrderRemark.setText("备注：这是一个巡检工单");
