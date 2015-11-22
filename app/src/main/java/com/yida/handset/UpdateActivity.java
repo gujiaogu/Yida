@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -60,9 +62,20 @@ public class UpdateActivity extends AppCompatActivity implements View.OnClickLis
         int versionCode = preferences.getInt(VersionTask.VERSION_CODE, 0);
         String versionName = preferences.getString(VersionTask.VERSION_NAME, "");
 
+        PackageManager pm = getPackageManager();
         if (versionCode > 0 && !"".equals(versionName)) {
-            mBtnCheckUpdate.setVisibility(View.GONE);
-            mBtnDownloadNew.setVisibility(View.VISIBLE);
+            try {
+                PackageInfo info = pm.getPackageInfo(getPackageName(), 0);
+                if (info.versionCode < versionCode) {
+                    mBtnCheckUpdate.setVisibility(View.GONE);
+                    mBtnDownloadNew.setVisibility(View.VISIBLE);
+                } else {
+                    mBtnCheckUpdate.setVisibility(View.VISIBLE);
+                    mBtnDownloadNew.setVisibility(View.GONE);
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
         } else {
             mBtnCheckUpdate.setVisibility(View.VISIBLE);
             mBtnDownloadNew.setVisibility(View.GONE);

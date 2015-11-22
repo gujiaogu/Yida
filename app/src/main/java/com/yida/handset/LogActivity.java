@@ -1,7 +1,11 @@
 package com.yida.handset;
 
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -30,6 +34,7 @@ public class LogActivity extends AppCompatActivity {
 
     private LogDao dao;
     private LogAdapter adapter;
+    private ProgressDialog pd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,10 +78,22 @@ public class LogActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.clear_log) {
-            dao.clear();
-            if (adapter != null) {
-                adapter.clear();
-            }
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("提示");
+            builder.setMessage("确定要删除记录吗？");
+            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dao.clear();
+                    if (adapter != null) {
+                        adapter.clear();
+                    }
+                }
+            });
+            builder.setNegativeButton("取消", null);
+            Dialog dialog = builder.create();
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.show();
             return true;
         }
 
@@ -150,7 +167,5 @@ public class LogActivity extends AppCompatActivity {
             TextView time;
         }
     }
-
-
 
 }
