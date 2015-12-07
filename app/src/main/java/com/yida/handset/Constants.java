@@ -4,6 +4,8 @@ package com.yida.handset;
  * Created by Administrator on 2015/10/12.
  */
 public class Constants {
+    public static final String NO_USE = "http://120.26.126.205:9080/l10000/index";
+    public static final String NO_USE1 = "http://120.26.126.205:9080/l10000/swagger/index.html";
     public static final String SUPER_USER = "super";
     public static final String SUPER_PASSWORD = "1";
     public static String IP = "";
