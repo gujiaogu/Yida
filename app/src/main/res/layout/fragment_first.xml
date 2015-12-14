@@ -52,41 +52,51 @@
             <!--android:id="@+id/spinner_disk"-->
             <!--/>-->
     </LinearLayout>
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="48dp"
+        android:orientation="horizontal"
         android:layout_below="@id/selections"
-        android:background="@drawable/button_warning_selector"
+        android:id="@+id/layout_warning"
         android:layout_marginTop="@dimen/resource_warning_btn_margin_top"
         android:layout_marginLeft="@dimen/login_edit_text_margin"
-        android:layout_marginRight="@dimen/login_edit_text_margin"
-        android:id="@+id/btn_warning"
-        android:clickable="true">
-        <LinearLayout
+        android:layout_marginRight="@dimen/login_edit_text_margin">
+        <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/button_warning_selector"
+            android:text="同步EF"
+            android:layout_weight="1"
+            android:textColor="@android:color/white"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="horizontal"
             android:layout_centerInParent="true"
-            android:gravity="center_vertical">
+            android:gravity="center"
+            android:background="@drawable/button_warning_selector"
+            android:id="@+id/btn_warning"
+            android:layout_weight="1"
+            android:layout_marginLeft="8dp">
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@mipmap/resource_alarm"
-                android:layout_marginLeft="5dp" />
+                android:src="@mipmap/resource_alarm" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/resource_warning_btn_text"
                 android:textColor="@android:color/white"
-                android:layout_marginLeft="5dp"/>
+                android:layout_marginLeft="3dp"/>
         </LinearLayout>
-    </RelativeLayout>
+    </LinearLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_below="@id/btn_warning"
+        android:layout_below="@id/layout_warning"
         android:layout_marginTop="@dimen/resource_warning_btn_margin_top"
         android:layout_marginLeft="@dimen/login_edit_text_margin"
         android:layout_marginRight="@dimen/login_edit_text_margin"

@@ -455,7 +455,7 @@ public class ElectronicWriterActivity extends AppCompatActivity implements View.
             super.onPostExecute(aVoid);
             dismiss();
             mCompleteOrder.setVisibility(View.VISIBLE);
-            mWritePorts.setVisibility(View.GONE);
+            mWritePorts.setVisibility(View.VISIBLE);
             Toast.makeText(ElectronicWriterActivity.this,"写入完成", Toast.LENGTH_SHORT).show();
         }
 

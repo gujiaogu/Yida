@@ -1,18 +1,16 @@
 package com.yida.handset.entity;
 
-import java.util.List;
-
 /**
  * Created by gujiao on 2015/11/6.
  */
 public class ConfigurationResult extends ResultVo {
-    private List<ConfigurationEntity> devices;
+    private ConfigurationEntity assignment;
 
-    public List<ConfigurationEntity> getDevices() {
-        return devices;
+    public ConfigurationEntity getAssignment() {
+        return assignment;
     }
 
-    public void setDevices(List<ConfigurationEntity> devices) {
-        this.devices = devices;
+    public void setAssignment(ConfigurationEntity assignment) {
+        this.assignment = assignment;
     }
 }

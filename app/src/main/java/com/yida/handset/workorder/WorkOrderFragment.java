@@ -130,6 +130,7 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
     private WorkOrderDao mWorkOrderDao;
     private String username;
     private ProgressDialog pd;
+    private User user;
 
     public static WorkOrderFragment newInstance(String param1, String param2) {
         WorkOrderFragment fragment = new WorkOrderFragment();
@@ -170,7 +171,7 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
         SharedPreferences preferences = getActivity().getSharedPreferences(LoginActivity.REFERENCE_NAME, Context.MODE_PRIVATE);
         String userStr = preferences.getString(LoginActivity.REFERENCE_USER, "");
         Gson gson = new Gson();
-        User user = gson.fromJson(userStr, new TypeToken<User>(){}.getType());
+        user = gson.fromJson(userStr, new TypeToken<User>(){}.getType());
         this.username = user.getUsername();
         return rootView;
     }
@@ -196,9 +197,7 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
                 startEtagWriterOrder(item);
                 break;
             case "4":
-                intent = new Intent(getActivity(), ConfigurationActivity.class);
-                startActivity(intent);
-//                startConfigurationOrder(item);
+                startConfigurationOrder(item);
                 break;
             case "5":
                 intent = new Intent(getActivity(), CollectActivity.class);
@@ -266,7 +265,7 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
         pd.show();
 
         final WorkOrder order = item;
-        String params = "?workId=" + item.getWorkId();
+        String params = "?token=" + user.getToken() + "&assignmentId=" + item.getWorkId();
         String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.GET_CONFIGURATION_ORDER + params;
         LogWrapper.d(mUrl);
         StringRequest configurationOrderRequest = new StringRequest(Request.Method.GET, mUrl, new Response.Listener<String>() {
@@ -288,8 +287,8 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
                 }
 
                 if (ResultVo.CODE_SUCCESS.equals(result.getCode())) {
-                    ConfigurationActivity.configurationEntities = result.getDevices();
-                    if (ConfigurationActivity.configurationEntities != null) {
+                    ConfigurationActivity.configurationEntity = result.getAssignment();
+                    if (ConfigurationActivity.configurationEntity != null) {
                         Intent intent = new Intent(getActivity(), ConfigurationActivity.class);
                         intent.putExtra(TAG_ID, order.getWorkId());
                         intent.putExtra(TAG_ORDER_STATUS, orderStatus.get(order.getStatus()));

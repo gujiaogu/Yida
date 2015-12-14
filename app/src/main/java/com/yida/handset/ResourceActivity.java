@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -94,7 +95,7 @@ public class ResourceActivity extends AppCompatActivity implements View.OnClickL
     @Bind(R.id.check_detail)
     RelativeLayout mCheckDetail;
     @Bind(R.id.btn_warning)
-    RelativeLayout mBtnWarning;
+    LinearLayout mBtnWarning;
     @Bind(R.id.img)
     ImageView mImg;
     @Bind(R.id.spinner_station)
