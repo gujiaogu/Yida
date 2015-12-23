@@ -465,7 +465,7 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
             super.onPostExecute(aVoid);
             dismiss();
             mCompleteOrder.setVisibility(View.VISIBLE);
-            mInspectDevice.setVisibility(View.GONE);
+            mInspectDevice.setVisibility(View.VISIBLE);
             mAlreadyInspected.setVisibility(View.VISIBLE);
             Toast.makeText(InspectOrderActivity.this,"完成巡检", Toast.LENGTH_SHORT).show();
         }

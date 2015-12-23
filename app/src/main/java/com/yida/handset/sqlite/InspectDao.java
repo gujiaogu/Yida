@@ -49,7 +49,14 @@ public class InspectDao {
         values.put(TableInspectResult.WORKID, entity.getWorkId());
         helper.lock();
         SQLiteDatabase db = helper.getWritableDatabase();
-        db.insert(TableInspectResult.TABLE_NAME, null, values);
+        Cursor cursor = db.query(TableInspectResult.TABLE_NAME, null, TableInspectResult.WORKID + "=" + entity.getWorkId(), null, null, null, null);
+        if (cursor != null && cursor.getCount() > 0) {
+            ContentValues value = new ContentValues();
+            value.put(TableInspectResult.DATA, entity.getData());
+            db.update(TableInspectResult.TABLE_NAME, value, TableInspectResult.WORKID + "=" + entity.getWorkId(), null);
+        } else {
+            db.insert(TableInspectResult.TABLE_NAME, null, values);
+        }
         db.close();
         helper.unlock();
     }

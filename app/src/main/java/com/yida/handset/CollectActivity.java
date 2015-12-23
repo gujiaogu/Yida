@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -25,19 +26,31 @@ import android.widget.Toast;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.yida.handset.entity.ResourceCollectEntity;
+import com.yida.handset.entity.CollectionOrderEntity;
+import com.yida.handset.entity.CollectionResult;
+import com.yida.handset.entity.InspectItem;
+import com.yida.handset.entity.InspectResultEntity;
+import com.yida.handset.entity.InspectUploadEntity;
 import com.yida.handset.entity.ResourceVo;
 import com.yida.handset.entity.ResultVo;
 import com.yida.handset.entity.User;
+import com.yida.handset.sqlite.InspectDao;
 import com.yida.handset.sqlite.TableWorkOrder;
 import com.yida.handset.sqlite.WorkOrderDao;
 import com.yida.handset.workorder.WorkOrderFragment;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -48,18 +61,8 @@ public class CollectActivity extends AppCompatActivity implements View.OnClickLi
     private static final String TAG_REJECT_ORDER = "reject_collect_order";
     private static final String TAG_COMPLETE_ORDER = "complete_collect_order";
 
-    public static List<ResourceCollectEntity> entities;
-
-    static {
-        entities = new ArrayList<>();
-        ResourceCollectEntity entity;
-        for (int i = 0; i < 20; i ++) {
-            entity = new ResourceCollectEntity();
-            entity.setDeviceID("设备ID" + i);
-            entity.setVendorID("供应商ID" + i);
-            entities.add(entity);
-        }
-    }
+    public static CollectionOrderEntity entity;
+    private static SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
 
     @Bind(R.id.toolbar)
     Toolbar mToolBar;
@@ -77,15 +80,26 @@ public class CollectActivity extends AppCompatActivity implements View.OnClickLi
     Button mRejectOrder;
     @Bind(R.id.accept_order)
     Button mAcceptOrder;
-    @Bind(R.id.order_collect_list)
-    ListView mCollectList;
+    @Bind(R.id.deviceId)
+    TextView mDeviceId;
+    @Bind(R.id.deviceName)
+    TextView mDeviceName;
+    @Bind(R.id.deviceIP)
+    TextView mDeviceIP;
+    @Bind(R.id.deviceType)
+    TextView mDeviceType;
+    @Bind(R.id.already_collected)
+    TextView mAlreadyCollected;
+    @Bind(R.id.collect_device)
+    Button mCollectDevice;
 
     private ProgressDialog pd;
     private User user;
     private int workId;
     private boolean isStatusChanged;
     private WorkOrderDao mWorkOrderDao;
-    private CollectAdapter adapter;
+    private InspectUploadEntity inspectResult;
+    private InspectDao inspectDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +120,7 @@ public class CollectActivity extends AppCompatActivity implements View.OnClickLi
                 finish();
             }
         });
+        inspectDao = new InspectDao(this);
 
         SharedPreferences preferences = getSharedPreferences(LoginActivity.REFERENCE_NAME, Context.MODE_PRIVATE);
         String userStr = preferences.getString(LoginActivity.REFERENCE_USER, "");
@@ -114,10 +129,18 @@ public class CollectActivity extends AppCompatActivity implements View.OnClickLi
 
         Intent extraIntent = getIntent();
         if (extraIntent != null) {
+            InspectResultEntity inspectResultEntity = inspectDao.query(workId);
+            if (inspectResultEntity != null) {
+                try {
+                    inspectResult = gson.fromJson(inspectResultEntity.getData(), new TypeToken<InspectUploadEntity>(){}.getType());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             workId = extraIntent.getIntExtra(WorkOrderFragment.TAG_ID, 0);
             String workStatus = extraIntent.getStringExtra(WorkOrderFragment.TAG_ORDER_STATUS);
             mOrderId.setText("工单ID : " + workId);
-            mOrderStatus.setText("工单状态 : " + workStatus);
+            mOrderStatus.setText("工单状态 : " + getStringNotNull(workStatus));
             mOrderSite.setText("地址 : " + (extraIntent.getStringExtra(WorkOrderFragment.TAG_SITE) == null
                     ? "" : extraIntent.getStringExtra(WorkOrderFragment.TAG_SITE)));
             if (workStatus != null && !"".equals(workStatus)) {
@@ -139,11 +162,6 @@ public class CollectActivity extends AppCompatActivity implements View.OnClickLi
         mCompleteOrder.setOnClickListener(this);
         mRejectOrder.setOnClickListener(this);
         mAcceptOrder.setOnClickListener(this);
-
-        if (entities != null) {
-            adapter = new CollectAdapter(this, entities);
-            mCollectList.setAdapter(adapter);
-        }
     }
 
     @Override
@@ -158,17 +176,84 @@ public class CollectActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.accept_order:
-//                acceptOrder();
+                acceptOrder();
                 break;
             case R.id.reject_order:
-//                rejectOrder();
+                rejectOrder();
                 break;
             case R.id.complete_order:
-//                completeOrder();
+                completeOrder();
+                break;
+            case R.id.collect_device:
+                startCollect();
                 break;
             default:
                 break;
         }
+    }
+
+    public void completeOrder() {
+        if (inspectResult == null) {
+            Toast.makeText(CollectActivity.this, "请先巡检！", Toast.LENGTH_SHORT).show();
+            mCompleteOrder.setVisibility(View.GONE);
+            mCollectDevice.setVisibility(View.VISIBLE);
+            return;
+        }
+        pd = new ProgressDialog(this);
+        pd.setMessage(getString(R.string.loading));
+        pd.setCanceledOnTouchOutside(false);
+        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                dismiss();
+                RequestQueueSingleton.getInstance(getApplicationContext()).getRequestQueue().cancelAll(TAG_COMPLETE_ORDER);
+            }
+        });
+        pd.show();
+
+        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.COMPLETE_INSPECT_ORDER;
+        LogWrapper.d(mUrl);
+        Gson gson = new Gson();
+
+        String uploadStr = gson.toJson(inspectResult);
+        JsonObjectRequest uploadInspectResult = new JsonObjectRequest(Request.Method.POST, mUrl, uploadStr, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                LogWrapper.d(response.toString());
+                try {
+                    if (ResultVo.CODE_SUCCESS.equals(response.getString("code"))) {
+                        ContentValues values = new ContentValues();
+                        values.put(TableWorkOrder.ORDER_STATUS, WorkOrderFragment.orderStatus.get(WorkOrderFragment.STATUS_COMPLETED));
+
+                        String where = TableWorkOrder.WORKID + "='" + workId + "'";
+                        int resultCodeDB = mWorkOrderDao.update(values, where);
+                        if (resultCodeDB > 0) {
+                            mRejectOrder.setVisibility(View.GONE);
+                            mAcceptOrder.setVisibility(View.GONE);
+                            mCompleteOrder.setVisibility(View.GONE);
+                            mCollectDevice.setVisibility(View.GONE);
+                            mOrderStatus.setText("工单状态 : " + WorkOrderFragment.STATUS_COMPLETED);
+                            isStatusChanged = true;
+                            Toast.makeText(CollectActivity.this, R.string.complete_dialog_text_hint_result, Toast.LENGTH_SHORT).show();
+                        }
+                    } else if(ResultVo.CODE_FAILURE.equals(response.getString("code"))) {
+                        Toast.makeText(CollectActivity.this, response.getString("message"), Toast.LENGTH_SHORT).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                dismiss();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                dismiss();
+                error.printStackTrace();
+            }
+        });
+        uploadInspectResult.setTag(TAG_COMPLETE_ORDER);
+
+        RequestQueueSingleton.getInstance(this).addToRequestQueue(uploadInspectResult);
     }
 
     private void acceptOrder() {
@@ -214,6 +299,7 @@ public class CollectActivity extends AppCompatActivity implements View.OnClickLi
                     if (resultCodeDB > 0) {
                         mRejectOrder.setVisibility(View.GONE);
                         mAcceptOrder.setVisibility(View.GONE);
+                        mCollectDevice.setVisibility(View.VISIBLE);
                         mCompleteOrder.setVisibility(View.GONE);
                         mOrderStatus.setText("工单状态 : " + WorkOrderFragment.STATUS_ACCEPTED);
                         isStatusChanged = true;
@@ -330,58 +416,78 @@ public class CollectActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
+    private String getStringNotNull(String str) {
+        return str == null ? "" : str;
+    }
 
-    private class CollectAdapter extends BaseAdapter {
+    public void startCollect() {
+        new CollectTask().execute();
+    }
 
-        private Context context;
-        private List<ResourceCollectEntity> data;
-        private LayoutInflater inflater;
-
-        public CollectAdapter(Context context, List<ResourceCollectEntity> data) {
-            this.context = context;
-            this.data = data;
-            this.inflater = LayoutInflater.from(this.context);
+    private class CollectTask extends AsyncTask<Void, Void, Void> {
+        public CollectTask() {
+            super();
         }
 
         @Override
-        public int getCount() {
-            if (this.data.size() > 0) {
-                return data.size();
-            }
-            return 0;
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pd = new ProgressDialog(CollectActivity.this);
+            pd.setMessage(getString(R.string.loading));
+            pd.setCanceledOnTouchOutside(false);
+            pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialogInterface) {
+                    dismiss();
+                    cancel(true);
+                }
+            });
+            pd.show();
         }
 
         @Override
-        public Object getItem(int i) {
-            return data.get(i);
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            dismiss();
+            mCompleteOrder.setVisibility(View.VISIBLE);
+            mCollectDevice.setVisibility(View.VISIBLE);
+            mAlreadyCollected.setVisibility(View.VISIBLE);
+            Toast.makeText(CollectActivity.this,"完成采集", Toast.LENGTH_SHORT).show();
         }
 
         @Override
-        public long getItemId(int i) {
-            return i;
+        protected void onCancelled() {
+            super.onCancelled();
+            mCompleteOrder.setVisibility(View.GONE);
+            mCollectDevice.setVisibility(View.VISIBLE);
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup viewGroup) {
-            ViewHolder viewHolder;
-            if (convertView == null) {
-                viewHolder = new ViewHolder();
-                convertView = inflater.inflate(R.layout.item_collect_list, null);
-                viewHolder.vendorId = (TextView) convertView.findViewById(R.id.vendorId);
-                viewHolder.deviceId = (TextView) convertView.findViewById(R.id.deviceId);
-                convertView.setTag(viewHolder);
+        protected Void doInBackground(Void... voids) {
+            inspectResult = new InspectUploadEntity();
+            inspectResult.setWorkOrderId(entity.getAssignmentId());
+            inspectResult.setInspectTime(df.format(new Date()));
+            List<InspectItem> devices = new ArrayList<>();
+            InspectItem item = new InspectItem();
+            //在这里做采集任务
+            //
+            //
+            //
+            //
+            devices.add(item);
+            inspectResult.setDevices(devices);
+            inspectResult.setToken(user.getToken());
+            if (devices.size() > 0) {
+                inspectResult.setResult("true");
             } else {
-                viewHolder = (ViewHolder) convertView.getTag();
+                inspectResult.setResult("false");
             }
-            ResourceCollectEntity item = data.get(position);
-            viewHolder.deviceId.setText(item.getDeviceID());
-            viewHolder.vendorId.setText(item.getVendorID());
-            return convertView;
-        }
-
-        class ViewHolder {
-            TextView vendorId;
-            TextView deviceId;
+            Gson gson = new Gson();
+            InspectResultEntity inspectResultEntity = new InspectResultEntity();
+            inspectResultEntity.setWorkId(workId);
+            inspectResultEntity.setData(gson.toJson(inspectResult));
+            inspectDao.insert(inspectResultEntity);
+            return null;
         }
     }
 }

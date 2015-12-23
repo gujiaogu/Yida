@@ -37,6 +37,7 @@ import com.yida.handset.LogWrapper;
 import com.yida.handset.LoginActivity;
 import com.yida.handset.R;
 import com.yida.handset.RequestQueueSingleton;
+import com.yida.handset.entity.CollectionResult;
 import com.yida.handset.entity.ConfigurationResult;
 import com.yida.handset.entity.ConstructOrderResult;
 import com.yida.handset.entity.ConstructOrderRoute;
@@ -111,6 +112,7 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
     private static final String TAG_INSPECT_ORDER = "tag_inspect_order";
     private static final String TAG_ETAG_WRITE_ORDER = "tag_etag_write_order";
     private static final String TAG_CONFIGURATION_ORDER = "tag_configuration_order";
+    private static final String TAG_COLLECTION_ORDER = "tag_collection_order";
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -200,8 +202,7 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
                 startConfigurationOrder(item);
                 break;
             case "5":
-                intent = new Intent(getActivity(), CollectActivity.class);
-                startActivity(intent);
+                starCollectionsOrder(item);
                 break;
             default:
                 break;
@@ -249,6 +250,67 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
             default:
                 break;
         }
+    }
+
+    private void starCollectionsOrder(WorkOrder item) {
+        pd = new ProgressDialog(getActivity());
+        pd.setMessage(getString(R.string.loading));
+        pd.setCanceledOnTouchOutside(false);
+        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                dismiss();
+                RequestQueueSingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue().cancelAll(TAG_COLLECTION_ORDER);
+            }
+        });
+        pd.show();
+
+        final WorkOrder order = item;
+        String params = "?token=" + user.getToken() + "&assignmentId=" + item.getWorkId();
+        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.GET_COLLECT_ORDER + params;
+        LogWrapper.d(mUrl);
+        StringRequest collectionsOrderRequest = new StringRequest(Request.Method.GET, mUrl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String s) {
+                LogWrapper.d(s);
+                Gson gson = new Gson();
+                CollectionResult result = null;
+                try {
+                    result = gson.fromJson(s, new TypeToken<CollectionResult>() {
+                    }.getType());
+                } catch (Exception e) {
+                    dismiss();
+                    e.printStackTrace();
+                }
+                if (result == null) {
+                    dismiss();
+                    return;
+                }
+
+                if (ResultVo.CODE_SUCCESS.equals(result.getCode())) {
+                    CollectActivity.entity = result.getOrder();
+                    if (CollectActivity.entity != null) {
+                        Intent intent = new Intent(getActivity(), CollectActivity.class);
+                        intent.putExtra(TAG_ID, order.getWorkId());
+                        intent.putExtra(TAG_ORDER_STATUS, orderStatus.get(order.getStatus()));
+                        intent.putExtra(TAG_SITE, order.getSiteName());
+                        startActivityForResult(intent, REQUEST_CODE_INSPECT_ORDER);
+                    }
+                } else if(ResultVo.CODE_FAILURE.equals(result.getCode())) {
+                    Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                dismiss();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                dismiss();
+                volleyError.printStackTrace();
+            }
+        });
+        collectionsOrderRequest.setTag(TAG_COLLECTION_ORDER);
+
+        RequestQueueSingleton.getInstance(getActivity()).addToRequestQueue(collectionsOrderRequest);
     }
 
     private void startConfigurationOrder(WorkOrder item) {

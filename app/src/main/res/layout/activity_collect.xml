@@ -53,6 +53,16 @@
             android:id="@+id/order_remark"
             android:visibility="gone"
             />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:id="@+id/already_collected"
+            android:text="@string/already_collected"
+            android:textColor="@color/green"
+            android:layout_marginRight="16dp"
+            android:layout_weight="1"
+            android:visibility="gone"/>
     </LinearLayout>
     <ImageView
         android:layout_width="match_parent"
@@ -108,14 +118,65 @@
             style="?android:attr/buttonBarButtonStyle"/>
     </LinearLayout>
 
-    <ListView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:divider="?android:attr/listDivider"
-        android:id="@+id/order_collect_list"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:layout_below="@id/devices_label"
         android:layout_above="@id/operate_bottom"
-        />
+        android:id="@+id/order_collect_list">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:id="@+id/deviceId"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:id="@+id/deviceName"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:id="@+id/deviceType"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:id="@+id/deviceIP"/>
+        </LinearLayout>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/construct_order_bottom_margin_left"
+            android:layout_marginRight="@dimen/construct_order_bottom_margin_right"
+            android:layout_marginTop="20dp"
+            android:text="@string/start_to_collect"
+            android:textColor="@android:color/white"
+            android:background="@drawable/button_background_selector"
+            android:id="@+id/collect_device"
+            android:visibility="gone"
+            />
+    </LinearLayout>
+
+    <!--<ListView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:divider="?android:attr/listDivider"-->
+        <!--android:id="@+id/order_collect_list"-->
+        <!--android:layout_below="@id/devices_label"-->
+        <!--android:layout_above="@id/operate_bottom"-->
+        <!--/>-->
 
 
 </RelativeLayout>
