@@ -118,17 +118,17 @@
             style="?android:attr/buttonBarButtonStyle"/>
     </LinearLayout>
 
-    <LinearLayout
+    <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_below="@id/devices_label"
         android:layout_above="@id/operate_bottom"
+        android:layout_marginLeft="@dimen/construct_order_bottom_margin_left"
+        android:layout_marginRight="@dimen/construct_order_bottom_margin_right"
         android:id="@+id/order_collect_list">
-        <LinearLayout
+        <TableRow
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content" >
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -139,11 +139,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:id="@+id/deviceName"/>
-        </LinearLayout>
-        <LinearLayout
+        </TableRow>
+        <TableRow
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content" >
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -154,12 +153,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:id="@+id/deviceIP"/>
-        </LinearLayout>
+        </TableRow>
         <Button
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/construct_order_bottom_margin_left"
-            android:layout_marginRight="@dimen/construct_order_bottom_margin_right"
+            android:layout_height="48dp"
             android:layout_marginTop="20dp"
             android:text="@string/start_to_collect"
             android:textColor="@android:color/white"
@@ -167,7 +164,7 @@
             android:id="@+id/collect_device"
             android:visibility="gone"
             />
-    </LinearLayout>
+    </TableLayout>
 
     <!--<ListView-->
         <!--android:layout_width="match_parent"-->

@@ -148,6 +148,7 @@ public class CollectActivity extends AppCompatActivity implements View.OnClickLi
                     mCompleteOrder.setVisibility(View.VISIBLE);
                     mRejectOrder.setVisibility(View.GONE);
                     mAcceptOrder.setVisibility(View.GONE);
+                    mCollectDevice.setVisibility(View.VISIBLE);
                 } else if (workStatus.equals(WorkOrderFragment.STATUS_COMPLETED)
                         || workStatus.equals(WorkOrderFragment.STATUS_NO_PUBLISHED)) {
                     mCompleteOrder.setVisibility(View.GONE);
@@ -155,6 +156,13 @@ public class CollectActivity extends AppCompatActivity implements View.OnClickLi
                     mAcceptOrder.setVisibility(View.GONE);
                 }
             }
+        }
+
+        if (entity != null) {
+            mDeviceId.setText("设备ID: " + entity.getFrameId());
+            mDeviceIP.setText("设备IP: " + getStringNotNull(entity.getIp()));
+            mDeviceName.setText("设备名: " + getStringNotNull(entity.getDeviceName()));
+            mDeviceType.setText("设备类型: " + getStringNotNull(entity.getDeviceType()));
         }
 
         mWorkOrderDao = new WorkOrderDao(this);

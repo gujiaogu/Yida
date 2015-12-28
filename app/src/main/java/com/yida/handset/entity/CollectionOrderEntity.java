@@ -14,6 +14,10 @@ public class CollectionOrderEntity {
     private String code;
     private int updateBy;
     private int netunitId;
+    private int frameId;
+    private String deviceType;
+    private String ip;
+    private String deviceName;
 
     public int getAssignmentId() {
         return assignmentId;
@@ -53,5 +57,37 @@ public class CollectionOrderEntity {
 
     public int getNetunitId() {
         return netunitId;
+    }
+
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public String getDeviceType() {
+        return deviceType;
+    }
+
+    public void setDeviceType(String deviceType) {
+        this.deviceType = deviceType;
+    }
+
+    public int getFrameId() {
+        return frameId;
+    }
+
+    public void setFrameId(int frameId) {
+        this.frameId = frameId;
     }
 }
