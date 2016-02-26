@@ -224,7 +224,13 @@ public class CollectActivity extends AppCompatActivity implements View.OnClickLi
         Gson gson = new Gson();
 
         String uploadStr = gson.toJson(inspectResult);
-        JsonObjectRequest uploadInspectResult = new JsonObjectRequest(Request.Method.POST, mUrl, uploadStr, new Response.Listener<JSONObject>() {
+        JSONObject obj = null;
+        try {
+            obj = new JSONObject(uploadStr);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest uploadInspectResult = new JsonObjectRequest(Request.Method.POST, mUrl, obj, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 LogWrapper.d(response.toString());

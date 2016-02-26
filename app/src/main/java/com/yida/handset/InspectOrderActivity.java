@@ -51,7 +51,7 @@ import java.util.Locale;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class InspectOrderActivity extends AppCompatActivity implements View.OnClickListener{
+public class InspectOrderActivity extends AppCompatActivity implements View.OnClickListener {
 
     public static InspectOrder workOrder;
 
@@ -125,7 +125,8 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
         SharedPreferences preferences = getSharedPreferences(LoginActivity.REFERENCE_NAME, Context.MODE_PRIVATE);
         String userStr = preferences.getString(LoginActivity.REFERENCE_USER, "");
         Gson gson = new Gson();
-        user = gson.fromJson(userStr, new TypeToken<User>(){}.getType());
+        user = gson.fromJson(userStr, new TypeToken<User>() {
+        }.getType());
         if (workOrder != null && workOrder.getDevices().size() > 0) {
             InspectItem device = workOrder.getDevices().get(0);
             mDeviceName.setText("设备名: " + (device.getDeviceName() == null ? "" : device.getDeviceName()));
@@ -141,7 +142,8 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
             InspectResultEntity inspectResultEntity = inspectDao.query(workId);
             if (inspectResultEntity != null) {
                 try {
-                    inspectResult = gson.fromJson(inspectResultEntity.getData(), new TypeToken<InspectUploadEntity>(){}.getType());
+                    inspectResult = gson.fromJson(inspectResultEntity.getData(), new TypeToken<InspectUploadEntity>() {
+                    }.getType());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -234,7 +236,13 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
         Gson gson = new Gson();
 
         String uploadStr = gson.toJson(inspectResult);
-        JsonObjectRequest uploadInspectResult = new JsonObjectRequest(Request.Method.POST, mUrl, uploadStr, new Response.Listener<JSONObject>() {
+        JSONObject obj = null;
+        try {
+            obj = new JSONObject(uploadStr);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest uploadInspectResult = new JsonObjectRequest(Request.Method.POST, mUrl,  obj, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 LogWrapper.d(response.toString());
@@ -254,7 +262,7 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
                             isStatusChanged = true;
                             Toast.makeText(InspectOrderActivity.this, R.string.complete_dialog_text_hint_result, Toast.LENGTH_SHORT).show();
                         }
-                    } else if(ResultVo.CODE_FAILURE.equals(response.getString("code"))) {
+                    } else if (ResultVo.CODE_FAILURE.equals(response.getString("code"))) {
                         Toast.makeText(InspectOrderActivity.this, response.getString("message"), Toast.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {
@@ -327,7 +335,7 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
                         isStatusChanged = true;
                     }
 
-                } else if(ResultVo.CODE_FAILURE.equals(result.getCode())) {
+                } else if (ResultVo.CODE_FAILURE.equals(result.getCode())) {
                     Toast.makeText(InspectOrderActivity.this, result.getMessage(), Toast.LENGTH_SHORT).show();
                 }
                 dismiss();
@@ -467,7 +475,7 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
             mCompleteOrder.setVisibility(View.VISIBLE);
             mInspectDevice.setVisibility(View.VISIBLE);
             mAlreadyInspected.setVisibility(View.VISIBLE);
-            Toast.makeText(InspectOrderActivity.this,"完成巡检", Toast.LENGTH_SHORT).show();
+            Toast.makeText(InspectOrderActivity.this, "完成巡检", Toast.LENGTH_SHORT).show();
         }
 
         @Override
