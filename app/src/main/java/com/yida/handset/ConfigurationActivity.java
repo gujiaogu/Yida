@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
@@ -35,6 +36,7 @@ import com.yida.handset.entity.ResultVo;
 import com.yida.handset.entity.User;
 import com.yida.handset.sqlite.TableWorkOrder;
 import com.yida.handset.sqlite.WorkOrderDao;
+import com.yida.handset.util.UDPUtil;
 import com.yida.handset.workorder.WorkOrderFragment;
 
 import org.w3c.dom.Text;
@@ -113,13 +115,15 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
     TextView SNMPViewEnable;
     @Bind(R.id.SNMPViewName)
     TextView SNMPViewName;
-
+    @Bind(R.id.btn_write_configuration)
+    Button mBtnWriteConfiguration;
 
     private ProgressDialog pd;
     private User user;
     private int workId;
     private boolean isStatusChanged;
     private WorkOrderDao mWorkOrderDao;
+    private UDPUtil udpUtil;
 //    private ConfigurationAdapter adapter;
 
     @Override
@@ -142,6 +146,7 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
         });
 
         mWorkOrderDao = new WorkOrderDao(this);
+        udpUtil = new UDPUtil();
 
         SharedPreferences preferences = getSharedPreferences(LoginActivity.REFERENCE_NAME, Context.MODE_PRIVATE);
         String userStr = preferences.getString(LoginActivity.REFERENCE_USER, "");
@@ -162,6 +167,7 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
                     mCompleteOrder.setVisibility(View.VISIBLE);
                     mRejectOrder.setVisibility(View.GONE);
                     mAcceptOrder.setVisibility(View.GONE);
+                    mBtnWriteConfiguration.setVisibility(View.VISIBLE);
                 } else if (workStatus.equals(WorkOrderFragment.STATUS_COMPLETED)
                         || workStatus.equals(WorkOrderFragment.STATUS_NO_PUBLISHED)) {
                     mCompleteOrder.setVisibility(View.GONE);
@@ -176,6 +182,7 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
         mCompleteOrder.setOnClickListener(this);
         mRejectOrder.setOnClickListener(this);
         mAcceptOrder.setOnClickListener(this);
+        mBtnWriteConfiguration.setOnClickListener(this);
     }
 
     @Override
@@ -190,6 +197,9 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
             case R.id.complete_order:
                 completeOrder();
                 break;
+            case R.id.btn_write_configuration:
+                writeConfiguration();
+                break;
             default:
                 break;
         }
@@ -201,6 +211,10 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
             setResult(Activity.RESULT_OK);
         }
         super.onBackPressed();
+    }
+
+    private void writeConfiguration() {
+        new WriteConfigurationTask().execute();
     }
 
     private void acceptOrder() {
@@ -247,6 +261,7 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
                         mRejectOrder.setVisibility(View.GONE);
                         mAcceptOrder.setVisibility(View.GONE);
                         mCompleteOrder.setVisibility(View.VISIBLE);
+                        mBtnWriteConfiguration.setVisibility(View.VISIBLE);
                         mOrderStatus.setText("工单状态 : " + WorkOrderFragment.STATUS_ACCEPTED);
                         isStatusChanged = true;
                     }
@@ -324,6 +339,7 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
                                 mRejectOrder.setVisibility(View.GONE);
                                 mAcceptOrder.setVisibility(View.GONE);
                                 mCompleteOrder.setVisibility(View.GONE);
+                                mBtnWriteConfiguration.setVisibility(View.GONE);
                                 mOrderStatus.setText("工单状态 : " + WorkOrderFragment.STATUS_NO_PUBLISHED);
                                 isStatusChanged = true;
                             }
@@ -407,6 +423,7 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
                                 mRejectOrder.setVisibility(View.GONE);
                                 mAcceptOrder.setVisibility(View.GONE);
                                 mCompleteOrder.setVisibility(View.GONE);
+                                mBtnWriteConfiguration.setVisibility(View.GONE);
                                 mOrderStatus.setText("工单状态 : " + WorkOrderFragment.STATUS_COMPLETED);
                                 isStatusChanged = true;
                                 Toast.makeText(ConfigurationActivity.this, R.string.complete_dialog_text_hint_result, Toast.LENGTH_SHORT).show();
@@ -560,6 +577,127 @@ public class ConfigurationActivity extends AppCompatActivity implements View.OnC
 
     private String getStringNotNull(String str) {
         return str == null ? "" : str;
+    }
+
+    private class WriteConfigurationTask extends AsyncTask<Void, Void, String> {
+        public WriteConfigurationTask() {
+            super();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pd = new ProgressDialog(ConfigurationActivity.this);
+            pd.setMessage(getString(R.string.loading));
+            pd.setCanceledOnTouchOutside(false);
+            pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialogInterface) {
+                    dismiss();
+                    cancel(true);
+                    udpUtil.close();
+                }
+            });
+            pd.show();
+        }
+
+        @Override
+        protected void onPostExecute(String aVoid) {
+            super.onPostExecute(aVoid);
+            if ("0".equals(aVoid)) {
+                mBtnWriteConfiguration.setVisibility(View.GONE);
+            }
+            dismiss();
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            String resultStatus = "";
+            byte[] configuration = constructCMD110B(configurationEntity);
+            byte[] result = udpUtil.send(new byte[24], configuration);
+            if (result.length == 24) {
+                if (0 == (int) result[20]) {
+                    resultStatus = "0";
+                } else {
+                    resultStatus = "1";
+                }
+            }
+            return resultStatus;
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            udpUtil.close();
+        }
+    }
+
+    public byte[] constructCMD110B(ConfigurationEntity configurationEntity ) {
+        byte[] cmd110b = new byte[740];
+        cmd110b[0] = 0x7e;
+        cmd110b[1] = 0x10;
+        cmd110b[2] = 0x00;
+        for (int i = 3; i < 17; i ++) {
+            cmd110b[i] = 0x00;
+        }
+        cmd110b[17] = 0x11;
+        cmd110b[18] = 0x0B;
+        cmd110b[19] = (byte) 0xff;
+        if (configurationEntity.getDeviceName() != null) {
+            byte[] bDeviceName = configurationEntity.getDeviceName().getBytes();
+            if (bDeviceName.length > 80) {
+                Toast.makeText(this, "设备名称有错", Toast.LENGTH_SHORT).show();
+                return new byte[0];
+            }
+            System.arraycopy(bDeviceName, 0, cmd110b, 20, bDeviceName.length);
+        }
+        if (configurationEntity.getDeviceID() != null) {
+            byte[] bDeviceID = configurationEntity.getDeviceID().getBytes();
+            if (bDeviceID.length > 3) {
+                Toast.makeText(this, "设备ID有错", Toast.LENGTH_SHORT).show();
+                return new byte[0];
+            }
+            System.arraycopy(bDeviceID, 0, cmd110b, 100, bDeviceID.length);
+        }
+        if (configurationEntity.getDeviceType() != null) {
+            byte[] bDeviceType = configurationEntity.getDeviceType().getBytes();
+            if (bDeviceType.length > 30) {
+                Toast.makeText(this, "箱体标识有错", Toast.LENGTH_SHORT).show();
+                return new byte[0];
+            }
+            System.arraycopy(bDeviceType, 0, cmd110b, 103, bDeviceType.length);
+        }
+        if (configurationEntity.getDeviceIPAddr() != null) {
+            String[] IP = configurationEntity.getDeviceIPAddr().split("\\.");
+            for (int i = 0; i < IP.length; i ++) {
+                cmd110b[133 + i] = (byte) Integer.parseInt(IP[i]);
+            }
+        }
+        if (configurationEntity.getDeviceIPAddrMask() != null) {
+            String[] mask = configurationEntity.getDeviceIPAddrMask().split("\\.");
+            for (int i = 0; i < mask.length; i ++) {
+                cmd110b[137 + i] = (byte) Integer.parseInt(mask[i]);
+            }
+        }
+        if (configurationEntity.getDeviceIPGateway() != null) {
+            String[] gateway = configurationEntity.getDeviceIPGateway().split("\\.");
+            for (int i = 0; i < gateway.length; i ++) {
+                cmd110b[141 + i] = (byte) Integer.parseInt(gateway[i]);
+            }
+        }
+
+        //这里组装SNMP信息
+
+
+        byte[] location = "这是位置信息".getBytes();
+        if(location.length > 128) {
+            Toast.makeText(this, "位置信息有错。", Toast.LENGTH_SHORT).show();
+            return new byte[0];
+        }
+        System.arraycopy(location, 0, cmd110b, 208, location.length);
+
+        cmd110b[739] = 0x7e;
+        return cmd110b;
     }
 
 }

@@ -61,4 +61,10 @@ public class RequestQueueSingleton {
     public ImageLoader getImageLoader() {
         return mImageLoader;
     }
+
+    public void cancelRequest(String tag) {
+        if (mRequestQueue != null) {
+            mRequestQueue.cancelAll(tag);
+        }
+    }
 }

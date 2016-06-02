@@ -49,6 +49,7 @@ import com.yida.handset.entity.User;
 import com.yida.handset.entity.WorkOrder;
 import com.yida.handset.sqlite.TableWorkOrder;
 import com.yida.handset.sqlite.WorkOrderDao;
+import com.yida.handset.sqlite.WorkOrderDetailDao;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -130,6 +131,7 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
     ImageView mOrderHistory;
 
     private WorkOrderDao mWorkOrderDao;
+    private WorkOrderDetailDao mDetailDao;
     private String username;
     private ProgressDialog pd;
     private User user;
@@ -169,6 +171,7 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
         mOrderMine.setOnClickListener(this);
         mOrderHistory.setOnClickListener(this);
         mWorkOrderDao = new WorkOrderDao(getActivity());
+        mDetailDao = new WorkOrderDetailDao(getActivity());
 
         SharedPreferences preferences = getActivity().getSharedPreferences(LoginActivity.REFERENCE_NAME, Context.MODE_PRIVATE);
         String userStr = preferences.getString(LoginActivity.REFERENCE_USER, "");
@@ -253,318 +256,24 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
     }
 
     private void starCollectionsOrder(WorkOrder item) {
-        pd = new ProgressDialog(getActivity());
-        pd.setMessage(getString(R.string.loading));
-        pd.setCanceledOnTouchOutside(false);
-        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialogInterface) {
-                dismiss();
-                RequestQueueSingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue().cancelAll(TAG_COLLECTION_ORDER);
-            }
-        });
-        pd.show();
-
-        final WorkOrder order = item;
-        String params = "?token=" + user.getToken() + "&assignmentId=" + item.getWorkId();
-        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.GET_COLLECT_ORDER + params;
-        LogWrapper.d(mUrl);
-        StringRequest collectionsOrderRequest = new StringRequest(Request.Method.GET, mUrl, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String s) {
-                LogWrapper.d(s);
-                Gson gson = new Gson();
-                CollectionResult result = null;
-                try {
-                    result = gson.fromJson(s, new TypeToken<CollectionResult>() {
-                    }.getType());
-                } catch (Exception e) {
-                    dismiss();
-                    e.printStackTrace();
-                }
-                if (result == null) {
-                    dismiss();
-                    return;
-                }
-
-                if (ResultVo.CODE_SUCCESS.equals(result.getCode())) {
-                    CollectActivity.entity = result.getOrder();
-                    if (CollectActivity.entity != null) {
-                        Intent intent = new Intent(getActivity(), CollectActivity.class);
-                        intent.putExtra(TAG_ID, order.getWorkId());
-                        intent.putExtra(TAG_ORDER_STATUS, orderStatus.get(order.getStatus()));
-                        intent.putExtra(TAG_SITE, order.getSiteName());
-                        startActivityForResult(intent, REQUEST_CODE_INSPECT_ORDER);
-                    }
-                } else if(ResultVo.CODE_FAILURE.equals(result.getCode())) {
-                    Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-                dismiss();
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                dismiss();
-                volleyError.printStackTrace();
-            }
-        });
-        collectionsOrderRequest.setTag(TAG_COLLECTION_ORDER);
-
-        RequestQueueSingleton.getInstance(getActivity()).addToRequestQueue(collectionsOrderRequest);
+        new CollectionOrderTask(item).execute();
     }
 
     private void startConfigurationOrder(WorkOrder item) {
-        pd = new ProgressDialog(getActivity());
-        pd.setMessage(getString(R.string.loading));
-        pd.setCanceledOnTouchOutside(false);
-        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialogInterface) {
-                dismiss();
-                RequestQueueSingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue().cancelAll(TAG_CONFIGURATION_ORDER);
-            }
-        });
-        pd.show();
-
-        final WorkOrder order = item;
-        String params = "?token=" + user.getToken() + "&assignmentId=" + item.getWorkId();
-        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.GET_CONFIGURATION_ORDER + params;
-        LogWrapper.d(mUrl);
-        StringRequest configurationOrderRequest = new StringRequest(Request.Method.GET, mUrl, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String s) {
-                LogWrapper.d(s);
-                Gson gson = new Gson();
-                ConfigurationResult result = null;
-                try {
-                    result = gson.fromJson(s, new TypeToken<ConfigurationResult>() {
-                    }.getType());
-                } catch (Exception e) {
-                    dismiss();
-                    e.printStackTrace();
-                }
-                if (result == null) {
-                    dismiss();
-                    return;
-                }
-
-                if (ResultVo.CODE_SUCCESS.equals(result.getCode())) {
-                    ConfigurationActivity.configurationEntity = result.getAssignment();
-                    if (ConfigurationActivity.configurationEntity != null) {
-                        Intent intent = new Intent(getActivity(), ConfigurationActivity.class);
-                        intent.putExtra(TAG_ID, order.getWorkId());
-                        intent.putExtra(TAG_ORDER_STATUS, orderStatus.get(order.getStatus()));
-                        intent.putExtra(TAG_SITE, order.getSiteName());
-                        startActivityForResult(intent, REQUEST_CODE_INSPECT_ORDER);
-                    }
-                } else if(ResultVo.CODE_FAILURE.equals(result.getCode())) {
-                    Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-                dismiss();
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                dismiss();
-                volleyError.printStackTrace();
-            }
-        });
-        configurationOrderRequest.setTag(TAG_CONFIGURATION_ORDER);
-
-        RequestQueueSingleton.getInstance(getActivity()).addToRequestQueue(configurationOrderRequest);
+        new ConfigurationOrderTask(item).execute();
     }
 
     private void startEtagWriterOrder(WorkOrder item) {
-        pd = new ProgressDialog(getActivity());
-        pd.setMessage(getString(R.string.loading));
-        pd.setCanceledOnTouchOutside(false);
-        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialogInterface) {
-                dismiss();
-                RequestQueueSingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue().cancelAll(TAG_ETAG_WRITE_ORDER);
-            }
-        });
-        pd.show();
-
-        final WorkOrder order = item;
-        String params = "?workId=" + item.getWorkId();
-        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.GET_ETAG_WRITE_ORDER + params;
-        LogWrapper.d(mUrl);
-        StringRequest etagWriteOrderRequest = new StringRequest(Request.Method.GET, mUrl, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String s) {
-                LogWrapper.d(s);
-                Gson gson = new Gson();
-                InspectResult result = null;
-                try {
-                    result = gson.fromJson(s, new TypeToken<InspectResult>() {
-                    }.getType());
-                } catch (Exception e) {
-                    dismiss();
-                    e.printStackTrace();
-                }
-                if (result == null) {
-                    dismiss();
-                    return;
-                }
-
-                if (ResultVo.CODE_SUCCESS.equals(result.getCode())) {
-                    ElectronicWriterActivity.workOrder = result.getWorkOrder();
-                    if (ElectronicWriterActivity.workOrder != null) {
-                        Intent intent = new Intent(getActivity(), ElectronicWriterActivity.class);
-                        intent.putExtra(TAG_ID, order.getWorkId());
-                        intent.putExtra(TAG_ORDER_STATUS, orderStatus.get(order.getStatus()));
-                        intent.putExtra(TAG_SITE, order.getSiteName());
-                        startActivityForResult(intent, REQUEST_CODE_INSPECT_ORDER);
-                    }
-                } else if(ResultVo.CODE_FAILURE.equals(result.getCode())) {
-                    Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-                dismiss();
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                dismiss();
-                volleyError.printStackTrace();
-            }
-        });
-        etagWriteOrderRequest.setTag(TAG_ETAG_WRITE_ORDER);
-
-        RequestQueueSingleton.getInstance(getActivity()).addToRequestQueue(etagWriteOrderRequest);
+        new ETagWriterTask(item).execute();
     }
 
     private void startInspectOrder(WorkOrder item) {
-        pd = new ProgressDialog(getActivity());
-        pd.setMessage(getString(R.string.loading));
-        pd.setCanceledOnTouchOutside(false);
-        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialogInterface) {
-                dismiss();
-                RequestQueueSingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue().cancelAll(TAG_INSPECT_ORDER);
-            }
-        });
-        pd.show();
-
-        final WorkOrder order = item;
-        String params = "?workId=" + item.getWorkId();
-        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.GET_INSPECT_ORDER + params;
-        LogWrapper.d(mUrl);
-        StringRequest inspectOrderRequest = new StringRequest(Request.Method.GET, mUrl, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String s) {
-                LogWrapper.d(s);
-                Gson gson = new Gson();
-                InspectResult result = null;
-                try {
-                    result = gson.fromJson(s, new TypeToken<InspectResult>() {
-                    }.getType());
-                } catch (Exception e) {
-                    dismiss();
-                    e.printStackTrace();
-                }
-                if (result == null) {
-                    dismiss();
-                    return;
-                }
-
-                if (ResultVo.CODE_SUCCESS.equals(result.getCode())) {
-                    InspectOrderActivity.workOrder = result.getWorkOrder();
-                    if (InspectOrderActivity.workOrder != null) {
-                        Intent intent = new Intent(getActivity(), InspectOrderActivity.class);
-                        intent.putExtra(TAG_ID, order.getWorkId());
-                        intent.putExtra(TAG_ORDER_STATUS, orderStatus.get(order.getStatus()));
-                        intent.putExtra(TAG_SITE, order.getSiteName());
-                        startActivityForResult(intent, REQUEST_CODE_INSPECT_ORDER);
-                    }
-                } else if(ResultVo.CODE_FAILURE.equals(result.getCode())) {
-                    Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-                dismiss();
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                dismiss();
-                volleyError.printStackTrace();
-            }
-        });
-        inspectOrderRequest.setTag(TAG_INSPECT_ORDER);
-
-        RequestQueueSingleton.getInstance(getActivity()).addToRequestQueue(inspectOrderRequest);
+        new InspectOrderTask(item).execute();
     }
 
     private void startConstructOrder(WorkOrder item) {
-        pd = new ProgressDialog(getActivity());
-        pd.setMessage(getString(R.string.loading));
-        pd.setCanceledOnTouchOutside(false);
-        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialogInterface) {
-                dismiss();
-                RequestQueueSingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue().cancelAll(TAG_CONSTRUCT_ORDER);
-            }
-        });
-        pd.show();
+        new ConstructOrderTask(item).execute();
 
-        final WorkOrder order = item;
-        String params = "?workId=" + item.getWorkId();
-        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.GET_CONSTRUCT_ORDER + params;
-        StringRequest constrcutOrderRequest = new StringRequest(Request.Method.GET, mUrl, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String s) {
-                LogWrapper.d(s);
-                Gson gson = new Gson();
-                ConstructOrderResult result = null;
-                try {
-                    result = gson.fromJson(s, new TypeToken<ConstructOrderResult>() {
-                        }.getType());
-                } catch (Exception e) {
-                    dismiss();
-                    e.printStackTrace();
-                }
-                if (result == null) {
-                    dismiss();
-                    return;
-                }
-
-                if (ResultVo.CODE_SUCCESS.equals(result.getCode())) {
-                    List<OpticalItem> data = new ArrayList<>();
-                    List<ConstructOrderRoute> opticalRouteList = result.getOrder().getRouteList();
-                    for (ConstructOrderRoute route : opticalRouteList) {
-                        data.add(route);
-                        List<OpticalRoute> opticalRoutes = route.getOpticalRoute();
-                        if (opticalRoutes != null && opticalRoutes.size() > 0) {
-                            for(OpticalRoute item : opticalRoutes) {
-                                data.add(item);
-                            }
-                        }
-                    }
-                    ConstructOrderActivity.mOpticalItems = data;
-
-                    Intent intent = new Intent(getActivity(), ConstructOrderActivity.class);
-                    intent.putExtra(TAG_ID, order.getWorkId());
-                    intent.putExtra(TAG_ORDER_STATUS, orderStatus.get(order.getStatus()));
-                    intent.putExtra(TAG_SITE, order.getSiteName());
-                    dismiss();
-                    startActivityForResult(intent, REQUEST_CODE_CONSTRUCT_ORDER);
-                } else if(ResultVo.CODE_FAILURE.equals(result.getCode())) {
-                    dismiss();
-                    Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                dismiss();
-                volleyError.printStackTrace();
-            }
-        });
-        constrcutOrderRequest.setTag(TAG_CONSTRUCT_ORDER);
-
-        RequestQueueSingleton.getInstance(getActivity()).addToRequestQueue(constrcutOrderRequest);
     }
 
     public void setMineOrder() {
@@ -761,4 +470,356 @@ public class WorkOrderFragment extends Fragment implements View.OnClickListener,
             pd.dismiss();
         }
     }
+
+    private class ConstructOrderTask extends AsyncTask<Void, Void, String> {
+        WorkOrder item;
+        ConstructOrderResult result = null;
+        public ConstructOrderTask(WorkOrder item) {
+            super();
+            this.item = item;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            if (ResultVo.CODE_SUCCESS.equals(s)) {
+                Intent intent = new Intent(getActivity(), ConstructOrderActivity.class);
+                intent.putExtra(TAG_ID, item.getWorkId());
+                intent.putExtra(TAG_ORDER_STATUS, orderStatus.get(item.getStatus()));
+                intent.putExtra(TAG_SITE, item.getSiteName());
+                startActivityForResult(intent, REQUEST_CODE_CONSTRUCT_ORDER);
+            } else if (ResultVo.CODE_FAILURE.equals(s)) {
+                Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+            dismiss();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pd = new ProgressDialog(getActivity());
+            pd.setMessage(getString(R.string.loading));
+            pd.setCanceledOnTouchOutside(false);
+            pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialogInterface) {
+                    dismiss();
+                    RequestQueueSingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue().cancelAll(TAG_CONSTRUCT_ORDER);
+                }
+            });
+            pd.show();
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            String resultStr = "";
+            String orderStr = mDetailDao.query(item.getWorkId());
+            Gson gson = new Gson();
+            try {
+                result = gson.fromJson(orderStr, new TypeToken<ConstructOrderResult>() {
+                }.getType());
+            } catch (Exception e) {
+                e.printStackTrace();
+                return resultStr;
+            }
+            if (result == null) {
+                return resultStr;
+            }
+
+            if (ResultVo.CODE_SUCCESS.equals(result.getCode())) {
+                List<OpticalItem> data = new ArrayList<>();
+                List<ConstructOrderRoute> opticalRouteList = result.getOrder().getRouteList();
+                for (ConstructOrderRoute route : opticalRouteList) {
+                    data.add(route);
+                    List<OpticalRoute> opticalRoutes = route.getOpticalRoute();
+                    if (opticalRoutes != null && opticalRoutes.size() > 0) {
+                        for(OpticalRoute itemRoute : opticalRoutes) {
+                            data.add(itemRoute);
+                        }
+                    }
+                }
+                ConstructOrderActivity.mOpticalItems = data;
+                resultStr = ResultVo.CODE_SUCCESS;
+            } else if (ResultVo.CODE_FAILURE.equals(result.getCode())) {
+                resultStr = ResultVo.CODE_FAILURE;
+            }
+            return resultStr;
+        }
+    }
+
+    private class InspectOrderTask extends AsyncTask<Void, Void, String> {
+        WorkOrder item;
+        InspectResult result = null;
+        public InspectOrderTask(WorkOrder item) {
+            super();
+            this.item = item;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pd = new ProgressDialog(getActivity());
+            pd.setMessage(getString(R.string.loading));
+            pd.setCanceledOnTouchOutside(false);
+            pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialogInterface) {
+                    dismiss();
+                    RequestQueueSingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue().cancelAll(TAG_INSPECT_ORDER);
+                }
+            });
+            pd.show();
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            if (ResultVo.CODE_SUCCESS.equals(s)) {
+                Intent intent = new Intent(getActivity(), InspectOrderActivity.class);
+                intent.putExtra(TAG_ID, item.getWorkId());
+                intent.putExtra(TAG_ORDER_STATUS, orderStatus.get(item.getStatus()));
+                intent.putExtra(TAG_SITE, item.getSiteName());
+                startActivityForResult(intent, REQUEST_CODE_INSPECT_ORDER);
+            } else if(ResultVo.CODE_FAILURE.equals(s)) {
+                Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+            dismiss();
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            String resultStr = "";
+            String orderStr = mDetailDao.query(item.getWorkId());
+            Gson gson = new Gson();
+            try {
+                result = gson.fromJson(orderStr, new TypeToken<InspectResult>() {
+                }.getType());
+            } catch (Exception e) {
+                e.printStackTrace();
+                return resultStr;
+            }
+            if (result == null) {
+                return resultStr;
+            }
+
+            if (ResultVo.CODE_SUCCESS.equals(result.getCode())) {
+                InspectOrderActivity.workOrder = result.getWorkOrder();
+                if (InspectOrderActivity.workOrder != null) {
+                    resultStr = ResultVo.CODE_SUCCESS;
+                }
+            } else if(ResultVo.CODE_FAILURE.equals(result.getCode())) {
+                resultStr = ResultVo.CODE_FAILURE;
+            }
+            return resultStr;
+        }
+    }
+
+    private class ETagWriterTask extends AsyncTask<Void, Void, String> {
+
+        WorkOrder item;
+        InspectResult result = null;
+
+        public ETagWriterTask(WorkOrder item) {
+            super();
+            this.item = item;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pd = new ProgressDialog(getActivity());
+            pd.setMessage(getString(R.string.loading));
+            pd.setCanceledOnTouchOutside(false);
+            pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialogInterface) {
+                    dismiss();
+                    RequestQueueSingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue().cancelAll(TAG_ETAG_WRITE_ORDER);
+                }
+            });
+            pd.show();
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+
+            if (ResultVo.CODE_SUCCESS.equals(s)) {
+                Intent intent = new Intent(getActivity(), ElectronicWriterActivity.class);
+                intent.putExtra(TAG_ID, item.getWorkId());
+                intent.putExtra(TAG_ORDER_STATUS, orderStatus.get(item.getStatus()));
+                intent.putExtra(TAG_SITE, item.getSiteName());
+                startActivityForResult(intent, REQUEST_CODE_INSPECT_ORDER);
+            } else if(ResultVo.CODE_FAILURE.equals(s)) {
+                Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+            dismiss();
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            String resultStr = "";
+            String orderStr = mDetailDao.query(item.getWorkId());
+            Gson gson = new Gson();
+            try {
+                result = gson.fromJson(orderStr, new TypeToken<InspectResult>() {
+                }.getType());
+            } catch (Exception e) {
+                e.printStackTrace();
+                return resultStr;
+            }
+            if (result == null) {
+                return resultStr;
+            }
+
+            if (ResultVo.CODE_SUCCESS.equals(result.getCode())) {
+                ElectronicWriterActivity.workOrder = result.getWorkOrder();
+                if (ElectronicWriterActivity.workOrder != null) {
+                    resultStr = ResultVo.CODE_SUCCESS;
+                }
+            } else if(ResultVo.CODE_FAILURE.equals(result.getCode())) {
+                resultStr = ResultVo.CODE_FAILURE;
+            }
+            return resultStr;
+        }
+    }
+
+    private class ConfigurationOrderTask extends AsyncTask<Void, Void, String> {
+
+        WorkOrder item;
+        ConfigurationResult result = null;
+
+        public ConfigurationOrderTask(WorkOrder item) {
+            super();
+            this.item = item;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pd = new ProgressDialog(getActivity());
+            pd.setMessage(getString(R.string.loading));
+            pd.setCanceledOnTouchOutside(false);
+            pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialogInterface) {
+                    dismiss();
+                    RequestQueueSingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue().cancelAll(TAG_CONFIGURATION_ORDER);
+                }
+            });
+            pd.show();
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            if (ResultVo.CODE_SUCCESS.equals(s)) {
+                Intent intent = new Intent(getActivity(), ConfigurationActivity.class);
+                intent.putExtra(TAG_ID, item.getWorkId());
+                intent.putExtra(TAG_ORDER_STATUS, orderStatus.get(item.getStatus()));
+                intent.putExtra(TAG_SITE, item.getSiteName());
+                startActivityForResult(intent, REQUEST_CODE_INSPECT_ORDER);
+            } else if(ResultVo.CODE_FAILURE.equals(s)) {
+                Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+            dismiss();
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            String resultStr = "";
+            String orderStr = mDetailDao.query(item.getWorkId());
+            Gson gson = new Gson();
+            try {
+                result = gson.fromJson(orderStr, new TypeToken<ConfigurationResult>() {
+                }.getType());
+            } catch (Exception e) {
+                e.printStackTrace();
+                return resultStr;
+            }
+            if (result == null) {
+                return resultStr;
+            }
+
+            if (ResultVo.CODE_SUCCESS.equals(result.getCode())) {
+                ConfigurationActivity.configurationEntity = result.getAssignment();
+                if (ConfigurationActivity.configurationEntity != null) {
+                    resultStr = ResultVo.CODE_SUCCESS;
+                }
+            } else if(ResultVo.CODE_FAILURE.equals(result.getCode())) {
+                resultStr = ResultVo.CODE_FAILURE;
+            }
+            return resultStr;
+        }
+    }
+
+    private class CollectionOrderTask extends AsyncTask<Void, Void, String> {
+
+        WorkOrder item;
+        CollectionResult result;
+
+        public CollectionOrderTask(WorkOrder item) {
+            super();
+            this.item = item;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pd = new ProgressDialog(getActivity());
+            pd.setMessage(getString(R.string.loading));
+            pd.setCanceledOnTouchOutside(false);
+            pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialogInterface) {
+                    dismiss();
+                    RequestQueueSingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue().cancelAll(TAG_COLLECTION_ORDER);
+                }
+            });
+            pd.show();
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            if (ResultVo.CODE_SUCCESS.equals(s)) {
+                Intent intent = new Intent(getActivity(), CollectActivity.class);
+                intent.putExtra(TAG_ID, item.getWorkId());
+                intent.putExtra(TAG_ORDER_STATUS, orderStatus.get(item.getStatus()));
+                intent.putExtra(TAG_SITE, item.getSiteName());
+                startActivityForResult(intent, REQUEST_CODE_INSPECT_ORDER);
+            } else if(ResultVo.CODE_FAILURE.equals(s)) {
+                Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+            dismiss();
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            String resultStr = "";
+            String orderStr = mDetailDao.query(item.getWorkId());
+            Gson gson = new Gson();
+            try {
+                result = gson.fromJson(orderStr, new TypeToken<CollectionResult>() {
+                }.getType());
+            } catch (Exception e) {
+                e.printStackTrace();
+                return resultStr;
+            }
+            if (result == null) {
+                return resultStr;
+            }
+
+            if (ResultVo.CODE_SUCCESS.equals(result.getCode())) {
+                CollectActivity.entity = result.getOrder();
+                if (CollectActivity.entity != null) {
+                    resultStr = ResultVo.CODE_SUCCESS;
+                }
+            } else if(ResultVo.CODE_FAILURE.equals(result.getCode())) {
+                resultStr = ResultVo.CODE_FAILURE;
+            }
+            return resultStr;
+        }
+    }
+
 }

@@ -118,5 +118,6 @@
     <string name="already_inspected">已巡检</string>
     <string name="start_to_collect">开始采集</string>
     <string name="already_collected">已采集</string>
+    <string name="write_configuration">写入配置</string>
 
 </resources>

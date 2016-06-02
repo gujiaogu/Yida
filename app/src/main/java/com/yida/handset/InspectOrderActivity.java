@@ -31,12 +31,15 @@ import com.yida.handset.entity.InspectItem;
 import com.yida.handset.entity.InspectOrder;
 import com.yida.handset.entity.InspectResultEntity;
 import com.yida.handset.entity.InspectUploadEntity;
+import com.yida.handset.entity.ResourceData;
 import com.yida.handset.entity.ResourceVo;
 import com.yida.handset.entity.ResultVo;
 import com.yida.handset.entity.User;
 import com.yida.handset.sqlite.InspectDao;
 import com.yida.handset.sqlite.TableWorkOrder;
 import com.yida.handset.sqlite.WorkOrderDao;
+import com.yida.handset.util.Cmd;
+import com.yida.handset.util.UDPUtil;
 import com.yida.handset.workorder.WorkOrderFragment;
 
 import org.json.JSONException;
@@ -44,6 +47,7 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -98,6 +102,7 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
     private WorkOrderDao mWorkOrderDao;
     private InspectUploadEntity inspectResult;
     private InspectDao inspectDao;
+    private UDPUtil udpUtil = new UDPUtil();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,7 +165,7 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
                         mCompleteOrder.setVisibility(View.VISIBLE);
                         mRejectOrder.setVisibility(View.GONE);
                         mAcceptOrder.setVisibility(View.GONE);
-                        mInspectDevice.setVisibility(View.GONE);
+                        mInspectDevice.setVisibility(View.VISIBLE);
                         mAlreadyInspected.setVisibility(View.VISIBLE);
                     } else {
                         mCompleteOrder.setVisibility(View.GONE);
@@ -463,6 +468,7 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
                 public void onCancel(DialogInterface dialogInterface) {
                     dismiss();
                     cancel(true);
+                    udpUtil.close();
                 }
             });
             pd.show();
@@ -493,11 +499,30 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
             List<InspectItem> devices = new ArrayList<>();
             for (InspectItem item : workOrder.getDevices()) {
                 //在这里做巡检任务
-                //
-                //
-                //
-                //
-                devices.add(item);
+                try {
+                    byte[] resultNameLength = new byte[103];
+                    byte[] resultDeviceName = udpUtil.send(resultNameLength, Cmd.CMD1101);
+                    String efName = new String(Arrays.copyOfRange(resultDeviceName, 20, 100)).trim();
+                    item.setDeviceName(efName);
+                    resultNameLength = new byte[56];
+                    byte[] resultTypeId = udpUtil.send(resultNameLength, Cmd.CMD1102);
+                    String efOID = new String(Arrays.copyOfRange(resultTypeId, 20, 23)).trim();
+                    String efType = new String(Arrays.copyOfRange(resultTypeId, 23, 53)).trim();
+                    item.setDeviceId(Integer.parseInt(efOID));
+                    item.setDeviceType(efType);
+                    ResourceData portItem;
+                    for (ResourceData port : item.getResourceData()) {
+                        portItem = new ResourceData();
+                        byte[] cmd = constructCMD1105(port);
+                        byte[] result = udpUtil.send(new byte[53], cmd);
+                        if (result.length > 20 && result[19] == 0x00) {
+
+                        }
+                    }
+                    devices.add(item);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             inspectResult.setDevices(devices);
             inspectResult.setToken(user.getToken());
@@ -513,6 +538,32 @@ public class InspectOrderActivity extends AppCompatActivity implements View.OnCl
             inspectDao.insert(inspectResultEntity);
             return null;
         }
+    }
+
+    public byte[] constructCMD1105(ResourceData port) {
+        byte[] cmd1105 = new byte[36];
+        cmd1105[0] = 0x7e;
+        cmd1105[1] = 0x10;
+        cmd1105[2] = 0x00;
+        for (int i = 3; i < 17; i ++) {
+            cmd1105[i] = 0x00;
+        }
+        cmd1105[17] = 0x11;
+        cmd1105[18] = 0x05;
+        cmd1105[19] = (byte) 0xff;
+        try {
+            int frameNo = Integer.parseInt(port.getFrameNo());
+            cmd1105[20] = (byte) frameNo;
+            int boardNo = Integer.parseInt(port.getBoardNo());
+            cmd1105[21] = (byte) boardNo;
+            int portNo = Integer.parseInt(port.getPortNo());
+            cmd1105[22] = (byte) portNo;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        cmd1105[34] = 0x00;
+        cmd1105[35] = 0x7e;
+        return cmd1105;
     }
 
 }

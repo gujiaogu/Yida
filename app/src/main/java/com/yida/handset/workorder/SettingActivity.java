@@ -69,10 +69,10 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
     private void set() {
         String ip = mSettingIP.getText().toString().trim();
         String port = mSettingPort.getText().toString().trim();
-        if (ip.equals("") || port.equals("") || !isIpv4(ip)) {
-            Toast.makeText(this, R.string.setting_toast_text, Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (ip.equals("") || port.equals("") || !isIpv4(ip)) {
+//            Toast.makeText(this, R.string.setting_toast_text, Toast.LENGTH_SHORT).show();
+//            return;
+//        }
 
         SharedPreferences preferences = getSharedPreferences(LoginActivity.REFERENCE_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();

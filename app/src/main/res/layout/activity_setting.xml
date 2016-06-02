@@ -22,8 +22,7 @@
         android:layout_marginTop="@dimen/login_edit_text_margin_top"
         android:id="@+id/settingIP"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/toolbar"
-        android:maxLength="15"/>
+        android:layout_below="@id/toolbar" />
     <com.rengwuxian.materialedittext.MaterialEditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

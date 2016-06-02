@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.os.AsyncTaskCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -30,15 +31,23 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.yida.handset.entity.CollectionResult;
+import com.yida.handset.entity.ConfigurationResult;
+import com.yida.handset.entity.ConstructOrderResult;
+import com.yida.handset.entity.ConstructOrderRoute;
 import com.yida.handset.entity.ContainerVo;
 import com.yida.handset.entity.FiberboxVo;
 import com.yida.handset.entity.FrameVo;
+import com.yida.handset.entity.InspectResult;
 import com.yida.handset.entity.NetUnitVo;
+import com.yida.handset.entity.OpticalItem;
+import com.yida.handset.entity.OpticalRoute;
 import com.yida.handset.entity.PortVo;
 import com.yida.handset.entity.ResourceVo;
 import com.yida.handset.entity.ResultVo;
 import com.yida.handset.entity.User;
 import com.yida.handset.entity.WorkList;
+import com.yida.handset.entity.WorkOrder;
 import com.yida.handset.slide.ExitAction;
 import com.yida.handset.sqlite.LogDao;
 import com.yida.handset.sqlite.WorkOrderDao;
@@ -55,6 +64,7 @@ import com.yida.handset.sqlite.TableNetUnit;
 import com.yida.handset.sqlite.TablePort;
 import com.yida.handset.sqlite.TableWorkOrder;
 import com.yida.handset.sqlite.TaskManager;
+import com.yida.handset.sqlite.WorkOrderDetailDao;
 import com.yida.handset.workorder.WorkOrderFragment;
 
 import org.json.JSONException;
@@ -75,6 +85,12 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
         mSlideActions.add(new ActionWrapper(2, "关于", new AboutAction()));
         mSlideActions.add(new ActionWrapper(3, "退出登陆", new ExitAction()));
     }
+
+    private static final String TAG_CONSTRUCT_ORDER = "tag_construct_order";
+    private static final String TAG_INSPECT_ORDER = "tag_inspect_order";
+    private static final String TAG_ETAG_WRITE_ORDER = "tag_etag_write_order";
+    private static final String TAG_CONFIGURATION_ORDER = "tag_configuration_order";
+    private static final String TAG_COLLECTION_ORDER = "tag_collection_order";
 
     private static final String RESOURCE_TAG = "tag_resource";
     private static final String WORKORDER_TAG = "tag_workorder";
@@ -107,6 +123,7 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
     private DatabaseHelper helper;
     private TaskManager mTaskManager;
     private WorkOrderDao mWorkOrderDao;
+    private WorkOrderDetailDao mDetailDao;
 
     private ActionBarDrawerToggle mDrawerToggle;
     private User user;
@@ -201,6 +218,7 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
         }
         mTaskManager = TaskManager.getInstance(getApplicationContext());
         mWorkOrderDao = new WorkOrderDao(this);
+        mDetailDao = new WorkOrderDetailDao(this);
 
         new VersionTask(this, VersionTask.TAG_AUTO).execute();
     }
@@ -283,11 +301,7 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
                     return;
                 }
                 if(ResultVo.CODE_SUCCESS.equals(result.getCode())) {
-                    mWorkOrderDao.insert(result.getWorkList());
-                    WorkOrderFragment.orders = mWorkOrderDao.queryAll(TableWorkOrder.USERNAME + "=?", new String[]{HahaActivity.this.user.getUsername()}, null, null, null);
-                    dismiss();
-                    Intent intent = new Intent(HahaActivity.this, WorkOrderActivity.class);
-                    startActivity(intent);
+                    new WorkOrderDetailTask(result).execute();
                 } else if (ResultVo.CODE_FAILURE.equals(result.getCode())) {
                     Toast.makeText(HahaActivity.this, result.getMessage(), Toast.LENGTH_SHORT).show();
                     dismiss();
@@ -297,11 +311,68 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onErrorResponse(VolleyError error) {
                 error.printStackTrace();
+                WorkOrderFragment.orders = mWorkOrderDao.queryAll(TableWorkOrder.USERNAME + "=?", new String[]{HahaActivity.this.user.getUsername()}, null, null, null);
                 dismiss();
+                Intent intent = new Intent(HahaActivity.this, WorkOrderActivity.class);
+                startActivity(intent);
             }
         });
         request.setTag(WORKORDER_TAG);
         mRequestQueue.addToRequestQueue(request);
+    }
+
+    private class WorkOrderDetailTask extends AsyncTask{
+
+        WorkList data;
+
+        public WorkOrderDetailTask(WorkList data) {
+            super();
+            this.data = data;
+        }
+
+        @Override
+        protected Object doInBackground(Object[] objects) {
+            List<WorkOrder> workOrders = this.data.getWorkList();
+            mWorkOrderDao.insert(workOrders);
+            WorkOrderFragment.orders = mWorkOrderDao.queryAll(TableWorkOrder.USERNAME + "=?", new String[]{HahaActivity.this.user.getUsername()}, null, null, null);
+            for (WorkOrder item : workOrders) {
+                String orderType = item.getOrderType();
+                switch (orderType) {
+                    case "1": //施工工单
+                        getConstructOrder(item);
+                        break;
+                    case "2": //巡检工单
+                        getInspectOrder(item);
+                        break;
+                    case "3": //电子标签写入工单
+                        getEtagWriterOrder(item);
+                        break;
+                    case "4":
+                        getConfigurationOrder(item);
+                        break;
+                    case "5":
+                        getCollectionsOrder(item);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            super.onPostExecute(o);
+            dismiss();
+            Intent intent = new Intent(HahaActivity.this, WorkOrderActivity.class);
+            startActivity(intent);
+        }
     }
 
     private void startResource() {
@@ -585,5 +656,172 @@ public class HahaActivity extends AppCompatActivity implements View.OnClickListe
             LogActivity.data = dao.queryAll();
             return null;
         }
+    }
+
+    private void getConstructOrder(WorkOrder item) {
+        final WorkOrder order = item;
+        String params = "?workId=" + item.getWorkId();
+        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.GET_CONSTRUCT_ORDER + params;
+        StringRequest constrcutOrderRequest = new StringRequest(Request.Method.GET, mUrl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String s) {
+                LogWrapper.d(s);
+                try {
+                    JSONObject object = new JSONObject(s);
+                    if (ResultVo.CODE_SUCCESS.equals(object.getString("code"))) {
+                        mDetailDao.insert(order.getWorkId(), s);
+                    } else if (ResultVo.CODE_FAILURE.equals(object.getString("code"))) {
+                        Toast.makeText(HahaActivity.this, object.getString("message"), Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                volleyError.printStackTrace();
+            }
+        });
+        constrcutOrderRequest.setTag(TAG_CONSTRUCT_ORDER);
+
+        mRequestQueue.addToRequestQueue(constrcutOrderRequest);
+    }
+
+    private void getInspectOrder(WorkOrder item) {
+        final WorkOrder order = item;
+        String params = "?workId=" + item.getWorkId();
+        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.GET_INSPECT_ORDER + params;
+        LogWrapper.d(mUrl);
+        StringRequest inspectOrderRequest = new StringRequest(Request.Method.GET, mUrl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String s) {
+                LogWrapper.d(s);
+                try {
+                    JSONObject object = new JSONObject(s);
+                    if (ResultVo.CODE_SUCCESS.equals(object.getString("code"))) {
+                        mDetailDao.insert(order.getWorkId(), s);
+                    } else if (ResultVo.CODE_FAILURE.equals(object.getString("code"))) {
+                        Toast.makeText(HahaActivity.this, object.getString("message"), Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                volleyError.printStackTrace();
+            }
+        });
+        inspectOrderRequest.setTag(TAG_INSPECT_ORDER);
+
+        mRequestQueue.addToRequestQueue(inspectOrderRequest);
+    }
+
+    private void getEtagWriterOrder(WorkOrder item) {
+        final WorkOrder order = item;
+        String params = "?workId=" + item.getWorkId();
+        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.GET_ETAG_WRITE_ORDER + params;
+        LogWrapper.d(mUrl);
+        StringRequest etagWriteOrderRequest = new StringRequest(Request.Method.GET, mUrl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String s) {
+                LogWrapper.d(s);
+                try {
+                    JSONObject object = new JSONObject(s);
+                    if (ResultVo.CODE_SUCCESS.equals(object.getString("code"))) {
+                        mDetailDao.insert(order.getWorkId(), s);
+                    } else if (ResultVo.CODE_FAILURE.equals(object.getString("code"))) {
+                        Toast.makeText(HahaActivity.this, object.getString("message"), Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                volleyError.printStackTrace();
+            }
+        });
+        etagWriteOrderRequest.setTag(TAG_ETAG_WRITE_ORDER);
+
+        mRequestQueue.addToRequestQueue(etagWriteOrderRequest);
+    }
+
+    private void getConfigurationOrder(WorkOrder item) {
+
+        final WorkOrder order = item;
+        String params = "?token=" + user.getToken() + "&assignmentId=" + item.getWorkId();
+        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.GET_CONFIGURATION_ORDER + params;
+        LogWrapper.d(mUrl);
+        StringRequest configurationOrderRequest = new StringRequest(Request.Method.GET, mUrl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String s) {
+                LogWrapper.d(s);
+                try {
+                    JSONObject object = new JSONObject(s);
+                    if (ResultVo.CODE_SUCCESS.equals(object.getString("code"))) {
+                        mDetailDao.insert(order.getWorkId(), s);
+                    } else if (ResultVo.CODE_FAILURE.equals(object.getString("code"))) {
+                        Toast.makeText(HahaActivity.this, object.getString("message"), Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                volleyError.printStackTrace();
+            }
+        });
+        configurationOrderRequest.setTag(TAG_CONFIGURATION_ORDER);
+
+        mRequestQueue.addToRequestQueue(configurationOrderRequest);
+    }
+
+    private void getCollectionsOrder(WorkOrder item) {
+
+        final WorkOrder order = item;
+        String params = "?token=" + user.getToken() + "&assignmentId=" + item.getWorkId();
+        String mUrl = Constants.HTTP_HEAD + Constants.IP + ":" + Constants.PORT + Constants.SYSTEM_NAME + Constants.GET_COLLECT_ORDER + params;
+        LogWrapper.d(mUrl);
+        StringRequest collectionsOrderRequest = new StringRequest(Request.Method.GET, mUrl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String s) {
+                LogWrapper.d(s);
+                try {
+                    JSONObject object = new JSONObject(s);
+                    if (ResultVo.CODE_SUCCESS.equals(object.getString("code"))) {
+                        mDetailDao.insert(order.getWorkId(), s);
+                    } else if (ResultVo.CODE_FAILURE.equals(object.getString("code"))) {
+                        Toast.makeText(HahaActivity.this, object.getString("message"), Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                volleyError.printStackTrace();
+            }
+        });
+        collectionsOrderRequest.setTag(TAG_COLLECTION_ORDER);
+
+        mRequestQueue.addToRequestQueue(collectionsOrderRequest);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mRequestQueue.cancelRequest(TAG_COLLECTION_ORDER);
+        mRequestQueue.cancelRequest(TAG_CONFIGURATION_ORDER);
+        mRequestQueue.cancelRequest(TAG_ETAG_WRITE_ORDER);
+        mRequestQueue.cancelRequest(TAG_INSPECT_ORDER);
+        mRequestQueue.cancelRequest(TAG_CONSTRUCT_ORDER);
     }
 }
